@@ -1,5 +1,5 @@
 //global scene variables
-var renderer, camera, scene, flashlight, raycaster, mouseV;
+var renderer, camera, scene, flashlight;
 //declare an array-container for cubicle objects
 var cubicles = [];
 
@@ -48,11 +48,6 @@ function setupScene(){
 	//container.appendChild(renderer.domElement);
 	//setup the Cube
 	createCube();
-	//add a projector and a mousev for raypicking
-    raycaster = new THREE.Raycaster();
-    mouseV = new THREE.Vector2();
-	//add mosemove listener for rotating the cube sides (using raypicking)
-	renderer.domElement.addEventListener('mousemove', canvasMouseMove, false);
 	//add window resize listener to redraw everything in case of windaw size change
 	window.addEventListener('resize', onWindowResize, false);
 }
@@ -62,6 +57,28 @@ function createCube(){
     var cubiclePerSide = 3;
     //set cubicle size
 	var CUBICLE_SIZE = 200;
+	//add eventscontrols object for moving the cube's sides
+	eControls = new EventsControls(camera, renderer.domElement);
+	//define mouseover actions
+	eControls.attachEvent('mouseOver', function () {
+        //cahnge cursor to poiner when hovering over a cubicle
+		this.container.style.cursor = 'pointer';
+		//lighten the hovered cubicle
+		this.mouseOvered.currentHex=[];
+		for(var i in this.mouseOvered.material.materials){
+            this.mouseOvered.currentHex[i] = this.mouseOvered.material.materials[i].emissive.getHex();
+            this.mouseOvered.material.materials[i].emissive.setHex(0xff0000);
+		}
+	});
+    //define mouuse out actions
+	eControls.attachEvent( 'mouseOut', function () {
+        //cursor back to normal
+		this.container.style.cursor = 'auto';
+		//dim the object back to previous level
+		for(var i in this.mouseOvered.material.materials){
+            this.mouseOvered.material.materials[i].emissive.setHex(this.mouseOvered.currentHex[i]);
+		}
+	});
     //set colors
     var green = '#009E60';
     var red = "#C41E3A";
@@ -69,29 +86,25 @@ function createCube(){
     var yellow = '#FFD500';
     var white = '#FFFFFF';
     var orange = '#FF5800';
-    //create the cubecles' materials
-    materials = [];
-    materials.green = new THREE.MeshPhongMaterial({color: green, map: THREE.ImageUtils.loadTexture("images/cube_colors/green_center.png")});
-    materials.red = new THREE.MeshPhongMaterial({color: red, map: THREE.ImageUtils.loadTexture("images/cube_colors/red_center.png")});
-    materials.blue = new THREE.MeshPhongMaterial({color: blue, map: THREE.ImageUtils.loadTexture("images/cube_colors/blue_center.png")});
-    materials.yellow = new THREE.MeshPhongMaterial({color: yellow, map: THREE.ImageUtils.loadTexture("images/cube_colors/yellow_center.png")});
-    materials.white = new THREE.MeshPhongMaterial({color: white, map: THREE.ImageUtils.loadTexture("images/cube_colors/white_center.png")});
-    materials.orange = new THREE.MeshPhongMaterial({color: orange, map: THREE.ImageUtils.loadTexture("images/cube_colors/orange_center.png")});
-    materials.crate = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture("images/crate.gif")});
-    materials.experiment = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture("images/green_middle.png")});
-    materials.experiment_red = new THREE.MeshPhongMaterial({color: red, map: THREE.ImageUtils.loadTexture("images/cube_colors/red_center.png")});
-	//create the cubiles's geometry
+    //create the cubiles's geometry
 	var cubicleGeometry = new THREE.BoxGeometry(CUBICLE_SIZE, CUBICLE_SIZE, CUBICLE_SIZE );
 	//create the cube
 	for (var line = 0; line < cubiclePerSide; line++){
         for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
-            var mesh = new THREE.Mesh(cubicleGeometry, 
-                new THREE.MeshFaceMaterial([materials.white,    //right - white
-                                            materials.yellow,   //left - yellow
-                                            materials.red,      //top - red
-                                            materials.orange,   //bottom - orange
-                                            materials.blue,     //fromt - blue
-                                            materials.green])); //back - back
+            //skip the core cubes. this helps prevent unnecessary and burdensome rendering. Helps especially as the cube gets bigger.
+            if (!(line === 0 || line === (cubiclePerSide - 1))){	//if not the first or last line of the cube
+                if (!((Math.floor(cubicle/cubiclePerSide) == (cubiclePerSide - 1)) || (Math.floor(cubicle/cubiclePerSide) === 0))){	//if not the first or the last row
+                    if (!((cubicle % cubiclePerSide == (cubiclePerSide - 1)) || (cubicle % cubiclePerSide === 0))){  //if not first or the last cubicle of the current raw
+                        continue;	//skip and don't draw
+                    }}}
+            //end of the 'skipper'
+            var mesh = new THREE.Mesh(cubicleGeometry,//new THREE.MeshPhongMaterial({transparent: true, opacity: 0.3, color: red}));
+                new THREE.MeshFaceMaterial([new THREE.MeshPhongMaterial({color: white, map: THREE.ImageUtils.loadTexture("images/cube_colors/white_center.png")}),    //right - white
+                                            new THREE.MeshPhongMaterial({color: yellow, map: THREE.ImageUtils.loadTexture("images/cube_colors/yellow_center.png")}),   //left - yellow
+                                            new THREE.MeshPhongMaterial({color: red, map: THREE.ImageUtils.loadTexture("images/cube_colors/red_center.png")}),      //top - red
+                                            new THREE.MeshPhongMaterial({color: orange, map: THREE.ImageUtils.loadTexture("images/cube_colors/orange_center.png")}),   //bottom - orange
+                                            new THREE.MeshPhongMaterial({color: blue, map: THREE.ImageUtils.loadTexture("images/cube_colors/blue_center.png")}),     //fromt - blue
+                                            new THREE.MeshPhongMaterial({color: green, map: THREE.ImageUtils.loadTexture("images/cube_colors/green_center.png")})])); //back - green 
             //set coordinates correction value calculated so that the cube overall fall in the center of the scene
             coordCorrection = -((cubiclePerSide-1) * CUBICLE_SIZE)/2;
             //give the coordinates of the cube
@@ -102,7 +115,10 @@ function createCube(){
             //edges = new THREE.EdgesHelper(mesh, 0x00ff00);
             //scene.add(edges);
             scene.add(mesh);
+            //push the object to cubicles objects array for later actions.
             cubicles.push(mesh);
+            //make sure eventcontrol knows about the all the cubicles (eventcontrol is used for manipulating teh cube)
+            eControls.attach(mesh);
         }
 	}
 }
@@ -112,30 +128,13 @@ function draw(){
     requestAnimationFrame(draw);
     //used by OrbitControls or TrackballControls for camera movement.
     controls.update();
+    //used by EventsControls to update/redraw changes to scene made by ser events
+    eControls.update();
     //render the scene with the camera
     renderer.render(scene, camera);
 }
 
-//helps user move the cube sides
-function canvasMouseMove(e){
-    //mouseV.x = 2 * (e.clientX / window.innerWidth) - 1;
-    //mouseV.y = 1 - 2 * ( e.clientY / window.innerWidth );
-    mouseV.x = 2 * (e.clientX / window.innerWidth) - 1;
-    mouseV.y = 1 - 2 * (e.clientY / window.innerHeight);
-    //console.log(mouseV);
-    //update raycaser	
-	raycaster.setFromCamera(mouseV, camera);
-	//find objects intersecting with the ray
-	var insects = raycaster.intersectObjects(scene.children);
-	for (var i = 0; i < insects.length; i++) {
-		//insects[i].object.material.materials[0].color.setRGB( 1.0 - i / insects.length, 0, 0 );
-		insects[i].object.rotation.z += 0.01;
-		//insects[i].object.visible = ! insects[i].object.visible;
-		//console.log(insects[i].object.material);
-		//insects[i].object.material.transparent = true;
-		//insects[i].object.material.opacity = 1;
-	}
-}
+
 
 //redraw everything in case of window size change
 function onWindowResize(e) {
@@ -152,11 +151,25 @@ setup();
 
 
 
+/* some incomplete logic for selectively aplying the texture only to the outward faces of the cubicles
+
+if line === 0{	//first line
+	top : red
+}
+if line == cubiclePerSide - 1{	//last line
+	bottom : orange
+}
+if (Math.floor(cubicle/cubiclePerSide) == 0){	//if the first raw of each line
+	back : green
+
+}
+if (Math.floor(cubicle/cubiclePerSide) == (cubiclePerSide - 1)){	//if the last raw of each line
+    fromnt: blue
+}
 
 
 
-
-
+*/
 
 
 
