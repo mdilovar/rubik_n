@@ -1,0 +1,24 @@
+Before Monday do:
+-finish up the cube 
+-add game ui elements (Hi Sc, time, etc) and add server side score-keeping
+-create a prototype for detecting colors on one side of a cube from an image.
+-if time, adding facebook api
+
+Next up:
+- if image prototype works, implement video feed cube scanner
+- and/or alternative manual cube status selection with center color picker
+- automatic solution
+- user friendly step-by step guide for solution
+ 
+
+optional: 
+- Make mobile friendly?
+- Continue Python develop the cube,  maybe start switching to JS  already  - (quick test the evo algorithm)
+
+
+three d course 
+https://www.udacity.com/course/viewer#!/c-cs291/l-68866048/m-106573033
+
+
+this dude is rotating subgroup!!:
+https://dl.dropboxusercontent.com/u/13195512/rubik/rubikscube.html

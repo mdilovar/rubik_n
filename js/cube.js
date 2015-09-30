@@ -2,6 +2,10 @@
 var renderer, camera, scene, flashlight;
 //declare an array-container for cubicle objects
 var cubicles = [];
+//...cubicles and cube config vars
+var cubiclePerSide, CUBICLE_SIZE;
+//..and the Cube object
+var theCube;
 
 function setup(){
     //setup all the scene objects
@@ -54,9 +58,9 @@ function setupScene(){
 
 function createCube(){
     //number of cubicles per side. the N in NxNxN
-    var cubiclePerSide = 3;
+    cubiclePerSide = 3;
     //set cubicle size
-	var CUBICLE_SIZE = 200;
+	CUBICLE_SIZE = 200;
 	//add eventscontrols object for moving the cube's sides
 	eControls = new EventsControls(camera, renderer.domElement);
 	//define mouseover actions
@@ -68,6 +72,9 @@ function createCube(){
 		for(var i in this.mouseOvered.material.materials){
             this.mouseOvered.currentHex[i] = this.mouseOvered.material.materials[i].emissive.getHex();
             this.mouseOvered.material.materials[i].emissive.setHex(0xff0000);
+            //this.mouseOvered.rotation.y = Math.PI/2;
+            //this.mouseOvered.rotateOnAxis(new THREE.Vector3(1,1,1),Math.PI/2);
+            //theCube.getTop();
 		}
 	});
     //define mouuse out actions
@@ -99,12 +106,12 @@ function createCube(){
                     }}}
             //end of the 'skipper'
             var mesh = new THREE.Mesh(cubicleGeometry,//new THREE.MeshPhongMaterial({transparent: true, opacity: 0.3, color: red}));
-                new THREE.MeshFaceMaterial([new THREE.MeshPhongMaterial({color: white, map: THREE.ImageUtils.loadTexture("images/cube_colors/white_center.png")}),    //right - white
-                                            new THREE.MeshPhongMaterial({color: yellow, map: THREE.ImageUtils.loadTexture("images/cube_colors/yellow_center.png")}),   //left - yellow
-                                            new THREE.MeshPhongMaterial({color: red, map: THREE.ImageUtils.loadTexture("images/cube_colors/red_center.png")}),      //top - red
-                                            new THREE.MeshPhongMaterial({color: orange, map: THREE.ImageUtils.loadTexture("images/cube_colors/orange_center.png")}),   //bottom - orange
-                                            new THREE.MeshPhongMaterial({color: blue, map: THREE.ImageUtils.loadTexture("images/cube_colors/blue_center.png")}),     //fromt - blue
-                                            new THREE.MeshPhongMaterial({color: green, map: THREE.ImageUtils.loadTexture("images/cube_colors/green_center.png")})])); //back - green 
+                new THREE.MeshFaceMaterial([new THREE.MeshPhongMaterial({color: white, map: THREE.ImageUtils.loadTexture("images/colors_512/white.png")}),    //right - white
+                                            new THREE.MeshPhongMaterial({color: yellow, map: THREE.ImageUtils.loadTexture("images/colors_512/yellow.png")}),   //left - yellow
+                                            new THREE.MeshPhongMaterial({color: red, map: THREE.ImageUtils.loadTexture("images/colors_512/red.png")}),      //top - red
+                                            new THREE.MeshPhongMaterial({color: orange, map: THREE.ImageUtils.loadTexture("images/colors_512/orange.png")}),   //bottom - orange
+                                            new THREE.MeshPhongMaterial({color: blue, map: THREE.ImageUtils.loadTexture("images/colors_512/blue.png")}),     //fromt - blue
+                                            new THREE.MeshPhongMaterial({color: green, map: THREE.ImageUtils.loadTexture("images/colors_512/green.png")})])); //back - green 
             //set coordinates correction value calculated so that the cube overall fall in the center of the scene
             coordCorrection = -((cubiclePerSide-1) * CUBICLE_SIZE)/2;
             //give the coordinates of the cube
@@ -121,6 +128,8 @@ function createCube(){
             eControls.attach(mesh);
         }
 	}
+	//create a Cube object witht the cubicles array. This object will get updates when the cube state is changed.
+	theCube = new Cube(cubicles);
 }
 
 function draw(){
@@ -146,7 +155,85 @@ function onWindowResize(e) {
 setup();
 
 
-
+function Cube (cubicles) {
+    this.cubicles = cubicles;
+    this.cubiclesPerPlane = Math.pow(cubiclePerSide,2);
+    this.getInfo = function getInfo() {
+        //just returns the cubicles array
+        return this.cubicles;
+    };
+    this.getTop = function getTop(){
+        //returns a Object3D group with the cubicles currently at the top of the Cube
+        group = new THREE.Object3D(); // create an empty group
+        for (var c in  this.cubicles.slice(0, this.cubiclesPerPlane)){
+            group.add(this.cubicles[c]);
+        }
+        return group;
+    };
+    this.getBottom = function getBottom(){
+        //returns a Object3D group with the cubicles currently at the top of the Cube
+        group = new THREE.Object3D(); // create an empty group
+        group.add(this.cubicles.slice(this.cubicles.length - this.cubiclesPerPlane, this.cubicles.length));
+        return group;
+    };
+    this.getBack = function getBack(){
+        //returns a Object3D group with the cubicles currently at the back of the Cube
+        group = new THREE.Object3D(); // create an empty group
+        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
+            group.add(this.cubicles[cubicle]);
+        }
+        return group;
+    };
+    this.getFront = function getBack(){
+        //returns a Object3D group with the cubicles currently at the front of the Cube
+        group = new THREE.Object3D(); // create an empty group
+        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
+            group.add(this.cubicles[cubicle]);
+        }
+        return group;
+    };
+    this.getLeft = function getLeft(){
+        //returns a Object3D group with the cubicles currently at the left of the Cube
+        group = new THREE.Object3D(); // create an empty group
+        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
+            group.add(this.cubicles[cubicle]);
+        }
+        return group;
+    };
+    this.getRight = function getRight(){
+        //returns a Object3D group with the cubicles currently at the right of the Cube
+        group = new THREE.Object3D(); // create an empty group
+        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
+            group.add(this.cubicles[cubicle]);
+        }
+        return group;
+    };
+    this.getMiddleX = function getMiddleX(middleSliceNumber){
+        //returns a Object3D group with the cubicles currently at the middle layer parallel to x axis of the Cube
+        group = new THREE.Object3D(); // create an empty group
+        middleSliceNumber = middleSliceNumber || 0;// for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
+        var from = 1 + this.cubiclesPerPlane * (middleSliceNumber + 1);
+        var thru = from + this.cubiclesPerPlane;
+        group.add(this.cubicles.slice(from, thru));
+        return group;
+    };
+    this.getMiddleY = function getMiddleY(){
+        //returns a Object3D group with the cubicles currently at the middle layer parallel to y axis of the Cube
+        group = new THREE.Object3D(); // create an empty group
+        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
+            group.add(this.cubicles[cubicle]);
+        }
+        return group;
+    };
+    this.getMiddleZ = function getMiddleZ(){
+        //returns a Object3D group with the cubicles currently at the middle layer parallel to Z axis of the Cube
+        group = new THREE.Object3D(); // create an empty group
+        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
+            group.add(this.cubicles[cubicle]);
+        }
+        return group;
+    };
+}
 
 
 
