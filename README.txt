@@ -2,6 +2,6 @@ Senior Project NxNxN Rubick's Cube implemented with Three.js and HTML5.
 
 Features:
 back-end score keeping, user ranking + facebook API
-front-end cube scanning with web-cam and solving guide.
+front-end cube scanning with webcam and solving guide.
 
 -------------------------------
