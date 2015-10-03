@@ -1,3 +1,8 @@
+current task:
+use T key to rotate the cube's top. when t is pressed the cube object returns a group of the cubicles to the eventhandler which then rotates it.
+
+then move this to a public rotate function of the cube that is called from the event handler with the key pressed.
+
 Before Monday do:
 -finish up the cube 
 -add game ui elements (Hi Sc, time, etc) and add server side score-keeping

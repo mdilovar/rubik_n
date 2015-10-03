@@ -69,12 +69,13 @@ function createCube(){
 		this.container.style.cursor = 'pointer';
 		//lighten the hovered cubicle
 		this.mouseOvered.currentHex=[];
+		//theCube.getTop();
+        //this.mouseOvered.rotation.y = Math.PI/2;
+        //this.mouseOvered.rotateOnAxis(new THREE.Vector3(1,1,1),Math.PI/2);
+        //theCube.getMiddleX();
 		for(var i in this.mouseOvered.material.materials){
             this.mouseOvered.currentHex[i] = this.mouseOvered.material.materials[i].emissive.getHex();
             this.mouseOvered.material.materials[i].emissive.setHex(0xff0000);
-            //this.mouseOvered.rotation.y = Math.PI/2;
-            //this.mouseOvered.rotateOnAxis(new THREE.Vector3(1,1,1),Math.PI/2);
-            //theCube.getTop();
 		}
 	});
     //define mouuse out actions
@@ -86,6 +87,8 @@ function createCube(){
             this.mouseOvered.material.materials[i].emissive.setHex(this.mouseOvered.currentHex[i]);
 		}
 	});
+	//just key controlled for now
+	document.addEventListener("keydown", moveWithKey);
     //set colors
     var green = '#009E60';
     var red = "#C41E3A";
@@ -154,6 +157,13 @@ function onWindowResize(e) {
 
 setup();
 
+function moveWithKey(e){
+    console.log(e.keyCode);
+    if (e.keyCode == 84){
+        theCube.rotateTopFace();
+    }
+    
+}
 
 function Cube (cubicles) {
     this.cubicles = cubicles;
@@ -162,13 +172,38 @@ function Cube (cubicles) {
         //just returns the cubicles array
         return this.cubicles;
     };
+    this.rotateTopFace = function rotateTopFace(){
+        //rotates the top face of the cube
+        topLayer=this.getTop(); // get the top layer first
+        topLayer.rotation.z += Math.PI/2; // rotate it 90 degrees
+        var copyOfCubicles = this.cubicles.slice(); //slice helps copy just by value. a temporary sorting array, the result is aasigned back to cubicles.
+        for (var i=0; i < this.cubiclesPerPlane; i++){
+            var x = i % cubiclePerSide;
+            var y = Math.floor(i/cubiclePerSide);
+            var newX = cubiclePerSide - y - 1;
+            var newY = x;    
+            var newPosition = newY * cubiclePerSide + newX;
+            //console.log(newPosition)
+            copyOfCubicles[newPosition] = this.cubicles[i];
+        }
+        //console.log(this.cubicles.slice(0,10));
+        //console.log(topLayer);
+        this.cubicles = copyOfCubicles;
+        //console.log(this.cubicles.slice(0,10));
+        //console.log(topLayer);
+    };
     this.getTop = function getTop(){
         //returns a Object3D group with the cubicles currently at the top of the Cube
-        group = new THREE.Object3D(); // create an empty group
+        var lGroup = new THREE.Object3D(); // create an empty group
+        console.log("from thru".concat(0).concat(this.cubiclesPerPlane));
         for (var c in  this.cubicles.slice(0, this.cubiclesPerPlane)){
-            group.add(this.cubicles[c]);
+            console.log('about to add element # '+c+' containing object # '+ this.cubicles[c].id +' to the group');
+            console.log(this.cubicles[c]);
+            lGroup.add(this.cubicles[c]);
+            console.log(lGroup);
         }
-        return group;
+        scene.add(lGroup);
+        return lGroup;
     };
     this.getBottom = function getBottom(){
         //returns a Object3D group with the cubicles currently at the top of the Cube
@@ -214,7 +249,10 @@ function Cube (cubicles) {
         middleSliceNumber = middleSliceNumber || 0;// for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
         var from = 1 + this.cubiclesPerPlane * (middleSliceNumber + 1);
         var thru = from + this.cubiclesPerPlane;
-        group.add(this.cubicles.slice(from, thru));
+        console.log("from thru".concat(from).concat(thru));
+        for (var c in  this.cubicles.slice(from, thru)){
+            group.add(this.cubicles[c]);
+        }
         return group;
     };
     this.getMiddleY = function getMiddleY(){
