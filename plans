@@ -1,7 +1,5 @@
 current task:
-use T key to rotate the cube's top. when t is pressed the cube object returns a group of the cubicles to the eventhandler which then rotates it.
-
-then move this to a public rotate function of the cube that is called from the event handler with the key pressed.
+use T key to rotate the cube's top. when t is pressed the cube object returns a group of the cubicles to the eventhandler which then rotates it.then move this to a public rotate function of the cube that is called from the event handler with the key pressed.
 
 Before Monday do:
 -finish up the cube 
@@ -27,3 +25,6 @@ https://www.udacity.com/course/viewer#!/c-cs291/l-68866048/m-106573033
 
 this dude is rotating subgroup!!:
 https://dl.dropboxusercontent.com/u/13195512/rubik/rubikscube.html
+
+
+someone else's cube ! - http://codepen.io/theonepa1/pen/fzAli

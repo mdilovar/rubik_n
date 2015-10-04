@@ -91,16 +91,16 @@ function createCube(){
 	document.addEventListener("keydown", moveWithKey);
     //set colors
     var green = '#009E60';
-    var red = "#C41E3A";
+    var red = '#8A0413';//"#C41E3A";
     var blue = '#0051BA';
     var yellow = '#FFD500';
     var white = '#FFFFFF';
-    var orange = '#FF5800';
+    var orange = '#F84704'; //'#FF5800';
     //create the cubiles's geometry
 	var cubicleGeometry = new THREE.BoxGeometry(CUBICLE_SIZE, CUBICLE_SIZE, CUBICLE_SIZE );
 	//create the cube
 	for (var line = 0; line < cubiclePerSide; line++){
-        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
+        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){/*
             //skip the core cubes. this helps prevent unnecessary and burdensome rendering. Helps especially as the cube gets bigger.
             if (!(line === 0 || line === (cubiclePerSide - 1))){	//if not the first or last line of the cube
                 if (!((Math.floor(cubicle/cubiclePerSide) == (cubiclePerSide - 1)) || (Math.floor(cubicle/cubiclePerSide) === 0))){	//if not the first or the last row
@@ -108,6 +108,7 @@ function createCube(){
                         continue;	//skip and don't draw
                     }}}
             //end of the 'skipper'
+            */
             var mesh = new THREE.Mesh(cubicleGeometry,//new THREE.MeshPhongMaterial({transparent: true, opacity: 0.3, color: red}));
                 new THREE.MeshFaceMaterial([new THREE.MeshPhongMaterial({color: white, map: THREE.ImageUtils.loadTexture("images/colors_512/white.png")}),    //right - white
                                             new THREE.MeshPhongMaterial({color: yellow, map: THREE.ImageUtils.loadTexture("images/colors_512/yellow.png")}),   //left - yellow
@@ -161,87 +162,140 @@ function moveWithKey(e){
     console.log(e.keyCode);
     if (e.keyCode == 84){
         theCube.rotateTopFace();
+    }else if(e.keyCode == 66){
+        theCube.rotateBottomFace();
+    }else if(e.keyCode == 76){
+        theCube.rotateLeftFace();
+    }else if(e.keyCode == 82){
+        theCube.rotateRightFace();
     }
-    
 }
 
 function Cube (cubicles) {
     this.cubicles = cubicles;
     this.cubiclesPerPlane = Math.pow(cubiclePerSide,2);
-    this.getInfo = function getInfo() {
-        //just returns the cubicles array
-        return this.cubicles;
+    this.tempArr=[];
+    this.updateCubiclesOrder = function updateCubiclesOrder(memArr,faceArr){
+        //update the this.cubicles "matrix" so that it matches the new "physical" locations of the cubicles.
+        //memArr - is the reference array that matches the position id to the physical cubicle id occupying it
+        //faceArr is the array that holds current face cubicles
+        for (var k=0; k < this.cubiclesPerPlane; k++){
+            var x = k % cubiclePerSide;
+            var y = Math.floor(k/cubiclePerSide);
+            var newX = cubiclePerSide - y - 1;
+            var newY = x;
+            var newPos = newY * cubiclePerSide + newX;
+            this.cubicles[memArr[newPos]] = faceArr[k];  
+        }
+    };
+    this.rotateFace = function rotateFace(face,axis){
+        //remove the group from the scene, add it to the pivot group, rotate and then put it back on the scene
+        var pivot = new THREE.Object3D();//create a rotation pivot for the group
+        pivot.rotation.set(0, 0, 0);
+        pivot.updateMatrixWorld();
+        for (var i in face) {
+            var matrixWorldInverse = new THREE.Matrix4();
+            matrixWorldInverse.getInverse(pivot.matrixWorld);
+            face[i].applyMatrix(matrixWorldInverse);
+            scene.remove(face[i]);
+            pivot.add(face[i]);
+        }
+        switch(axis) {
+            case 'x':
+                 pivot.rotation.x = 90 * (Math.PI/180); // rotate it 90 degrees
+                break;
+            case 'y':
+                 pivot.rotation.y = 90 * (Math.PI/180);
+                break;
+            case 'z':
+                 pivot.rotation.z = 90 * (Math.PI/180);
+                break;
+            default:
+                 pivot.rotation.z = 90 * (Math.PI/180);
+        }
+        pivot.updateMatrixWorld();
+        for (var j in face) {
+            //face[j].updateMatrixWorld(); // if not done by the renderer
+            face[j].applyMatrix( pivot.matrixWorld );
+            pivot.remove(face[j]);
+            scene.add(face[j]);
+        }
+        /* #TODO: some movement history recording should also be done*/
     };
     this.rotateTopFace = function rotateTopFace(){
-        //rotates the top face of the cube
-        topLayer=this.getTop(); // get the top layer first
-        topLayer.rotation.z += Math.PI/2; // rotate it 90 degrees
-        var copyOfCubicles = this.cubicles.slice(); //slice helps copy just by value. a temporary sorting array, the result is aasigned back to cubicles.
-        for (var i=0; i < this.cubiclesPerPlane; i++){
-            var x = i % cubiclePerSide;
-            var y = Math.floor(i/cubiclePerSide);
-            var newX = cubiclePerSide - y - 1;
-            var newY = x;    
-            var newPosition = newY * cubiclePerSide + newX;
-            //console.log(newPosition)
-            copyOfCubicles[newPosition] = this.cubicles[i];
+        var myFace = [];
+        var memArr = [];
+        var from = 0;
+        var thru = this.cubiclesPerPlane;
+        for (var c in this.cubicles){
+            if (c >= from && c < thru) {
+                myFace.push(this.cubicles[c]);
+                memArr.push(c);
+            }
         }
-        //console.log(this.cubicles.slice(0,10));
-        //console.log(topLayer);
-        this.cubicles = copyOfCubicles;
-        //console.log(this.cubicles.slice(0,10));
-        //console.log(topLayer);
+        this.rotateFace(myFace,'z');
+        //update this.cubicles after movement
+        this.updateCubiclesOrder(memArr,myFace);
+    };
+    this.rotateBottomFace = function rotateBottomFace(){
+        var myFace = [];
+        var memArr = [];
+        var from = this.cubicles.length - this.cubiclesPerPlane;
+        var thru = this.cubicles.length;
+        for (var c in this.cubicles){
+            if (c >= from && c < thru) {
+                myFace.push(this.cubicles[c]);
+                memArr.push(c);
+            }
+        }
+        this.rotateFace(myFace,'z');
+        //update this.cubicles after movement
+        this.updateCubiclesOrder(memArr,myFace);
+    };
+    this.rotateLeftFace = function rotateLeftFace(){
+        var myFace = [];
+        var memArr = [];
+        for (var c in this.cubicles){
+            if ((c % cubiclePerSide) === 0) { // if the leftmost cubicle
+                myFace.push(this.cubicles[c]);
+                memArr.push(c);
+            }
+        }
+        this.rotateFace(myFace,'x');
+        //update this.cubicles after movement
+        this.updateCubiclesOrder(memArr,myFace);
+    };
+    this.rotateRightFace = function rotateRightFace(){
+        var myFace = [];
+        var memArr = [];
+        for (var c in this.cubicles){
+            if ((c % cubiclePerSide) == (cubiclePerSide-1)){ // if the rightmost cubicle
+                myFace.push(this.cubicles[c]);
+                memArr.push(c);
+            }
+        }
+        this.rotateFace(myFace,'x');
+        //update this.cubicles after movement
+        this.updateCubiclesOrder(memArr,myFace);
     };
     this.getTop = function getTop(){
         //returns a Object3D group with the cubicles currently at the top of the Cube
-        var lGroup = new THREE.Object3D(); // create an empty group
-        console.log("from thru".concat(0).concat(this.cubiclesPerPlane));
-        for (var c in  this.cubicles.slice(0, this.cubiclesPerPlane)){
-            console.log('about to add element # '+c+' containing object # '+ this.cubicles[c].id +' to the group');
-            console.log(this.cubicles[c]);
-            lGroup.add(this.cubicles[c]);
-            console.log(lGroup);
-        }
-        scene.add(lGroup);
-        return lGroup;
+
     };
     this.getBottom = function getBottom(){
         //returns a Object3D group with the cubicles currently at the top of the Cube
-        group = new THREE.Object3D(); // create an empty group
-        group.add(this.cubicles.slice(this.cubicles.length - this.cubiclesPerPlane, this.cubicles.length));
-        return group;
     };
     this.getBack = function getBack(){
         //returns a Object3D group with the cubicles currently at the back of the Cube
-        group = new THREE.Object3D(); // create an empty group
-        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
-            group.add(this.cubicles[cubicle]);
-        }
-        return group;
     };
     this.getFront = function getBack(){
         //returns a Object3D group with the cubicles currently at the front of the Cube
-        group = new THREE.Object3D(); // create an empty group
-        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
-            group.add(this.cubicles[cubicle]);
-        }
-        return group;
     };
     this.getLeft = function getLeft(){
-        //returns a Object3D group with the cubicles currently at the left of the Cube
-        group = new THREE.Object3D(); // create an empty group
-        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
-            group.add(this.cubicles[cubicle]);
-        }
-        return group;
+        //returns a Object3D group with the cubicles currently at the left of the Cub
     };
     this.getRight = function getRight(){
         //returns a Object3D group with the cubicles currently at the right of the Cube
-        group = new THREE.Object3D(); // create an empty group
-        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
-            group.add(this.cubicles[cubicle]);
-        }
-        return group;
     };
     this.getMiddleX = function getMiddleX(middleSliceNumber){
         //returns a Object3D group with the cubicles currently at the middle layer parallel to x axis of the Cube
@@ -257,19 +311,9 @@ function Cube (cubicles) {
     };
     this.getMiddleY = function getMiddleY(){
         //returns a Object3D group with the cubicles currently at the middle layer parallel to y axis of the Cube
-        group = new THREE.Object3D(); // create an empty group
-        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
-            group.add(this.cubicles[cubicle]);
-        }
-        return group;
     };
     this.getMiddleZ = function getMiddleZ(){
         //returns a Object3D group with the cubicles currently at the middle layer parallel to Z axis of the Cube
-        group = new THREE.Object3D(); // create an empty group
-        for (var cubicle = 0; cubicle < Math.pow(cubiclePerSide,2); cubicle++){
-            group.add(this.cubicles[cubicle]);
-        }
-        return group;
     };
 }
 
