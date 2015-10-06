@@ -58,7 +58,7 @@ function setupScene(){
 
 function createCube(){
     //number of cubicles per side. the N in NxNxN
-    cubiclePerSide = 3;
+    cubiclePerSide = 4;
     //set cubicle size
 	CUBICLE_SIZE = 200;
 	//add eventscontrols object for moving the cube's sides
@@ -145,6 +145,8 @@ function draw(){
     eControls.update();
     //render the scene with the camera
     renderer.render(scene, camera);
+    //
+    theCube.update();
 }
 
 
@@ -160,14 +162,21 @@ setup();
 
 function moveWithKey(e){
     console.log(e.keyCode);
-    if (e.keyCode == 84){
-        theCube.rotateTopFace();
-    }else if(e.keyCode == 66){
-        theCube.rotateBottomFace();
-    }else if(e.keyCode == 76){
-        theCube.rotateLeftFace();
-    }else if(e.keyCode == 82){
-        theCube.rotateRightFace();
+    if (!theCube.busy){
+        theCube.busy = true;
+        if (e.keyCode == 84){ //t
+            theCube.rotateTopFace();
+        }else if(e.keyCode == 66){ //b
+            theCube.rotateBottomFace();
+        }else if(e.keyCode == 76){ //l
+            theCube.rotateLeftFace();
+        }else if(e.keyCode == 82){ //r
+            theCube.rotateRightFace();
+        }else if(e.keyCode == 70){ //f
+            theCube.rotateFrontFace();
+        }else if(e.keyCode == 80){ //p
+            theCube.rotateBackFace();
+        }
     }
 }
 
@@ -175,6 +184,11 @@ function Cube (cubicles) {
     this.cubicles = cubicles;
     this.cubiclesPerPlane = Math.pow(cubiclePerSide,2);
     this.tempArr=[];
+    this.pivot = new THREE.Object3D(); //create a rotation pivot for the group
+    this.axis = 'x'; //axis of rotation
+    this.face =[];
+    this.memArr =[];
+    this.busy = false;
     this.updateCubiclesOrder = function updateCubiclesOrder(memArr,faceArr){
         //update the this.cubicles "matrix" so that it matches the new "physical" locations of the cubicles.
         //memArr - is the reference array that matches the position id to the physical cubicle id occupying it
@@ -188,38 +202,102 @@ function Cube (cubicles) {
             this.cubicles[memArr[newPos]] = faceArr[k];  
         }
     };
-    this.rotateFace = function rotateFace(face,axis){
+    this.update = function update (){
+        if((this.pivot instanceof THREE.Object3D)) {
+            switch(this.axis) {
+                case 'x':
+                    if (this.pivot.rotation.x < Math.PI/2){
+                        this.pivot.rotation.x += 0.1;
+                        this.pivot.updateMatrixWorld();
+                    }else if (this.pivot.rotation.x > Math.PI/2){
+                        this.pivot.rotation.x = Math.PI/2;
+                        this.pivot.updateMatrixWorld();
+                        for (var j in this.face) {
+                            //this.face[j].updateMatrixWorld(); // if not done by the renderer
+                            this.face[j].applyMatrix(this.pivot.matrixWorld);
+                            scene.remove(this.pivot);
+                            this.pivot.remove(this.face[j]);
+                            scene.add(this.face[j]);
+                            //update this.cubicles after movement
+                            this.updateCubiclesOrder(this.memArr,this.face);
+                            theCube.busy = false;
+                        }
+                    }
+                    break;
+                case 'y':
+                    if (this.pivot.rotation.y < Math.PI/2){
+                        this.pivot.rotation.y += 0.1;
+                        this.pivot.updateMatrixWorld();
+                    }else if (this.pivot.rotation.y > Math.PI/2){
+                        this.pivot.rotation.y = Math.PI/2;
+                        this.pivot.updateMatrixWorld();
+                        for (var k in this.face) {
+                            //this.face[j].updateMatrixWorld(); // if not done by the renderer
+                            this.face[k].applyMatrix(this.pivot.matrixWorld);
+                            scene.remove(this.pivot);
+                            this.pivot.remove(this.face[k]);
+                            scene.add(this.face[k]);
+                            //update this.cubicles after movement
+                            this.updateCubiclesOrder(this.memArr,this.face);
+                            theCube.busy = false;
+                        }
+                    }
+                    break;
+                case 'z':
+                    if (this.pivot.rotation.z < Math.PI/2){
+                        this.pivot.rotation.z += 0.1;
+                        this.pivot.updateMatrixWorld();
+                    }else if (this.pivot.rotation.z > Math.PI/2){
+                        this.pivot.rotation.z = Math.PI/2;
+                        this.pivot.updateMatrixWorld();
+                        for (var l in this.face) {
+                            //this.face[j].updateMatrixWorld(); // if not done by the renderer
+                            this.face[l].applyMatrix(this.pivot.matrixWorld);
+                            scene.remove(this.pivot);
+                            this.pivot.remove(this.face[l]);
+                            scene.add(this.face[l]);
+                            //update this.cubicles after movement
+                            this.updateCubiclesOrder(this.memArr,this.face);
+                            theCube.busy = false;
+                        }
+                    }
+                    break;
+                default:
+                    if (this.pivot.rotation.z < Math.PI/2){
+                        this.pivot.rotation.z += 0.1;
+                        this.pivot.updateMatrixWorld();
+                    }else if (this.pivot.rotation.z > Math.PI/2){
+                        this.pivot.rotation.z = Math.PI/2;
+                        this.pivot.updateMatrixWorld();
+                        for (var m in this.face) {
+                            //this.face[j].updateMatrixWorld(); // if not done by the renderer
+                            this.face[m].applyMatrix(this.pivot.matrixWorld);
+                            scene.remove(this.pivot);
+                            this.pivot.remove(this.face[m]);
+                            scene.add(this.face[m]);
+                            //update this.cubicles after movement
+                            this.updateCubiclesOrder(this.memArr,this.face);
+                            theCube.busy = false;
+                        }
+                    }
+            }
+        }
+    };
+    this.rotateFace = function rotateFace(face,axis,memArr){
         //remove the group from the scene, add it to the pivot group, rotate and then put it back on the scene
-        var pivot = new THREE.Object3D();//create a rotation pivot for the group
-        pivot.rotation.set(0, 0, 0);
-        pivot.updateMatrixWorld();
+        this.pivot.rotation.set(0, 0, 0);
+        this.pivot.updateMatrixWorld();
         for (var i in face) {
             var matrixWorldInverse = new THREE.Matrix4();
-            matrixWorldInverse.getInverse(pivot.matrixWorld);
+            matrixWorldInverse.getInverse(this.pivot.matrixWorld);
             face[i].applyMatrix(matrixWorldInverse);
             scene.remove(face[i]);
-            pivot.add(face[i]);
+            this.pivot.add(face[i]);
         }
-        switch(axis) {
-            case 'x':
-                 pivot.rotation.x = 90 * (Math.PI/180); // rotate it 90 degrees
-                break;
-            case 'y':
-                 pivot.rotation.y = 90 * (Math.PI/180);
-                break;
-            case 'z':
-                 pivot.rotation.z = 90 * (Math.PI/180);
-                break;
-            default:
-                 pivot.rotation.z = 90 * (Math.PI/180);
-        }
-        pivot.updateMatrixWorld();
-        for (var j in face) {
-            //face[j].updateMatrixWorld(); // if not done by the renderer
-            face[j].applyMatrix( pivot.matrixWorld );
-            pivot.remove(face[j]);
-            scene.add(face[j]);
-        }
+        scene.add(this.pivot);
+        this.face = face;
+        this.axis = axis;
+        this.memArr = memArr;
         /* #TODO: some movement history recording should also be done*/
     };
     this.rotateTopFace = function rotateTopFace(){
@@ -233,9 +311,8 @@ function Cube (cubicles) {
                 memArr.push(c);
             }
         }
-        this.rotateFace(myFace,'z');
-        //update this.cubicles after movement
-        this.updateCubiclesOrder(memArr,myFace);
+        this.rotateFace(myFace,'z',memArr);
+
     };
     this.rotateBottomFace = function rotateBottomFace(){
         var myFace = [];
@@ -248,9 +325,7 @@ function Cube (cubicles) {
                 memArr.push(c);
             }
         }
-        this.rotateFace(myFace,'z');
-        //update this.cubicles after movement
-        this.updateCubiclesOrder(memArr,myFace);
+        this.rotateFace(myFace,'z',memArr);
     };
     this.rotateLeftFace = function rotateLeftFace(){
         var myFace = [];
@@ -261,9 +336,7 @@ function Cube (cubicles) {
                 memArr.push(c);
             }
         }
-        this.rotateFace(myFace,'x');
-        //update this.cubicles after movement
-        this.updateCubiclesOrder(memArr,myFace);
+        this.rotateFace(myFace,'x',memArr);
     };
     this.rotateRightFace = function rotateRightFace(){
         var myFace = [];
@@ -274,9 +347,34 @@ function Cube (cubicles) {
                 memArr.push(c);
             }
         }
-        this.rotateFace(myFace,'x');
-        //update this.cubicles after movement
-        this.updateCubiclesOrder(memArr,myFace);
+        this.rotateFace(myFace,'x',memArr);
+    };
+    this.rotateFrontFace = function rotateFrontFace(){
+        var myFace = [];
+        var memArr = [];
+        for (var c in this.cubicles){
+            //c%9 >= 0 && c%9 < 3-1
+            //console.log(c % this.cubiclesPerPlane);
+            //console.log(cubiclePerSide-1);
+            if (((c % this.cubiclesPerPlane) >= 0) && ((c % this.cubiclesPerPlane) < (cubiclePerSide))){ // if a front cubicle
+                console.log(c);
+                myFace.push(this.cubicles[c]);
+                memArr.push(c);
+            }
+        }
+        this.rotateFace(myFace,'y',memArr);
+    };
+    this.rotateBackFace = function rotateBackFace(){
+        var myFace = [];
+        var memArr = [];
+        for (var c in this.cubicles){
+            //c%9 >= 9-3 && c%9 < 9
+            if (((c % this.cubiclesPerPlane) >= this.cubiclesPerPlane-cubiclePerSide) && ((c % this.cubiclesPerPlane) < (this.cubiclesPerPlane))){ // if a posterior cubicle
+                myFace.push(this.cubicles[c]);
+                memArr.push(c);
+            }
+        }
+        this.rotateFace(myFace,'y',memArr);
     };
     this.getTop = function getTop(){
         //returns a Object3D group with the cubicles currently at the top of the Cube
