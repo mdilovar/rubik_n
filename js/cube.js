@@ -2,6 +2,8 @@
 var renderer, camera, scene, flashlight;
 //...cubies and cube config vars
 var cubiclePerSide, CUBICLE_SIZE;
+var AXIS = {X:"x", Y:"y", Z:"z"};
+
 //..and the Cube object
 var theCube;
 
@@ -69,7 +71,7 @@ function createCube(){
             this.mouseOvered.material.materials[i].emissive.setHex(0xff0000);
 		}
 	});
-    //define mouuse out actions
+    //define mouse out actions
 	eControls.attachEvent( 'mouseOut', function () {
         //cursor back to normal
 		this.container.style.cursor = 'auto';
@@ -112,10 +114,11 @@ setup();
 function moveWithKey(e){
     console.log(e.keyCode);
     if (!theCube.busy){
-        if (e.keyCode == 84){ //t
+        //var dirrection = e.shiftKey ? 1 : 0; // 1 - counter-clockwise
+        if (e.keyCode == 85){ //u
             theCube.busy = true;
             theCube.rotateTopFace();
-        }else if(e.keyCode == 66){ //b
+        }else if(e.keyCode == 68){ //d
             theCube.busy = true;
             theCube.rotateBottomFace();
         }else if(e.keyCode == 76){ //l
@@ -127,9 +130,18 @@ function moveWithKey(e){
         }else if(e.keyCode == 70){ //f
             theCube.busy = true;
             theCube.rotateFrontFace();
-        }else if(e.keyCode == 80){ //p
+        }else if(e.keyCode == 66){ //b
             theCube.busy = true;
             theCube.rotateBackFace();
+        }else if(e.keyCode == 88){ //x
+            theCube.busy = true;
+            theCube.rotateMiddleX();
+        }else if(e.keyCode == 89){ //y
+            theCube.busy = true;
+            theCube.rotateMiddleY();
+        }else if(e.keyCode == 90){ //z
+            theCube.busy = true;
+            theCube.rotateMiddleZ();
         }
     }
     if (e.keyCode == 81){
@@ -143,12 +155,11 @@ function moveWithKey(e){
 function Cube (cubiesPerAxis,cubieSize) {
     this.cubies=[]; //declare an array-container for cubie objects
     this.cubiesPerPlane = Math.pow(cubiesPerAxis,2);
-    this.tempArr=[];
     this.pivot = new THREE.Object3D(); //create a rotation pivot for the group
-    this.axis = 'x'; //axis of rotation
-    this.face =[];
-    this.memArr =[];
     this.busy = false;
+    this.rendersPerMove=12;
+    this.animationRequests=[];
+    this.updateStep=0;
     this.getCubieMesh = function getCubieMesh(x,y,z){ console.log(x,y,z);
         var colors = {  green: '#009E60', red: '#8A0413', 
                         blue: '#0051BA', yellow: '#FFD500', 
@@ -199,22 +210,22 @@ function Cube (cubiesPerAxis,cubieSize) {
             new THREE.MeshPhongMaterial({color: color_front, map: texture_front}),//fromt - blue
             new THREE.MeshPhongMaterial({color: color_back, map: texture_back})]); //back - green
         //create and return the cubie mesh
-        return new THREE.Mesh(cubieGeometry, cubieMaterial);
+        return new THREE.Mesh(cubieGeometry, cubieMaterial); //new THREE.MeshNormalMaterial( { transparent: true, opacity: 0.5 }));
     };
     this.initCube = function initCube(){
         //create the cube
         for (var z = 0; z < cubiesPerAxis; z++){
             for (var y = 0; y < cubiesPerAxis; y++){
                 for (var x = 0; x < cubiesPerAxis; x++){
-                    /*
-                        //skip the core cubes. this helps prevent unnecessary and burdensome rendering. Helps especially as the cube gets bigger.
-                if (!(line === 0 || line === (cubiclePerSide - 1))){	//if not the first or last line of the cube
-                    if (!((Math.floor(cubicle/cubiclePerSide) == (cubiclePerSide - 1)) || (Math.floor(cubicle/cubiclePerSide) === 0))){	//if not the first or the last row
-                        if (!((cubicle % cubiclePerSide == (cubiclePerSide - 1)) || (cubicle % cubiclePerSide === 0))){  //if not first or the last cubicle of the current raw
-                            continue;	//skip and don't draw
-                        }}}
-                //end of the 'skipper'
-                */
+                     //skip the core cubes. this helps prevent unnecessary and burdensome rendering. Helps especially as the cube gets bigger.
+                    if (!(z === 0 || z === (cubiesPerAxis - 1))){	//if not the first or last line of the cube
+                        if (!(x === 0 || x === (cubiesPerAxis - 1))){	//if not the first or the last row
+                            if (!(y === 0 || y === (cubiesPerAxis - 1))){  //if not first or the last cubicle of the current raw
+                                //add to the cubies array an empty 3d object entry but and don't draw anything
+                                this.cubies.push(new THREE.Object3D());
+                                continue;
+                            }}}
+                    //end of the 'skipper'
                     var cubieMesh = this.getCubieMesh(x,y,z);
                     //set coordinates correction value calculated so that the cube overall falls in the center of the scene
                     coordCorrection = -((cubiesPerAxis-1) * cubieSize)/2;
@@ -247,85 +258,35 @@ function Cube (cubiesPerAxis,cubieSize) {
             this.cubies[memArr[newPos]] = faceArr[k];  
         }
     };
+    this.animateRequest = function animateRequest(request){
+        this.pivot.rotation.x += request.rotateTo.x/this.rendersPerMove;
+        this.pivot.rotation.y += request.rotateTo.y/this.rendersPerMove;
+        this.pivot.rotation.z += request.rotateTo.z/this.rendersPerMove;
+        this.pivot.updateMatrixWorld();
+        
+        this.updateStep++;
+        
+        if (this.updateStep > this.rendersPerMove){
+            this.pivot.rotation.x = request.rotateTo.x;
+            this.pivot.rotation.y = request.rotateTo.y;
+            this.pivot.rotation.z = request.rotateTo.z;
+            this.pivot.updateMatrixWorld();
+            //scene.remove(this.pivot);
+            for (var j in request.face) {
+                //this.face[j].updateMatrixWorld(); // if not done by the renderer
+                request.face[j].applyMatrix(this.pivot.matrixWorld);
+                this.pivot.remove(request.face[j]);
+                scene.add(request.face[j]);}
+            //update this.cubies after movement
+            this.updateCubiesOrder(request.memArr,request.face);
+            this.animationRequests.shift();
+            this.updateStep=0;
+            theCube.busy = false;
+        }
+    };
     this.update = function update (){
-        if((this.pivot instanceof THREE.Object3D)) {
-            switch(this.axis) {
-                case 'x':
-                    if (this.pivot.rotation.x < Math.PI/2){
-                        this.pivot.rotation.x += 0.1;
-                        this.pivot.updateMatrixWorld();
-                    }else if (this.pivot.rotation.x > Math.PI/2){
-                        this.pivot.rotation.x = Math.PI/2;
-                        this.pivot.updateMatrixWorld();
-                        for (var j in this.face) {
-                            //this.face[j].updateMatrixWorld(); // if not done by the renderer
-                            this.face[j].applyMatrix(this.pivot.matrixWorld);
-                            scene.remove(this.pivot);
-                            this.pivot.remove(this.face[j]);
-                            scene.add(this.face[j]);
-                            //update this.cubies after movement
-                            this.updateCubiesOrder(this.memArr,this.face);
-                            theCube.busy = false;
-                        }
-                    }
-                    break;
-                case 'y':
-                    if (this.pivot.rotation.y < Math.PI/2){
-                        this.pivot.rotation.y += 0.1;
-                        this.pivot.updateMatrixWorld();
-                    }else if (this.pivot.rotation.y > Math.PI/2){
-                        this.pivot.rotation.y = Math.PI/2;
-                        this.pivot.updateMatrixWorld();
-                        for (var k in this.face) {
-                            //this.face[j].updateMatrixWorld(); // if not done by the renderer
-                            this.face[k].applyMatrix(this.pivot.matrixWorld);
-                            scene.remove(this.pivot);
-                            this.pivot.remove(this.face[k]);
-                            scene.add(this.face[k]);
-                            //update this.cubies after movement
-                            this.updateCubiesOrder(this.memArr,this.face);
-                            theCube.busy = false;
-                        }
-                    }
-                    break;
-                case 'z':
-                    if (this.pivot.rotation.z < Math.PI/2){
-                        this.pivot.rotation.z += 0.1;
-                        this.pivot.updateMatrixWorld();
-                    }else if (this.pivot.rotation.z > Math.PI/2){
-                        this.pivot.rotation.z = Math.PI/2;
-                        this.pivot.updateMatrixWorld();
-                        for (var l in this.face) {
-                            //this.face[j].updateMatrixWorld(); // if not done by the renderer
-                            this.face[l].applyMatrix(this.pivot.matrixWorld);
-                            scene.remove(this.pivot);
-                            this.pivot.remove(this.face[l]);
-                            scene.add(this.face[l]);
-                            //update this.cubies after movement
-                            this.updateCubiesOrder(this.memArr,this.face);
-                            theCube.busy = false;
-                        }
-                    }
-                    break;
-                default:
-                    if (this.pivot.rotation.y > - Math.PI/2){
-                        this.pivot.rotation.y -= 0.1;
-                        this.pivot.updateMatrixWorld();
-                    }else if (this.pivot.rotation.y < -Math.PI/2){
-                        this.pivot.rotation.y = -Math.PI/2;
-                        this.pivot.updateMatrixWorld();
-                        for (var m in this.face) {
-                            //this.face[j].updateMatrixWorld(); // if not done by the renderer
-                            this.face[m].applyMatrix(this.pivot.matrixWorld);
-                            scene.remove(this.pivot);
-                            this.pivot.remove(this.face[m]);
-                            scene.add(this.face[m]);
-                            //update this.cubies after movement
-                            this.updateCubiesOrder(this.memArr,this.face);
-                            theCube.busy = false;
-                        }
-                    }
-            }
+        if(this.animationRequests.length>0) {
+            this.animateRequest(this.animationRequests[0]);
         }
     };
     this.rotateFace = function rotateFace(face,axis,memArr){
@@ -340,9 +301,16 @@ function Cube (cubiesPerAxis,cubieSize) {
             this.pivot.add(face[i]);
         }
         scene.add(this.pivot);
-        this.face = face;
-        this.axis = axis;
-        this.memArr = memArr;
+
+        var request={rotateTo:{x:0,y:0,z:0},face:face,axis:axis,memArr:memArr};
+        if(axis == AXIS.X) {
+            request.rotateTo.x = Math.PI/2;
+        }else if(axis == AXIS.Y) {
+            request.rotateTo.y = - Math.PI/2;
+        }else if(axis == AXIS.Z) {
+            request.rotateTo.z = Math.PI/2;
+        }
+        this.animationRequests.push(request);
         /* #TODO: some movement history recording should also be done*/
     };
     this.rotateBackFace = function rotateBackFace(){
@@ -356,7 +324,7 @@ function Cube (cubiesPerAxis,cubieSize) {
                 memArr.push(c);
             }
         }
-        this.rotateFace(myFace,'z',memArr);
+        this.rotateFace(myFace,AXIS.Z,memArr);
 
     };
     this.rotateFrontFace = function rotateFrontFace(){
@@ -370,9 +338,9 @@ function Cube (cubiesPerAxis,cubieSize) {
                 memArr.push(c);
             }
         }
-        this.rotateFace(myFace,'z',memArr);
+        this.rotateFace(myFace,AXIS.Z,memArr);
     };
-    this.rotateRightFace = function rotateRightFace(){
+    this.rotateLeftFace = function rotateLeftFace(){
         var myFace = [];
         var memArr = [];
         for (var c in this.cubies){
@@ -381,9 +349,9 @@ function Cube (cubiesPerAxis,cubieSize) {
                 memArr.push(c);
             }
         }
-        this.rotateFace(myFace,'x',memArr);
+        this.rotateFace(myFace,AXIS.X,memArr);
     };
-    this.rotateLeftFace = function rotateLeftFace(){
+    this.rotateRightFace = function rotateRightFace(){
         var myFace = [];
         var memArr = [];
         for (var c in this.cubies){
@@ -392,7 +360,7 @@ function Cube (cubiesPerAxis,cubieSize) {
                 memArr.push(c);
             }
         }
-        this.rotateFace(myFace,'x',memArr);
+        this.rotateFace(myFace,AXIS.X,memArr);
     };
     this.rotateBottomFace = function rotateBottomFace(){
         var myFace = [];
@@ -407,7 +375,7 @@ function Cube (cubiesPerAxis,cubieSize) {
                 memArr.push(c);
             }
         }
-        this.rotateFace(myFace,'-y',memArr);
+        this.rotateFace(myFace,AXIS.Y,memArr);
     };
     this.rotateTopFace = function rotateTopFace(){
         var myFace = [];
@@ -419,19 +387,48 @@ function Cube (cubiesPerAxis,cubieSize) {
                 memArr.push(c);
             }
         }
-        this.rotateFace(myFace,'-y',memArr);
+        this.rotateFace(myFace,AXIS.Y,memArr);
     };
-    this.getMiddleX = function getMiddleX(middleSliceNumber){
-        //returns a Object3D group with the cubies currently at the middle layer parallel to x axis of the Cube
-        group = new THREE.Object3D(); // create an empty group
-        middleSliceNumber = middleSliceNumber || 0;// for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
-        var from = 1 + this.cubiclesPerPlane * (middleSliceNumber + 1);
-        var thru = from + this.cubiclesPerPlane;
-        console.log("from thru".concat(from).concat(thru));
-        for (var c in  this.cubies.slice(from, thru)){
-            group.add(this.cubies[c]);
+    this.rotateMiddleY = function rotateMiddleY(middleSliceNumber){ // parrallel to top and bottom
+        var myFace = [];
+        var memArr = [];
+        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
+        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%cubiesPerAxis : 1;
+        for (var c in this.cubies){
+            if (((c % this.cubiesPerPlane) >= cubiesPerAxis*middleSliceNumber) && ((c % this.cubiesPerPlane) < (cubiesPerAxis*(middleSliceNumber+1)))){
+                myFace.push(this.cubies[c]);
+                memArr.push(c);
+            }
         }
-        return group;
+        this.rotateFace(myFace,AXIS.Y,memArr);
+    };
+    this.rotateMiddleX = function rotateMiddleX(middleSliceNumber){ // parrallel to top and bottom
+        var myFace = [];
+        var memArr = [];
+        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
+        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%cubiesPerAxis : 1;
+        for (var c in this.cubies){
+            if ((c % cubiesPerAxis) === middleSliceNumber){
+                myFace.push(this.cubies[c]);
+                memArr.push(c);
+            }
+        }
+        this.rotateFace(myFace,AXIS.X,memArr);
+    };
+    this.rotateMiddleZ = function rotateMiddleZ(middleSliceNumber){ // parrallel to top and bottom
+        var myFace = [];
+        var memArr = [];
+        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
+        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%cubiesPerAxis : 1;
+        var from = this.cubiesPerPlane*middleSliceNumber;
+        var thru = this.cubiesPerPlane*(middleSliceNumber+1);
+        for (var c in this.cubies){
+            if (c >= from && c < thru) {
+                myFace.push(this.cubies[c]);
+                memArr.push(c);
+            }
+        }
+        this.rotateFace(myFace,AXIS.Z,memArr);
     };
 }
 

@@ -1,24 +1,33 @@
 current task:
-//tidied up studff a bit; renamed rotatin functions properly (front-front, etc); added "reset" keycode q; fixed cubicles matrix update for top and bottom. It was about rotation direction. 
-add rotation for middle layers
+added rotation for middle layer(s) for now keys just move middle layers of 3x3x3, (task was: finish the cube already (just movements))
+    but the actual functions accept middleSliceNumber argument. 
+    So this will work for larger cubes too. just need to add the keys for that. Maybe don't bother for now, and do this when adding mouse move control.
+removed the middle invisible cubes while not affecting the matrix update algorithms. (by inserting emptry unrendered Object3Ds).
+PREVIOUS SUBMISSION - but still this week. removed the coloring of the inside of the cube.
+tidied stuff up a bit more by modifyinf the update func of the cube class to utilize "animation requests"
 
 /// more complete:
 Before Monday try to do at least some of:
-- finish the cube already (just movements)
-- tidy stuff up - before the code gets too messy
-- create a protorype for detecting colors on one side of a cube from an image.
-- add movement traking and game ui elements (Hi Sc, time, etc)
-- add mouse face/middle movement on top of key movement
+- add NxNxN fixes later. for now don't waste too much time, instead focus on a 3x3x3 mvp
+
+
+
+- add cube tracking and game ui elements (Hi Sc, time, etc)
+- add mouse face/middle movement on top of key movement - (nxnxn, n>3 will have more than 1 middle layer) 
 - add server side score-keeping
+- create a prototype for detecting colors on one side of a cube from an image.
 - adding facebook api
 
 
 
 
 
+
+
+
+
+
 Next up:
-- (performance_future) need to think about removing the middle invisible cubes while not affecting the matrix update algorithms. 
-- (design_future) need to remove the coloring of the inside of the cube.
 - if image prototype works, implement video feed cube scanner
 - and/or alternative manual cube status selection with center color picker
 - automatic solution
