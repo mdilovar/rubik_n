@@ -1,20 +1,41 @@
 current task:
-added rotation for middle layer(s) for now keys just move middle layers of 3x3x3, (task was: finish the cube already (just movements))
-    but the actual functions accept middleSliceNumber argument. 
-    So this will work for larger cubes too. just need to add the keys for that. Maybe don't bother for now, and do this when adding mouse move control.
-removed the middle invisible cubes while not affecting the matrix update algorithms. (by inserting emptry unrendered Object3Ds).
-PREVIOUS SUBMISSION - but still this week. removed the coloring of the inside of the cube.
-tidied stuff up a bit more by modifyinf the update func of the cube class to utilize "animation requests"
+what I have done so far:
+added a primitive timer that fires after user chooses cube sive in a primitive js prompt
+cube of the right size is loaded and is scrambled - for this added function scramble(onComplete) to teh CUbe class. oncomplete the timer is then fired from game.JS
+
+next immediate task:
+add function isSolved() definition to check if cube solved  after each user move.
+
+- add cube tracking and game ui elements (Hi Sc, time, etc):
+    set HS to 0;
+    
+    first scene - no cube
+    get username (for now no backend)
+    get cube size
+    after start!:
+    
+    second scene: 
+    create cube using user-given cube size.
+    scramble cube; (before adding it to screen?)
+    start timer after scrambled cube is loaded.
+    
+    after each move call (ckeckIfCubeSolved)
+    if true: 
+    update HS on screen with the value of timer
+    some congrats amination.
+    
+    remove cube, show first scene
+
+
 
 /// more complete:
 Before Monday try to do at least some of:
 - add NxNxN fixes later. for now don't waste too much time, instead focus on a 3x3x3 mvp
-
-
-
 - add cube tracking and game ui elements (Hi Sc, time, etc)
-- add mouse face/middle movement on top of key movement - (nxnxn, n>3 will have more than 1 middle layer) 
 - add server side score-keeping
+
+
+- add mosouse movement support (coun terclockwise shouild work too; for n>3 - all middle layers should rotate.)
 - create a prototype for detecting colors on one side of a cube from an image.
 - adding facebook api
 
@@ -32,6 +53,7 @@ Next up:
 - and/or alternative manual cube status selection with center color picker
 - automatic solution
 - user friendly step-by step guide for solution
+- consider dropping trackball/orbit/event-controls scripts (and implementing min req func yourself) to improve original/imported code ratio.
  
 
 optional: 

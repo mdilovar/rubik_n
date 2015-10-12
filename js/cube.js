@@ -1,8 +1,10 @@
 //global scene variables
 var renderer, camera, scene, flashlight;
-//...cubies and cube config vars
-var cubiclePerSide, CUBICLE_SIZE;
+
 var AXIS = {X:"x", Y:"y", Z:"z"};
+
+//set cubicle size
+var cubieSize = 200;
 
 //..and the Cube object
 var theCube;
@@ -10,8 +12,6 @@ var theCube;
 function setup(){
     //setup all the scene objects
     setupScene();
-    //start the animation
-    draw();
 }
 
 function setupScene(){
@@ -40,24 +40,15 @@ function setupScene(){
 	flashlight.position.set(0,0,1);
 	flashlight.target = camera;
 	// set up controls 
-	// controls = new THREE.OrbitControls( camera, renderer.domElement ); // OrbitControls has a natural 'up', TrackballControls doesn't.
+	//controls = new THREE.OrbitControls( camera, renderer.domElement ); // OrbitControls has a natural 'up', TrackballControls doesn't.
 	controls = new THREE.TrackballControls(camera);
     //start the WebGLRenderer
     renderer.setSize(WIDTH, HEIGHT);
 	renderer.setClearColor( 0xf0f0f0 );
 	//attach the renderer canvas to the DOM body
 	document.body.appendChild(renderer.domElement);
-	//setup the Cube
-	createCube();
 	//add window resize listener to redraw everything in case of windaw size change
 	window.addEventListener('resize', onWindowResize, false);
-}
-
-function createCube(){
-    //number of cubies per side. the N in NxNxN
-    cubiesPerAxis = 3;
-    //set cubicle size
-	cubieSize = 200;
 	//add eventscontrols object for moving the cube's sides
 	eControls = new EventsControls(camera, renderer.domElement);
 	//define mouseover actions
@@ -82,9 +73,8 @@ function createCube(){
 	});
 	//just key controlled for now
 	document.addEventListener("keydown", moveWithKey);
-
-	//create a Cube object witht the cubies array. This object will get updates when the cube state is changed.
-	theCube = new Cube(cubiesPerAxis,cubieSize);
+	//setup the Cube
+	startGame();
 }
 
 function draw(){
@@ -98,9 +88,8 @@ function draw(){
     renderer.render(scene, camera);
     //
     theCube.update();
+    timer.update();
 }
-
-
 
 //redraw everything in case of window size change
 function onWindowResize(e) {
@@ -112,7 +101,7 @@ function onWindowResize(e) {
 setup();
 
 function moveWithKey(e){
-    console.log(e.keyCode);
+    //console.log(e.keyCode);
     if (!theCube.busy){
         //var dirrection = e.shiftKey ? 1 : 0; // 1 - counter-clockwise
         if (e.keyCode == 85){ //u
@@ -148,19 +137,20 @@ function moveWithKey(e){
         for (var i in theCube.cubies){
             scene.remove(theCube.cubies[i]);
         }
-        theCube = new Cube(cubiesPerAxis,cubieSize);
+        theCube.initCube();
     }
 }
 
-function Cube (cubiesPerAxis,cubieSize) {
+function Cube () {
     this.cubies=[]; //declare an array-container for cubie objects
-    this.cubiesPerPlane = Math.pow(cubiesPerAxis,2);
+    this.cubiesPerAxis;
+    this.cubiesPerPlane;
     this.pivot = new THREE.Object3D(); //create a rotation pivot for the group
     this.busy = false;
     this.rendersPerMove=12;
     this.animationRequests=[];
     this.updateStep=0;
-    this.getCubieMesh = function getCubieMesh(x,y,z){ console.log(x,y,z);
+    this.getCubieMesh = function getCubieMesh(x,y,z){ //console.log(x,y,z);
         var colors = {  green: '#009E60', red: '#8A0413', 
                         blue: '#0051BA', yellow: '#FFD500', 
                         white: '#FFFFFF', orange:'#F84704', 
@@ -179,7 +169,7 @@ function Cube (cubiesPerAxis,cubieSize) {
             color_left = colors.black;
             texture_left = null;
         }
-        if (x < cubiesPerAxis-1){
+        if (x < this.cubiesPerAxis-1){
             color_right = colors.black;
             texture_right = null;
         }
@@ -187,7 +177,7 @@ function Cube (cubiesPerAxis,cubieSize) {
             color_bottom = colors.black;
             texture_bottom = null;
         }
-        if (y < cubiesPerAxis-1){
+        if (y < this.cubiesPerAxis-1){
             color_top = colors.black;
             texture_top = null;
         }
@@ -195,7 +185,7 @@ function Cube (cubiesPerAxis,cubieSize) {
             color_back = colors.black;
             texture_back = null;
         }
-        if (z < cubiesPerAxis-1){
+        if (z < this.cubiesPerAxis-1){
             color_front = colors.black;
             texture_front = texture_right;
         }
@@ -212,15 +202,17 @@ function Cube (cubiesPerAxis,cubieSize) {
         //create and return the cubie mesh
         return new THREE.Mesh(cubieGeometry, cubieMaterial); //new THREE.MeshNormalMaterial( { transparent: true, opacity: 0.5 }));
     };
-    this.initCube = function initCube(){
+    this.initCube = function initCube(size){
+        this.cubiesPerAxis = size || 3;
+        this.cubiesPerPlane = Math.pow(this.cubiesPerAxis,2);
         //create the cube
-        for (var z = 0; z < cubiesPerAxis; z++){
-            for (var y = 0; y < cubiesPerAxis; y++){
-                for (var x = 0; x < cubiesPerAxis; x++){
+        for (var z = 0; z < this.cubiesPerAxis; z++){
+            for (var y = 0; y < this.cubiesPerAxis; y++){
+                for (var x = 0; x < this.cubiesPerAxis; x++){
                      //skip the core cubes. this helps prevent unnecessary and burdensome rendering. Helps especially as the cube gets bigger.
-                    if (!(z === 0 || z === (cubiesPerAxis - 1))){	//if not the first or last line of the cube
-                        if (!(x === 0 || x === (cubiesPerAxis - 1))){	//if not the first or the last row
-                            if (!(y === 0 || y === (cubiesPerAxis - 1))){  //if not first or the last cubicle of the current raw
+                    if (!(z === 0 || z === (this.cubiesPerAxis - 1))){	//if not the first or last line of the cube
+                        if (!(x === 0 || x === (this.cubiesPerAxis - 1))){	//if not the first or the last row
+                            if (!(y === 0 || y === (this.cubiesPerAxis - 1))){  //if not first or the last cubicle of the current raw
                                 //add to the cubies array an empty 3d object entry but and don't draw anything
                                 this.cubies.push(new THREE.Object3D());
                                 continue;
@@ -228,13 +220,13 @@ function Cube (cubiesPerAxis,cubieSize) {
                     //end of the 'skipper'
                     var cubieMesh = this.getCubieMesh(x,y,z);
                     //set coordinates correction value calculated so that the cube overall falls in the center of the scene
-                    coordCorrection = -((cubiesPerAxis-1) * cubieSize)/2;
+                    coordCorrection = -((this.cubiesPerAxis-1) * cubieSize)/2;
                     //give the coordinates of the cube
                     cubieMesh.position.x = coordCorrection + x * cubieSize;// (cubieSize + 100);
                     cubieMesh.position.y = coordCorrection + y * cubieSize;// (cubieSize + 100);
                     cubieMesh.position.z = coordCorrection + z * cubieSize;// (cubieSize + 100);
                     //add the cube to the scene
-                    scene.add(cubieMesh); console.log(scene);
+                    scene.add(cubieMesh); //console.log(scene);
                     //push the object to cubies objects array for later actions.
                     this.cubies.push(cubieMesh);
                     //make sure eventcontrol knows about the all the cubies (eventcontrol is used for manipulating teh cube)
@@ -242,19 +234,74 @@ function Cube (cubiesPerAxis,cubieSize) {
                 }
             }
         }
+    //start the animation
+    draw();
     };
-    this.initCube();
-
+    this.scramble = function scramble(onComplete){
+        var randomMoveCount=20;
+        var moves = ['u','d','l','r','f','b','x','y','z'];
+        //var dirrection = [0,1]; // clockwise/counter-clockwise
+        var i = 0;
+        var scrambler = setInterval(function(){ 
+            if (i > randomMoveCount){
+                clearInterval(scrambler);
+                onComplete();
+            }
+            if (!theCube.busy){
+                var move=moves[Math.floor(Math.random()*moves.length)];
+                if (move == 'u'){ //u
+                    theCube.busy = true;
+                    theCube.rotateTopFace();
+                }else if(move == 'd'){ //d
+                    theCube.busy = true;
+                    theCube.rotateBottomFace();
+                }else if(move == 'l'){ //l
+                    theCube.busy = true;
+                    theCube.rotateLeftFace();
+                }else if(move == 'r'){ //r
+                    theCube.busy = true;
+                    theCube.rotateRightFace();
+                }else if(move == 'f'){ //f
+                    theCube.busy = true;
+                    theCube.rotateFrontFace();
+                }else if(move == 'b'){ //b
+                    theCube.busy = true;
+                    theCube.rotateBackFace();
+                }else if(move == 'x'){ //x
+                    theCube.busy = true;
+                    theCube.rotateMiddleX();
+                }else if(move == 'y'){ //y
+                    theCube.busy = true;
+                    theCube.rotateMiddleY();
+                }else if(move == 'z'){ //z
+                    theCube.busy = true;
+                    theCube.rotateMiddleZ();
+                }
+                i++;
+            }
+        }, 1);
+        /*while () {
+            console.log(i);
+           
+        }*/
+    };
+    this.destroy = function destroy(){
+        //destroy code goes here
+    };
+    this.isSolved = function isSolved(){
+        //check if solved after each user move
+        
+    };
     this.updateCubiesOrder = function updateCubiesOrder(memArr,faceArr){
         //update the this.cubies "matrix" so that it matches the new "physical" locations of the cubies.
         //memArr - is the reference array that matches the position id to the physical cubicle id occupying it
         //faceArr is the array that holds current face cubies
         for (var k=0; k < this.cubiesPerPlane; k++){
-            var x = k % cubiesPerAxis;
-            var y = Math.floor(k/cubiesPerAxis);
-            var newX = cubiesPerAxis - y - 1;
+            var x = k % this.cubiesPerAxis;
+            var y = Math.floor(k/this.cubiesPerAxis);
+            var newX = this.cubiesPerAxis - y - 1;
             var newY = x;
-            var newPos = newY * cubiesPerAxis + newX;
+            var newPos = newY * this.cubiesPerAxis + newX;
             this.cubies[memArr[newPos]] = faceArr[k];  
         }
     };
@@ -344,7 +391,7 @@ function Cube (cubiesPerAxis,cubieSize) {
         var myFace = [];
         var memArr = [];
         for (var c in this.cubies){
-            if ((c % cubiesPerAxis) === 0) {
+            if ((c % this.cubiesPerAxis) === 0) {
                 myFace.push(this.cubies[c]);
                 memArr.push(c);
             }
@@ -355,7 +402,7 @@ function Cube (cubiesPerAxis,cubieSize) {
         var myFace = [];
         var memArr = [];
         for (var c in this.cubies){
-            if ((c % cubiesPerAxis) == (cubiesPerAxis-1)){
+            if ((c % this.cubiesPerAxis) == (this.cubiesPerAxis-1)){
                 myFace.push(this.cubies[c]);
                 memArr.push(c);
             }
@@ -369,8 +416,8 @@ function Cube (cubiesPerAxis,cubieSize) {
             //c%9 >= 0 && c%9 < 3-1
             //console.log(c % this.cubiesPerPlane);
             //console.log(cubiclePerSide-1);
-            if (((c % this.cubiesPerPlane) >= 0) && ((c % this.cubiesPerPlane) < (cubiesPerAxis))){
-                console.log(c);
+            if (((c % this.cubiesPerPlane) >= 0) && ((c % this.cubiesPerPlane) < (this.cubiesPerAxis))){
+                //console.log(c);
                 myFace.push(this.cubies[c]);
                 memArr.push(c);
             }
@@ -382,7 +429,7 @@ function Cube (cubiesPerAxis,cubieSize) {
         var memArr = [];
         for (var c in this.cubies){
             //c%9 >= 9-3 && c%9 < 9
-            if (((c % this.cubiesPerPlane) >= this.cubiesPerPlane-cubiesPerAxis) && ((c % this.cubiesPerPlane) < (this.cubiesPerPlane))){
+            if (((c % this.cubiesPerPlane) >= this.cubiesPerPlane-this.cubiesPerAxis) && ((c % this.cubiesPerPlane) < (this.cubiesPerPlane))){
                 myFace.push(this.cubies[c]);
                 memArr.push(c);
             }
@@ -393,9 +440,9 @@ function Cube (cubiesPerAxis,cubieSize) {
         var myFace = [];
         var memArr = [];
         // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
-        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%cubiesPerAxis : 1;
+        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%this.cubiesPerAxis : 1;
         for (var c in this.cubies){
-            if (((c % this.cubiesPerPlane) >= cubiesPerAxis*middleSliceNumber) && ((c % this.cubiesPerPlane) < (cubiesPerAxis*(middleSliceNumber+1)))){
+            if (((c % this.cubiesPerPlane) >= this.cubiesPerAxis*middleSliceNumber) && ((c % this.cubiesPerPlane) < (this.cubiesPerAxis*(middleSliceNumber+1)))){
                 myFace.push(this.cubies[c]);
                 memArr.push(c);
             }
@@ -406,9 +453,9 @@ function Cube (cubiesPerAxis,cubieSize) {
         var myFace = [];
         var memArr = [];
         // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
-        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%cubiesPerAxis : 1;
+        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%this.cubiesPerAxis : 1;
         for (var c in this.cubies){
-            if ((c % cubiesPerAxis) === middleSliceNumber){
+            if ((c % this.cubiesPerAxis) === middleSliceNumber){
                 myFace.push(this.cubies[c]);
                 memArr.push(c);
             }
@@ -419,7 +466,7 @@ function Cube (cubiesPerAxis,cubieSize) {
         var myFace = [];
         var memArr = [];
         // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
-        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%cubiesPerAxis : 1;
+        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%this.cubiesPerAxis : 1;
         var from = this.cubiesPerPlane*middleSliceNumber;
         var thru = this.cubiesPerPlane*(middleSliceNumber+1);
         for (var c in this.cubies){
@@ -431,35 +478,3 @@ function Cube (cubiesPerAxis,cubieSize) {
         this.rotateFace(myFace,AXIS.Z,memArr);
     };
 }
-
-
-
-
-/* some incomplete logic for selectively aplying the texture only to the outward faces of the cubicles
-
-if line === 0{	//first line
-	top : red
-}
-if line == cubiclePerSide - 1{	//last line
-	bottom : orange
-}
-if (Math.floor(cubicle/cubiclePerSide) == 0){	//if the first raw of each line
-	back : green
-
-}
-if (Math.floor(cubicle/cubiclePerSide) == (cubiclePerSide - 1)){	//if the last raw of each line
-    fromnt: blue
-}
-
-
-
-*/
-
-
-
-// just some snippets I might use later.
-//for (var key in cubicles){
-//    if (cubicles.hasOwnProperty(key)) {
-//       //console.log(cubicles[key]);
-//       cubicles[key].rotation.y += 0.1;
-//    }
