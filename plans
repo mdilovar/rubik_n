@@ -2,9 +2,12 @@ current task:
 what I have done so far:
 added a primitive timer that fires after user chooses cube sive in a primitive js prompt
 cube of the right size is loaded and is scrambled - for this added function scramble(onComplete) to teh CUbe class. oncomplete the timer is then fired from game.JS
++
+this still being debugged - figured a way to make the isSolved function work (theoretically for now) - for this: created getLayer[Axis] functions, and the CubeFace Class with methods like findmiddlecolor and isuniform.
 
 next immediate task:
 add function isSolved() definition to check if cube solved  after each user move.
+- maybe convert Cube.cubies to a 6x[NxN] array? - easier to get faces. (worth it? will it help w/ isSolved? or do isSolved first?)
 
 - add cube tracking and game ui elements (Hi Sc, time, etc):
     set HS to 0;
@@ -28,7 +31,7 @@ add function isSolved() definition to check if cube solved  after each user move
 
 
 
-/// more complete:
+/// more:
 Before Monday try to do at least some of:
 - add NxNxN fixes later. for now don't waste too much time, instead focus on a 3x3x3 mvp
 - add cube tracking and game ui elements (Hi Sc, time, etc)

@@ -14,7 +14,7 @@ function introScreen(){
         timer.display();
         // add other ui controls like user id etc and start button
         // call this.play(); after started
-        var size = prompt("Please enter cube size", "3");
+        var size = 3;//prompt("Please enter cube size", "3");
         if (size !== null) {
             this.cubeSize = size;
             this.play();
@@ -23,9 +23,9 @@ function introScreen(){
     this.play = function play(){
         //start the Cube
         theCube.initCube(this.cubeSize);
-        theCube.scramble(function onComplete(){
-            timer.startTimer();
-        });
+        //theCube.scramble(function onComplete(){
+        //    timer.startTimer();
+        //});
     };
 }
 

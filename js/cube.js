@@ -203,7 +203,7 @@ function Cube () {
         return new THREE.Mesh(cubieGeometry, cubieMaterial); //new THREE.MeshNormalMaterial( { transparent: true, opacity: 0.5 }));
     };
     this.initCube = function initCube(size){
-        this.cubiesPerAxis = size || 3;
+        this.cubiesPerAxis = size*1 || 3;
         this.cubiesPerPlane = Math.pow(this.cubiesPerAxis,2);
         //create the cube
         for (var z = 0; z < this.cubiesPerAxis; z++){
@@ -220,7 +220,7 @@ function Cube () {
                     //end of the 'skipper'
                     var cubieMesh = this.getCubieMesh(x,y,z);
                     //set coordinates correction value calculated so that the cube overall falls in the center of the scene
-                    coordCorrection = -((this.cubiesPerAxis-1) * cubieSize)/2;
+                    var coordCorrection = -((this.cubiesPerAxis-1) * cubieSize)/2;
                     //give the coordinates of the cube
                     cubieMesh.position.x = coordCorrection + x * cubieSize;// (cubieSize + 100);
                     cubieMesh.position.y = coordCorrection + y * cubieSize;// (cubieSize + 100);
@@ -290,7 +290,18 @@ function Cube () {
     };
     this.isSolved = function isSolved(){
         //check if solved after each user move
-        
+        // for each face see if all colors the same.(break as soon as any face returns not solved.)
+        var nearfar = {'near':0, 'far':this.cubiesPerAxis-1}; // anterior and posterior on each axis - e.g. front&back on, say z axis, top&bottom on y, etc.
+        try{
+            for (var i in nearfar){
+                if (!this.getLayerX(nearfar[i]).isUniform()) return false;
+                if (!this.getLayerY(nearfar[i]).isUniform()) return false;
+                if (!this.getLayerZ(nearfar[i]).isUniform()) return false;
+            }
+        }
+        catch(err) {
+           console.log('Something went wrong in isSolved ', err);
+        }
     };
     this.updateCubiesOrder = function updateCubiesOrder(memArr,faceArr){
         //update the this.cubies "matrix" so that it matches the new "physical" locations of the cubies.
@@ -373,6 +384,18 @@ function Cube () {
         }
         this.rotateFace(myFace,AXIS.Z,memArr);
 
+    };
+    this.getBackFace = function getBackFace(){
+        // NOT USED FOR NOW, INSTEAD RELYING ON getMiddle[Axis] functions
+        var myFace = [];
+        var from = 0;
+        var thru = this.cubiesPerPlane;
+        for (var c in this.cubies){
+            if (c >= from && c < thru) {
+                myFace.push(this.cubies[c]);
+            }
+        }
+        return new CubeFace(this.cubiesPerAxis, myFace);
     };
     this.rotateFrontFace = function rotateFrontFace(){
         var myFace = [];
@@ -477,4 +500,78 @@ function Cube () {
         }
         this.rotateFace(myFace,AXIS.Z,memArr);
     };
+    this.getLayerY = function getLayerY(middleSliceNumber){ // parrallel to top and bottom
+        var myFace = [];
+        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
+        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%this.cubiesPerAxis : 1;
+        for (var c in this.cubies){
+            if (((c % this.cubiesPerPlane) >= this.cubiesPerAxis*middleSliceNumber) && ((c % this.cubiesPerPlane) < (this.cubiesPerAxis*(middleSliceNumber+1)))){
+                myFace.push(this.cubies[c]);
+            }
+        }
+        return new CubeFace(this.cubiesPerAxis, myFace);
+    };
+    this.getLayerX = function getLayerX(middleSliceNumber){ // parrallel to top and bottom
+        var myFace = [];
+        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
+        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%this.cubiesPerAxis : 1;
+        for (var c in this.cubies){
+            if ((c % this.cubiesPerAxis) === middleSliceNumber){
+                myFace.push(this.cubies[c]);
+            }
+        }
+        return new CubeFace(this.cubiesPerAxis, myFace);
+    };
+    this.getLayerZ = function getLayerZ(middleSliceNumber){ // parrallel to top and bottom
+        var myFace = [];
+        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
+        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%this.cubiesPerAxis : 1;
+        var from = this.cubiesPerPlane*middleSliceNumber;
+        var thru = this.cubiesPerPlane*(middleSliceNumber+1);
+        for (var c in this.cubies){
+            if (c >= from && c < thru) {
+                myFace.push(this.cubies[c]);
+            }
+        }
+        return new CubeFace(this.cubiesPerAxis, myFace);
+    };
+}
+
+function CubeFace (size,faceCubies) {
+    //#TODO: maybe add partially/completely solved checkers to the face class, like cross, full first layer, etc
+    //#TODO: maybe add some validation to make sure that faceCubies.length === size^2
+    this.cubiesPerAxis = size*1 || 3;
+    this.cubiesPerPlane = Math.pow(this.cubiesPerAxis,2);
+    this.cubies=faceCubies;
+    this.middleColor={'color':null,'colorSideIndex':null};
+
+    this.findMiddleColor = function findMiddleColor(){
+        try{
+            //get the color of a cubies in the middle (as a rule it should have only one color. -- #TODO: there seems to be problem w/ at leas the white side regarding this rule.)
+            var aCentralCubie = this.cubies[this.cubiesPerAxis+1];
+            console.log(aCentralCubie);
+            for (var i=0; i < aCentralCubie.material.materials; i++){
+                if (aCentralCubie.material.materials[i].map !== null){
+                    this.middleColor.color = aCentralCubie.material.materials[i].map.sourceFile; // [...].semanticColor
+                    this.middleColor.colorSideIndex = i;
+                }
+            }
+            if (this.middleColor.color === null || this.middleColor.colorSideIndex === null) throw ('Failed to find MiddleColor for ', this.cubies);
+        }
+        catch(err) {
+           console.log('Something went wrong in findMiddleColor ', err);
+        }
+    };
+    this.isUniform = function isUniform(){
+        var middleColor = this.findMiddleColor();
+        try {
+            for (var i = 0; i < this.cubies.length; i++) {
+                if (this.cubies[i].material.materials[middleColor.colorSideIndex].map.sourceFile !== middleColor.color) return false;  // [...].semanticColor
+            }
+        }
+        catch(err) {
+           console.log('Something went wrong in isUniform', err);
+        }
+    };
+    
 }
