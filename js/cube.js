@@ -1,3 +1,4 @@
+//"use strict"
 //global scene variables
 var renderer, camera, scene, flashlight;
 
@@ -88,6 +89,8 @@ function setupScene(){
 	});
 	//just key controlled for now
 	document.addEventListener("keydown", moveWithKey);
+	var axes = new THREE.AxisHelper( 1000 );
+    scene.add( axes );
 	//setup the Cube
 	startGame();
 }
@@ -225,6 +228,10 @@ function Cube () {
         //create and return the cubie mesh
         var cubieMesh = new THREE.Mesh(cubieGeometry, cubieMaterial); //new THREE.MeshNormalMaterial( { transparent: true, opacity: 0.5 }));
         cubieMesh.userData.has_color = has_color; // #TODO: add something  to keep track of orientation.
+        cubieMesh.userData.orientation = {x:['white','yellow'], y:['red','orange'], z:['blue','green']};
+        //x - LR
+        //z - FB
+        //y - UD
         return cubieMesh;
     };
     this.initCube = function initCube(size){
@@ -318,10 +325,11 @@ function Cube () {
         // for each face see if all colors the same.(break as soon as any face returns not solved.)
         var nearfar = {'near':0, 'far':this.cubiesPerAxis-1}; // anterior and posterior on each axis - e.g. front&back on, say z axis, top&bottom on y, etc.
         for (var i in nearfar){
-            if (!this.getLayerX(nearfar[i]).isUniform()) return false;
-            if (!this.getLayerY(nearfar[i]).isUniform()) return false;
-            if (!this.getLayerZ(nearfar[i]).isUniform()) return false;
+            if (!this.getLayerX(nearfar[i]).isFaceUniform()) return false;
+            if (!this.getLayerY(nearfar[i]).isFaceUniform()) return false;
+            if (!this.getLayerZ(nearfar[i]).isFaceUniform()) return false;
         }
+        return true;
     };
     this.updateCubiesOrder = function updateCubiesOrder(memArr,faceArr){
         //update the this.cubies "matrix" so that it matches the new "physical" locations of the cubies.
@@ -333,7 +341,39 @@ function Cube () {
             var newX = this.cubiesPerAxis - y - 1;
             var newY = x;
             var newPos = newY * this.cubiesPerAxis + newX;
-            this.cubies[memArr[newPos]] = faceArr[k];  
+            this.cubies[memArr[newPos]] = faceArr[k];
+        }
+    };
+    this.updateCubiesOrientation = function updateCubiesOrientation(faceArr,axis){
+        for (var k=0; k < faceArr.length; k++){
+            if(faceArr[k].userData.orientation){ // the middle placeholder objects don't have this variable.
+                console.log('fefe'); // the y axis rotates in theother direction!
+                if (axis == AXIS.X){
+                    var temp1 = faceArr[k].userData.orientation[AXIS.Y][0];
+                    faceArr[k].userData.orientation[AXIS.Y][0] = faceArr[k].userData.orientation[AXIS.Z][1];
+                    faceArr[k].userData.orientation[AXIS.Z][1] = faceArr[k].userData.orientation[AXIS.Y][1];
+                    faceArr[k].userData.orientation[AXIS.Y][1] = faceArr[k].userData.orientation[AXIS.Z][0];
+                    faceArr[k].userData.orientation[AXIS.Z][0] = temp1;
+                }
+                if (axis == AXIS.Y){
+                    var temp2 = faceArr[k].userData.orientation[AXIS.Z][0];
+                    faceArr[k].userData.orientation[AXIS.Z][0] = faceArr[k].userData.orientation[AXIS.X][1];
+                    faceArr[k].userData.orientation[AXIS.X][1] = faceArr[k].userData.orientation[AXIS.Z][1];
+                    faceArr[k].userData.orientation[AXIS.Z][1] = faceArr[k].userData.orientation[AXIS.X][0];
+                    faceArr[k].userData.orientation[AXIS.X][0] = temp2;
+                }
+                if (axis == AXIS.Z){
+                    var temp3 = faceArr[k].userData.orientation[AXIS.Y][0];
+                    faceArr[k].userData.orientation[AXIS.Y][0] = faceArr[k].userData.orientation[AXIS.X][0];
+                    faceArr[k].userData.orientation[AXIS.X][0] = faceArr[k].userData.orientation[AXIS.Y][1];
+                    faceArr[k].userData.orientation[AXIS.Y][1] = faceArr[k].userData.orientation[AXIS.X][1];
+                    faceArr[k].userData.orientation[AXIS.X][1] = temp3;
+                    /*x1 - y1
+                    y1 - x2
+                    x2 - y2
+                    y2 - x1*/
+                }
+            }
         }
     };
     this.animateRequest = function animateRequest(request){
@@ -357,6 +397,7 @@ function Cube () {
                 scene.add(request.face[j]);}
             //update this.cubies after movement
             this.updateCubiesOrder(request.memArr,request.face);
+            this.updateCubiesOrientation(request.face,request.axis);
             this.animationRequests.shift();
             this.updateStep=0;
             theCube.busy = false;
@@ -384,7 +425,7 @@ function Cube () {
         if(axis == AXIS.X) {
             request.rotateTo.x = Math.PI/2;
         }else if(axis == AXIS.Y) {
-            request.rotateTo.y = - Math.PI/2;
+            request.rotateTo.y =  Math.PI/2;
         }else if(axis == AXIS.Z) {
             request.rotateTo.z = Math.PI/2;
         }
@@ -403,7 +444,6 @@ function Cube () {
             }
         }
         this.rotateFace(myFace,AXIS.Z,memArr);
-
     };
     this.getBackFace = function getBackFace(){
         // NOT USED FOR NOW, INSTEAD RELYING ON getMiddle[Axis] functions
@@ -465,6 +505,8 @@ function Cube () {
                 memArr.push(c);
             }
         }
+        //myFace.reverse();
+        memArr.reverse();
         this.rotateFace(myFace,AXIS.Y,memArr);
     };
     this.rotateTopFace = function rotateTopFace(){
@@ -477,6 +519,8 @@ function Cube () {
                 memArr.push(c);
             }
         }
+        //myFace.reverse();
+        memArr.reverse();
         this.rotateFace(myFace,AXIS.Y,memArr);
     };
     this.rotateMiddleY = function rotateMiddleY(middleSliceNumber){ // parrallel to top and bottom
@@ -490,6 +534,8 @@ function Cube () {
                 memArr.push(c);
             }
         }
+        //myFace.reverse();
+        memArr.reverse();
         this.rotateFace(myFace,AXIS.Y,memArr);
     };
     this.rotateMiddleX = function rotateMiddleX(middleSliceNumber){ // parrallel to top and bottom
@@ -520,50 +566,55 @@ function Cube () {
         }
         this.rotateFace(myFace,AXIS.Z,memArr);
     };
-    this.getLayerY = function getLayerY(middleSliceNumber){ // parrallel to top and bottom
+    this.getLayerY = function getLayerY(sliceNumber){ // parrallel to top and bottom
         var myFace = [];
-        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
-        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%this.cubiesPerAxis : 1;
+        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. sliceNumber specifies which slice is needed.
+        sliceNumber = typeof sliceNumber !== 'undefined' ? sliceNumber%this.cubiesPerAxis : 1;
         for (var c in this.cubies){
-            if (((c % this.cubiesPerPlane) >= this.cubiesPerAxis*middleSliceNumber) && ((c % this.cubiesPerPlane) < (this.cubiesPerAxis*(middleSliceNumber+1)))){
+            if (((c % this.cubiesPerPlane) >= this.cubiesPerAxis*sliceNumber) && ((c % this.cubiesPerPlane) < (this.cubiesPerAxis*(sliceNumber+1)))){
                 myFace.push(this.cubies[c]);
             }
         }
-        return new CubeFace(this.cubiesPerAxis, myFace);
+        return new CubeFace(myFace,AXIS.Y,sliceNumber);
     };
-    this.getLayerX = function getLayerX(middleSliceNumber){ // parrallel to top and bottom
+    this.getLayerX = function getLayerX(sliceNumber){ // parrallel to top and bottom
         var myFace = [];
-        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
-        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%this.cubiesPerAxis : 1;
+        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. sliceNumber specifies which slice is needed.
+        sliceNumber = typeof sliceNumber !== 'undefined' ? sliceNumber%this.cubiesPerAxis : 1;
         for (var c in this.cubies){
-            if ((c % this.cubiesPerAxis) === middleSliceNumber){
+            if ((c % this.cubiesPerAxis) === sliceNumber){
                 myFace.push(this.cubies[c]);
             }
         }
-        return new CubeFace(this.cubiesPerAxis, myFace);
+        return new CubeFace(myFace,AXIS.X,sliceNumber);
     };
-    this.getLayerZ = function getLayerZ(middleSliceNumber){ // parrallel to top and bottom
+    this.getLayerZ = function getLayerZ(sliceNumber){ // parrallel to top and bottom
         var myFace = [];
-        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
-        middleSliceNumber = typeof middleSliceNumber !== 'undefined' ? middleSliceNumber%this.cubiesPerAxis : 1;
-        var from = this.cubiesPerPlane*middleSliceNumber;
-        var thru = this.cubiesPerPlane*(middleSliceNumber+1);
+        // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. sliceNumber specifies which slice is needed.
+        sliceNumber = typeof sliceNumber !== 'undefined' ? sliceNumber%this.cubiesPerAxis : 1;
+        var from = this.cubiesPerPlane*sliceNumber;
+        var thru = this.cubiesPerPlane*(sliceNumber+1);
         for (var c in this.cubies){
             if (c >= from && c < thru) {
                 myFace.push(this.cubies[c]);
             }
         }
-        return new CubeFace(this.cubiesPerAxis, myFace);
+        return new CubeFace(myFace,AXIS.Z,sliceNumber);
     };
 }
 
-function CubeFace (size,faceCubies) {
+function CubeFace (faceCubies,axis,farnear) {
     //#TODO: maybe add partially/completely solved checkers to the face class, like cross, full first layer, etc
     //#TODO: maybe add some validation to make sure that faceCubies.length === size^2
-    this.cubiesPerAxis = size*1 || 3;
-    this.cubiesPerPlane = Math.pow(this.cubiesPerAxis,2);
+    //this.cubiesPerPlane = Math.pow(this.cubiesPerAxis,2);
     this.cubies=faceCubies;
+    this.cubiesPerAxis = Math.sqrt(this.cubies.length);
     this.faceColor=null;
+    if (farnear !==0 && farnear !== this.cubiesPerAxis-1) {
+        throw('this is not a face layer');
+    }
+    if (farnear !==0) farnear =1; // can only be front/back, left/right, etc
+    var nearfar = 1 - farnear;  // swapping the near and the far
     //this.middleColor={'color':null,'colorSideIndex':null}; // totally redundant you already know what color is which index
 
     /*this.findMiddleColor = function findMiddleColor(){//doesn't work for 2x2 (also for 1x1 but that's just ane exception)
@@ -600,12 +651,18 @@ function CubeFace (size,faceCubies) {
         if (this.isLayerUniform()) return this.faceColor;
         throw ('Layer not uniform.');
     };
-    this.isFaceUniform = function isUniform(){ //checks if cbies are in rigth layer and in the right orientation
+    this.isFaceUniform = function isFaceUniform(){ //checks if cbies are in rigth layer and in the right orientation
         if (!this.isLayerUniform()) return false; //a face can't be unifor if the layer doesn't have all the right cubies.
+        console.log('axis ',axis);
+        console.log('nearfar ',nearfar);
+        console.log(this.faceColor);
         for (var i = 0; i < this.cubies.length; i++) {
-            //
+            console.log(this.cubies[i].userData.orientation[axis][nearfar]);
+            if(this.cubies[i].userData.orientation[axis][nearfar] !== this.faceColor) break;//e.g.[y2]
+            if (i==this.cubies.length-1) return true;
         }
-        return true;
+        return false;
     };
     
 }
+            
