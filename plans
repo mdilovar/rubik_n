@@ -1,10 +1,12 @@
 current task:
-what I have done so far:
-added a primitive timer that fires after user chooses cube sive in a primitive js prompt
-cube of the right size is loaded and is scrambled - for this added function scramble(onComplete) to teh CUbe class. oncomplete the timer is then fired from game.JS
-+
-+rotation on y axiz was against the right-hand rule - fixed that (it was messing with keeping track of cubie orientation). now it should be easier to add clockwise/counter-clockwise (or right hand anti right hand?) rotation.
-+issolved should work now. test it.
++tested isSolved, looks like it works
++updated timer a bit, removed milliseconds from ui ("ui" haha, need to make something decent soon)
++primitive poup shows time it took you to solve the cube.
+next:
++add backend php and mysql for fized username and time+cube size
++add HS
++add primitive login - no pass
+
 
 
 

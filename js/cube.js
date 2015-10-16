@@ -59,7 +59,8 @@ function setupScene(){
 	controls = new THREE.TrackballControls(camera);
     //start the WebGLRenderer
     renderer.setSize(WIDTH, HEIGHT);
-	renderer.setClearColor( 0xf0f0f0 );
+	renderer.setClearColor(0xf0f0f0);
+	renderer.render(scene, camera); // render once just for the bg color
 	//attach the renderer canvas to the DOM body
 	document.body.appendChild(renderer.domElement);
 	//add window resize listener to redraw everything in case of windaw size change
@@ -76,7 +77,7 @@ function setupScene(){
             this.mouseOvered.currentHex[i] = this.mouseOvered.material.materials[i].emissive.getHex();
             this.mouseOvered.material.materials[i].emissive.setHex(0xff0000);
 		}
-		console.log(this.mouseOvered);
+		//console.log(this.mouseOvered);
 	});
     //define mouse out actions
 	eControls.attachEvent( 'mouseOut', function () {
@@ -234,9 +235,10 @@ function Cube () {
         //y - UD
         return cubieMesh;
     };
-    this.initCube = function initCube(size){
+    this.initCube = function initCube(size,onIsSolved){
         this.cubiesPerAxis = size*1 || 3;
         this.cubiesPerPlane = Math.pow(this.cubiesPerAxis,2);
+        this.onIsSolved=onIsSolved;
         //create the cube
         for (var z = 0; z < this.cubiesPerAxis; z++){
             for (var y = 0; y < this.cubiesPerAxis; y++){
@@ -270,7 +272,7 @@ function Cube () {
     draw();
     };
     this.scramble = function scramble(onComplete){
-        var randomMoveCount=20;
+        var randomMoveCount=1;
         var moves = ['u','d','l','r','f','b','x','y','z'];
         //var dirrection = [0,1]; // clockwise/counter-clockwise
         var i = 0;
@@ -312,10 +314,6 @@ function Cube () {
                 i++;
             }
         }, 1);
-        /*while () {
-            console.log(i);
-           
-        }*/
     };
     this.destroy = function destroy(){
         //destroy code goes here
@@ -347,7 +345,6 @@ function Cube () {
     this.updateCubiesOrientation = function updateCubiesOrientation(faceArr,axis){
         for (var k=0; k < faceArr.length; k++){
             if(faceArr[k].userData.orientation){ // the middle placeholder objects don't have this variable.
-                console.log('fefe'); // the y axis rotates in theother direction!
                 if (axis == AXIS.X){
                     var temp1 = faceArr[k].userData.orientation[AXIS.Y][0];
                     faceArr[k].userData.orientation[AXIS.Y][0] = faceArr[k].userData.orientation[AXIS.Z][1];
@@ -400,6 +397,7 @@ function Cube () {
             this.updateCubiesOrientation(request.face,request.axis);
             this.animationRequests.shift();
             this.updateStep=0;
+            if (this.isSolved()) this.onIsSolved();
             theCube.busy = false;
         }
     };
