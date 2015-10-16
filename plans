@@ -3,7 +3,7 @@ what I have done so far:
 added a primitive timer that fires after user chooses cube sive in a primitive js prompt
 cube of the right size is loaded and is scrambled - for this added function scramble(onComplete) to teh CUbe class. oncomplete the timer is then fired from game.JS
 +
-this still being debugged - figured a way to make the isSolved function work (theoretically for now) - for this: created getLayer[Axis] functions, and the CubeFace Class with methods like findmiddlecolor and isuniform.
+this still being debugged - in progress. previous change had some problems. changed the face functions, and the cubie mesh generator now should/will soon add some more properties that keep track of orientation and present colors that are used by face class function. 
 
 next immediate task:
 add function isSolved() definition to check if cube solved  after each user move.

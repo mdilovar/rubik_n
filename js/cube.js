@@ -3,6 +3,20 @@ var renderer, camera, scene, flashlight;
 
 var AXIS = {X:"x", Y:"y", Z:"z"};
 
+var color_codes = {  green: '#009E60', red: '#8A0413', 
+                blue: '#0051BA', yellow: '#FFD500', 
+                white: '#FFFFFF', orange:'#F84704', 
+                black: '#000000'};
+
+var textures = { white:     THREE.ImageUtils.loadTexture("images/colors_512/white.png"), 
+                 yellow:    THREE.ImageUtils.loadTexture("images/colors_512/yellow.png"), 
+                 red:       THREE.ImageUtils.loadTexture("images/colors_512/red.png"), 
+                 orange:    THREE.ImageUtils.loadTexture("images/colors_512/orange.png"), 
+                 blue:      THREE.ImageUtils.loadTexture("images/colors_512/blue.png"), 
+                 green:     THREE.ImageUtils.loadTexture("images/colors_512/green.png") };
+                 
+var colors = ["green", "red", "blue", "yellow", "white", "orange"];
+
 //set cubicle size
 var cubieSize = 200;
 
@@ -61,6 +75,7 @@ function setupScene(){
             this.mouseOvered.currentHex[i] = this.mouseOvered.material.materials[i].emissive.getHex();
             this.mouseOvered.material.materials[i].emissive.setHex(0xff0000);
 		}
+		console.log(this.mouseOvered);
 	});
     //define mouse out actions
 	eControls.attachEvent( 'mouseOut', function () {
@@ -151,43 +166,51 @@ function Cube () {
     this.animationRequests=[];
     this.updateStep=0;
     this.getCubieMesh = function getCubieMesh(x,y,z){ //console.log(x,y,z);
-        var colors = {  green: '#009E60', red: '#8A0413', 
-                        blue: '#0051BA', yellow: '#FFD500', 
-                        white: '#FFFFFF', orange:'#F84704', 
-                        black: '#000000'};
-        var color_right = colors.white, color_left = colors.yellow, 
-            color_top = colors.red, color_bottom = colors.orange,
-            color_front = colors.blue, color_back = colors.green;
-        var texture_right = THREE.ImageUtils.loadTexture("images/colors_512/white.png"), 
-            texture_left = THREE.ImageUtils.loadTexture("images/colors_512/yellow.png"), 
-            texture_top = THREE.ImageUtils.loadTexture("images/colors_512/red.png"), 
-            texture_bottom = THREE.ImageUtils.loadTexture("images/colors_512/orange.png"), 
-            texture_front = THREE.ImageUtils.loadTexture("images/colors_512/blue.png"), 
-            texture_back = THREE.ImageUtils.loadTexture("images/colors_512/green.png");
+        var color_right = color_codes.white, 
+            color_left = color_codes.yellow, 
+            color_top = color_codes.red, 
+            color_bottom = color_codes.orange,
+            color_front = color_codes.blue, 
+            color_back = color_codes.green;
+        var texture_right = textures.white,
+            texture_left = textures.yellow,
+            texture_top = textures.red,
+            texture_bottom = textures.orange,
+            texture_front = textures.blue,
+            texture_back = textures.green;
+        var has_color = { green: true, red: true, 
+                          blue: true, yellow: true, 
+                          white: true, orange:true };
         //set the invisible sides to black
         if (x > 0){
-            color_left = colors.black;
+            color_left = color_codes.black;
             texture_left = null;
+            has_color.yellow = false;
         }
         if (x < this.cubiesPerAxis-1){
-            color_right = colors.black;
+            color_right = color_codes.black;
             texture_right = null;
+            has_color.white = false;
         }
         if (y > 0){
-            color_bottom = colors.black;
+            color_bottom = color_codes.black;
             texture_bottom = null;
+            has_color.orange = false;
         }
         if (y < this.cubiesPerAxis-1){
-            color_top = colors.black;
+            color_top = color_codes.black;
             texture_top = null;
+            has_color.red = false;
         }
         if (z > 0){
-            color_back = colors.black;
+            color_back = color_codes.black;
             texture_back = null;
+            has_color.green = false;
         }
         if (z < this.cubiesPerAxis-1){
-            color_front = colors.black;
-            texture_front = texture_right;
+            color_front = color_codes.black;
+            texture_front = null;
+            has_color.blue = false;
         }
         //create the cubies's geometry
         var cubieGeometry = new THREE.BoxGeometry(cubieSize, cubieSize, cubieSize);
@@ -200,7 +223,9 @@ function Cube () {
             new THREE.MeshPhongMaterial({color: color_front, map: texture_front}),//fromt - blue
             new THREE.MeshPhongMaterial({color: color_back, map: texture_back})]); //back - green
         //create and return the cubie mesh
-        return new THREE.Mesh(cubieGeometry, cubieMaterial); //new THREE.MeshNormalMaterial( { transparent: true, opacity: 0.5 }));
+        var cubieMesh = new THREE.Mesh(cubieGeometry, cubieMaterial); //new THREE.MeshNormalMaterial( { transparent: true, opacity: 0.5 }));
+        cubieMesh.userData.has_color = has_color; // #TODO: add something  to keep track of orientation.
+        return cubieMesh;
     };
     this.initCube = function initCube(size){
         this.cubiesPerAxis = size*1 || 3;
@@ -292,15 +317,10 @@ function Cube () {
         //check if solved after each user move
         // for each face see if all colors the same.(break as soon as any face returns not solved.)
         var nearfar = {'near':0, 'far':this.cubiesPerAxis-1}; // anterior and posterior on each axis - e.g. front&back on, say z axis, top&bottom on y, etc.
-        try{
-            for (var i in nearfar){
-                if (!this.getLayerX(nearfar[i]).isUniform()) return false;
-                if (!this.getLayerY(nearfar[i]).isUniform()) return false;
-                if (!this.getLayerZ(nearfar[i]).isUniform()) return false;
-            }
-        }
-        catch(err) {
-           console.log('Something went wrong in isSolved ', err);
+        for (var i in nearfar){
+            if (!this.getLayerX(nearfar[i]).isUniform()) return false;
+            if (!this.getLayerY(nearfar[i]).isUniform()) return false;
+            if (!this.getLayerZ(nearfar[i]).isUniform()) return false;
         }
     };
     this.updateCubiesOrder = function updateCubiesOrder(memArr,faceArr){
@@ -543,35 +563,49 @@ function CubeFace (size,faceCubies) {
     this.cubiesPerAxis = size*1 || 3;
     this.cubiesPerPlane = Math.pow(this.cubiesPerAxis,2);
     this.cubies=faceCubies;
-    this.middleColor={'color':null,'colorSideIndex':null};
+    this.faceColor=null;
+    //this.middleColor={'color':null,'colorSideIndex':null}; // totally redundant you already know what color is which index
 
-    this.findMiddleColor = function findMiddleColor(){
+    /*this.findMiddleColor = function findMiddleColor(){//doesn't work for 2x2 (also for 1x1 but that's just ane exception)
         try{
             //get the color of a cubies in the middle (as a rule it should have only one color. -- #TODO: there seems to be problem w/ at leas the white side regarding this rule.)
             var aCentralCubie = this.cubies[this.cubiesPerAxis+1];
-            console.log(aCentralCubie);
-            for (var i=0; i < aCentralCubie.material.materials; i++){
+            for (var i=0; i < aCentralCubie.material.materials.length; i++){
                 if (aCentralCubie.material.materials[i].map !== null){
                     this.middleColor.color = aCentralCubie.material.materials[i].map.sourceFile; // [...].semanticColor
                     this.middleColor.colorSideIndex = i;
                 }
             }
+            console.log('this is the middle color ',this.middleColor);
             if (this.middleColor.color === null || this.middleColor.colorSideIndex === null) throw ('Failed to find MiddleColor for ', this.cubies);
         }
         catch(err) {
            console.log('Something went wrong in findMiddleColor ', err);
         }
-    };
-    this.isUniform = function isUniform(){
-        var middleColor = this.findMiddleColor();
-        try {
+    };*/
+    this.isLayerUniform = function isLayerUniform(){ // checks is cubies are in the righ layer regardless of their orientation
+        for (var c = 0; c < colors.length; c++) {
             for (var i = 0; i < this.cubies.length; i++) {
-                if (this.cubies[i].material.materials[middleColor.colorSideIndex].map.sourceFile !== middleColor.color) return false;  // [...].semanticColor
+                if (!this.cubies[i].userData.has_color[colors[c]]) break;
+                if (i==this.cubies.length-1) {
+                    this.faceColor = colors[c];
+                    return true;
+                }
             }
         }
-        catch(err) {
-           console.log('Something went wrong in isUniform', err);
+        return false;
+    };
+    this.getFaceColor = function getFaceColor(){ // may return the face color even if the cubies are in the wrong orientation.
+        if (this.faceColor !== null) return this.faceColor;
+        if (this.isLayerUniform()) return this.faceColor;
+        throw ('Layer not uniform.');
+    };
+    this.isFaceUniform = function isUniform(){ //checks if cbies are in rigth layer and in the right orientation
+        if (!this.isLayerUniform()) return false; //a face can't be unifor if the layer doesn't have all the right cubies.
+        for (var i = 0; i < this.cubies.length; i++) {
+            //
         }
+        return true;
     };
     
 }
