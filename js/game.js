@@ -30,7 +30,7 @@ function introScreen(){
         //start the Cube
         theCube.initCube(this.cubeSize,function onIsSolved(){
             timer.stop();
-            alert('Hoooray! your time: '+Math.floor(timer.getElapsedTime()/1000)+' seconds.')
+            alert('Hoooray! your time: '+Math.floor(timer.getElapsedTime()/1000)+' seconds.');
         });
         theCube.scramble(function onComplete(){
             timer.start();
