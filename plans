@@ -1,13 +1,15 @@
+done so far (current commit):
+note: did pretify on some files // added ability to send score from client to server + stopped keycontrol when solved. // added logout button // added restart (cube.destroy,timere reset, etc)
+
 current task:
 
 
 next up:
-
-+send score from client to server, get personal hs
++get personal hs
 +add password encryption by js / https - (is there a need for https isn't it already https?)
 +make the login page prettier
 +make the game page prettier (cube size, hs, add logout.)
-+some congrats amination.
++some congrats amination?
 
 
 

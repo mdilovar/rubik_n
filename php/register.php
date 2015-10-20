@@ -53,7 +53,7 @@
         }
         return true;
     }
-    
+
     function isUsernameAvailable($username,$mysqli){
         if (!($stmt = $mysqli->prepare('SELECT username FROM player WHERE username = (?) LIMIT 1'))) {
             $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;

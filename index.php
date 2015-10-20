@@ -34,7 +34,6 @@
 	      <form method="post" action="php/register.php">
 	        <p><input type="text" name="username" value="" placeholder="Username"></p>
 	        <p><input type="password" name="password" value="" placeholder="Password"></p>
-	        <!--<p class="submit"><input type="submit" value="Login"></p> -->
 	        <p class="submit">
 	        	<button type="button" onclick="sendForm(this.form.username.value,this.form.password.value,this.form.action);">Register</button>
 	        </p>
@@ -42,3 +41,5 @@
 	    </div>
 	</body>
 </html>
+
+
