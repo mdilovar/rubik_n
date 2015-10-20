@@ -1,20 +1,14 @@
 function Ajax(url,data,callback){
-    this.aj;
-    this.callback;
-    this.data;
-    this.url;
-    this.initAjax = function initAjax(url,data,callback){
-        this.aj = new XMLHttpRequest();
-        this.callback = callback;
-        this.data = data;
-        this.url=url;
-    }(url,data,callback);
+    this.aj = new XMLHttpRequest();
+    this.aj.callback = callback;
+    this.data = data;
+    this.url=url;
     this.post = function post(){
-        this.aj.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        this.aj.onreadystatechange = function(){
-        if (this.aj.readyState == 4 && this.aj.status == 200){
-                this.callback(this.aj.responseText);
-            }
+        var aj = this.aj;
+        aj.onreadystatechange = function (){
+            if (aj.readyState == 4 && aj.status == 200){
+                    aj.callback(aj.response);
+                }
         };
         var body = [];
         for (var k in this.data) {
@@ -22,13 +16,15 @@ function Ajax(url,data,callback){
         }
         body = body.join('&');
         this.aj.open("POST", this.url, true);
+        this.aj.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         this.aj.send(body);
     };
     this.get = function post(){
-        this.aj.onreadystatechange = function(){
-        if (this.aj.readyState == 4 && this.aj.status == 200){
-                this.callback(this.aj.responseText);
-            }
+        var aj = this.aj;
+        aj.onreadystatechange = function(){
+            if (aj.readyState == 4 && aj.status == 200){
+                    aj.callback(aj.response);
+                }
         };
         var query = [];
         for (var k in this.data) {

@@ -9,12 +9,12 @@ var color_codes = {  green: '#009E60', red: '#8A0413',
                 white: '#FFFFFF', orange:'#F84704', 
                 black: '#000000'};
 
-var textures = { white:     THREE.ImageUtils.loadTexture("images/colors_512/white.png"), 
-                 yellow:    THREE.ImageUtils.loadTexture("images/colors_512/yellow.png"), 
-                 red:       THREE.ImageUtils.loadTexture("images/colors_512/red.png"), 
-                 orange:    THREE.ImageUtils.loadTexture("images/colors_512/orange.png"), 
-                 blue:      THREE.ImageUtils.loadTexture("images/colors_512/blue.png"), 
-                 green:     THREE.ImageUtils.loadTexture("images/colors_512/green.png") };
+var textures = { white:     THREE.ImageUtils.loadTexture("../images/colors_512/white.png"), 
+                 yellow:    THREE.ImageUtils.loadTexture("../images/colors_512/yellow.png"), 
+                 red:       THREE.ImageUtils.loadTexture("../images/colors_512/red.png"), 
+                 orange:    THREE.ImageUtils.loadTexture("../images/colors_512/orange.png"), 
+                 blue:      THREE.ImageUtils.loadTexture("../images/colors_512/blue.png"), 
+                 green:     THREE.ImageUtils.loadTexture("../images/colors_512/green.png") };
                  
 var colors = ["green", "red", "blue", "yellow", "white", "orange"];
 

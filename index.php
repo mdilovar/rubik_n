@@ -16,13 +16,7 @@
 			body { margin: 0; background-color: #f0f0f0; overflow: hidden;}
 		</style>
 		<script src="../js/ajax.js"></script>
-		<script>
-			function sendForm(u, p, url){
-				var data = {username: u, password:p};
-				var ajax = new Ajax(url,data,console.log);
-				ajax.post();
-			}
-		</script>
+		<script src="../js/login.js"></script>
 	</head>
 	<body>
 		<div class="login">
@@ -30,7 +24,9 @@
 	      <form method="post" action="php/login.php">
 	        <p><input type="text" name="username" value="" placeholder="Username"></p>
 	        <p><input type="password" name="password" value="" placeholder="Password"></p>
-	        <p class="submit"><input type="submit" value="Login"></p>
+	        <p class="submit">
+	        	<button type="button" onclick="sendForm(this.form.username.value,this.form.password.value,this.form.action);">Login</button>
+	        </p>
 	      </form>
 	    </div>
 	    <div class="resister">
@@ -38,10 +34,10 @@
 	      <form method="post" action="php/register.php">
 	        <p><input type="text" name="username" value="" placeholder="Username"></p>
 	        <p><input type="password" name="password" value="" placeholder="Password"></p>
-	        <p class="submit"><input type="submit" value="Login"></p>
-	        <!--<p class="submit">
-	        	<button type="button" onclick="sendForm(this.form.username,this.form.password,this.form.action);">Register</button>
-	        </p> -->
+	        <!--<p class="submit"><input type="submit" value="Login"></p> -->
+	        <p class="submit">
+	        	<button type="button" onclick="sendForm(this.form.username.value,this.form.password.value,this.form.action);">Register</button>
+	        </p>
 	      </form>
 	    </div>
 	</body>

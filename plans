@@ -1,82 +1,37 @@
 current task:
-+tested isSolved, looks like it works
-+updated timer a bit, removed milliseconds from ui ("ui" haha, need to make something decent soon)
-+primitive poup shows time it took you to solve the cube.
-next:
-+add backend php and mysql for fized username and time+cube size
-+add HS
-+add primitive login - no pass
 
 
+next up:
 
++send score from client to server, get personal hs
++add password encryption by js / https - (is there a need for https isn't it already https?)
++make the login page prettier
++make the game page prettier (cube size, hs, add logout.)
++some congrats amination.
 
-next immediate task:
-add function isSolved() definition to check if cube solved  after each user move.
-- maybe convert Cube.cubies to a 6x[NxN] array? - easier to get faces. (worth it? will it help w/ isSolved? or do isSolved first?)
-
-- add cube tracking and game ui elements (Hi Sc, time, etc):
-    set HS to 0;
-    
-    first scene - no cube
-    get username (for now no backend)
-    get cube size
-    after start!:
-    
-    second scene: 
-    create cube using user-given cube size.
-    scramble cube; (before adding it to screen?)
-    start timer after scrambled cube is loaded.
-    
-    after each move call (ckeckIfCubeSolved)
-    if true: 
-    update HS on screen with the value of timer
-    some congrats amination.
-    
-    remove cube, show first scene
 
 
 
 /// more:
-Before Monday try to do at least some of:
-- add NxNxN fixes later. for now don't waste too much time, instead focus on a 3x3x3 mvp
-- add cube tracking and game ui elements (Hi Sc, time, etc)
-- add server side score-keeping
-
 
 - add mosouse movement support (coun terclockwise shouild work too; for n>3 - all middle layers should rotate.)
+- user friendly step-by step guide for solution {Before even given cube status input, just like hints. input is the scrambled cube.}
+
 - create a prototype for detecting colors on one side of a cube from an image.
-- adding facebook api
-
-
-
-
-
-
-
-
-
-
-Next up:
+- adding facebook api and friends high scores.
 - if image prototype works, implement video feed cube scanner
 - and/or alternative manual cube status selection with center color picker
-- automatic solution
-- user friendly step-by step guide for solution
 - consider dropping trackball/orbit/event-controls scripts (and implementing min req func yourself) to improve original/imported code ratio.
  
 
 optional: 
 - Make mobile friendly?
-- Continue Python develop the cube,  maybe start switching to JS  already  - (quick test the evo algorithm)
 
 
-three d course 
-https://www.udacity.com/course/viewer#!/c-cs291/l-68866048/m-106573033
 
 
-this dude is rotating subgroup!!:
+other people's cubes:
 https://dl.dropboxusercontent.com/u/13195512/rubik/rubikscube.html
-
-
 someone else's cube ! - http://codepen.io/theonepa1/pen/fzAli
 
 
