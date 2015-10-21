@@ -4,6 +4,7 @@ function sendForm(u, p, url){
 	ajax.post();
 }
 function handleResponse(response){
+    console.log(response);
     response = JSON.parse(response);
     console.log(response);
     if (!response.success){
