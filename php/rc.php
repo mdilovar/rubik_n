@@ -1,6 +1,6 @@
 <?php
     session_start();
-    if (!$_SESSION["isLoggedIn"]){
+    if (!(isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] == true)){
         echo json_encode(array("success" => false, "general_message" => "Please login first." ));
         header("location:../index.php");
         exit();
@@ -31,6 +31,9 @@
 	    </div>
 	   	<div id="reset">
 	      <button type="button" onclick="IntroScreen.reset();">Restart</button>
+	    </div>
+	    <div id="user_hs">
+	      <span id="hs"></span>
 	    </div>
 	    <div id='canvas_div'></div>
 	    <script src="../js/ajax.js"></script>

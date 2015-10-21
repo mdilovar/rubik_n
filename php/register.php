@@ -1,7 +1,7 @@
 <?php
     #TODO: use https, safeguard data, esp password when it comes from client to server.
     session_start();
-    if ($_SESSION["isLoggedIn"]){
+    if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] == true){
         echo json_encode(array("success" => false, "general_message" => "Please logout first." ));
         exit();
     }

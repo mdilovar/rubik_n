@@ -92,11 +92,17 @@ function Game() {
             document.addEventListener("keydown", moveWithKey);
             timer.start();
         });
-    }
+        this.grabHS(theCube.cubiesPerAxis);
+    };
     this.sendScore = function sendScore(score,cube_size){
     	var data = {score:score, cube_size:cube_size};
     	var ajax = new Ajax(SCORE_URL,data,this.handleResponse);
     	ajax.post();
+    };
+    this.grabHS = function grabHS(cube_size){
+        var data = {cube_size:cube_size};
+    	var ajax = new Ajax(SCORE_URL,data,this.handleResponse);
+    	ajax.get();
     };
     this.handleResponse = function handleResponse(response){
         response = JSON.parse(response);
@@ -106,6 +112,10 @@ function Game() {
                 console.log(response.errors[prop]);
             }
         }else{
+            var hs = document.getElementById('hs');
+            if(typeof response.data !== 'undefined'){
+                hs.innerHTML = response.data.hs;   
+            }
             console.log('Hoooray! recorded your score: ' ,  response);
         }
     };
