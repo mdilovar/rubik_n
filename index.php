@@ -6,7 +6,6 @@
         exit();
     }
 ?>
-
 <!DOCTYPE html>
 <html>
 	<head>
@@ -15,8 +14,8 @@
 		<style>
 			body { margin: 0; background-color: #f0f0f0; overflow: hidden;}
 		</style>
-		<script src="../js/ajax.js"></script>
-		<script src="../js/login.js"></script>
+		<script src="/js/ajax.js"></script>
+		<script src="/js/login.js"></script>
 	</head>
 	<body>
 		<div class="login">
