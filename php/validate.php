@@ -1,8 +1,7 @@
 <?php
     function validateInput($input,$input_type,&$error_ar){
         $username_pattern = '/[^A-Za-z0-9]/';
-        $input = trim($input);
-        if("" == $input) {
+        if("" == trim($input)) {
             $error_ar[$input_type] = "You entered empty value for $input_type.";
         }else{
             if($input_type == 'username' && preg_match($username_pattern, $input)) {

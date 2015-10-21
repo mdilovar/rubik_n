@@ -23,16 +23,21 @@
 			<h1>rubik_n</h1>
 			<form method="post" action="php/login.php">
 				<p>
-					<input type="text" name="username" value="" placeholder="Username">
+					<input type="text" name="username" value="" placeholder="username">
 				</p>
 				<p>
-					<input type="password" name="password" value="" placeholder="Password">
+					<input type="password" name="password" value="" placeholder="password">
 				</p>
 				<p class="submit">
-					<input type="button" name="commit" onclick="sendForm(this.form.username.value,this.form.password.value,'php/login.php');" value="Log in">
-					<input type="button" name="commit" onclick="sendForm(this.form.username.value,this.form.password.value,'php/register.php');" value="Sign up">
+					<input type="button" name="commit" onclick="sendForm(this.form.username.value,this.form.password.value,'php/login.php');" value="log in">
+					<input type="button" name="commit" onclick="sendForm(this.form.username.value,this.form.password.value,'php/register.php');" value="sign up">
 				</p>
 			</form>
+		</div>
+		<div id="errors">
+			<p id="uerr"></p>
+			<p id="perr"></p>
+			<p id="gerr"></p>
 		</div>
 	</div>
 </body>

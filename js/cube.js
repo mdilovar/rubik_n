@@ -102,8 +102,8 @@ function setupScene() {
             this.mouseOvered.material.materials[i].emissive.setHex(this.mouseOvered.currentHex[i]);
 		}
 	});*/
-    var axes = new THREE.AxisHelper(1000);
-    scene.add(axes);
+    //var axes = new THREE.AxisHelper(1000);
+    //scene.add(axes);
     //setup the Cube
     loadGame();
 }

@@ -39,11 +39,7 @@
 	    /*border-top: solid 2px transparent ;*/
 	    border-bottom: solid 2px black;
 	}
-	
-	.register {
-	    display: none;
-	}
-	
+
 	h1 {
 	    font-family: Lucida Console;
 	}
@@ -56,3 +52,10 @@
 	    width: 49%;
 	    font-family: Lucida Console;
 	}
+	#errors{
+    	font-family: Lucida Console;
+		padding-top: 5px;
+	    width: 100%;
+		color: #969696;
+	    text-align: center;
+    }

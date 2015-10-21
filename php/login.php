@@ -48,12 +48,12 @@
         $result = $stmt->get_result();
     
         if ($result->num_rows != 1) {
-            $errors['username'] = "Incorrect username.";
+            $errors['gerr'] = "Incorrect username or password.";
             return false;
         } else {
             $player = $result->fetch_object();
             if (!password_verify($password, $player->hash)) {
-                $errors['password'] = "Incorrect password.";
+                $errors['gerr'] = "Incorrect username or password.";
                 return false;
             } else {
                 return true;
