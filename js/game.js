@@ -12,15 +12,41 @@ function loadGame() {
 
 function IntroScreen() {
     this.display = function display() {
+        //show:
         var cube_size_form = document.getElementById('cube_size_form');
+        var sizen = document.getElementById('sizen');
         cube_size_form.style.display = "inline";
+        sizen.style.display = "inline";
+        //hide:
+        var restart_button = document.getElementById('restart_button');
+        var hs = document.getElementById('hs');
+        restart_button.style.display = "none";
+        hs.innerHTML = "";
+        //move around:
+        var cube_size_wrapper = document.getElementById('cube_size_wrapper');
+        cube_size_wrapper.style.paddingTop = "10%";
+        //change n to n
+        var n = document.getElementById('n');
+        n.innerHTML = 'n';
     };
-    this.hide = function hide() {
+    this.hide = function hide(new_n) {
+        //hide:
         var cube_size_form = document.getElementById('cube_size_form');
+        var sizen = document.getElementById('sizen');
         cube_size_form.style.display = "none";
+        sizen.style.display = "none";
+        //show:
+        var restart_button = document.getElementById('restart_button');
+        restart_button.style.display = "inline";
+        //move around:
+        var cube_size_wrapper = document.getElementById('cube_size_wrapper');
+        cube_size_wrapper.style.paddingTop = 0;
+        //change n to 
+        var n = document.getElementById('n');
+        n.innerHTML = new_n;
     };
     this.getUserCubeSize = function getUserCubeSize(n) {
-        this.hide();
+        this.hide(n);
         game.play(n);
     };
     this.reset = function rest(){
@@ -38,24 +64,22 @@ function Timer() {
     this.startTime = Math.floor(Date.now());
     this.isRunning = false;
     this.display = function display() {
-        this.t = document.createElement('div');
-        this.t.style.position = 'absolute';
-        this.t.style.top = '10px';
-        this.t.style.width = '100%';
-        this.t.style.textAlign = 'center';
+        this.t = document.getElementById('timen');
         this.t.innerHTML = 'Time: 00:00';
-        document.body.appendChild(this.t);
     };
     this.update = function update() {
         if (this.isRunning) {
-            var now = Math.floor(this.getElapsedTime() / 1000); //display only up to seconds
-            var minutes = Math.floor(now / 60) % 60;
-            now -= minutes * 60;
-            var seconds = now % 60;
-            seconds = seconds < 10 ? '0' + seconds : seconds;
-            minutes = minutes < 10 ? '0' + minutes : minutes;
-            this.t.innerHTML = 'Time: ' + minutes + ':' + seconds;
+            this.t.innerHTML = 'Time: ' + this.makeCuteTime(this.getElapsedTime());
         }
+    };
+    this.makeCuteTime = function makeCuteTime(time){
+        var now = Math.floor(time / 1000); //display only up to seconds
+        var minutes = Math.floor(now / 60) % 60;
+        now -= minutes * 60;
+        var seconds = now % 60;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        return minutes + ':' + seconds;
     };
     this.getElapsedTime = function getElapsedTime() {
         return Math.floor(Date.now()) - this.startTime;
@@ -71,7 +95,7 @@ function Timer() {
         this.isRunning = false;
     };
     this.destroy = function destroy(){
-        this.t.parentNode.removeChild(this.t);
+       this.t.innerHTML = '';
     };
 }
 
@@ -113,10 +137,12 @@ function Game() {
             }
         }else{
             var hs = document.getElementById('hs');
-            if(typeof response.data !== 'undefined'){
-                hs.innerHTML = response.data.hs;   
+            if(response.data.hs !== null){
+                if(typeof response.data.hs !== 'undefined'){
+                    hs.innerHTML = "HS: "+ timer.makeCuteTime(response.data.hs) +"&nbsp;&nbsp;|";
+                }
             }
-            console.log('Hoooray! recorded your score: ' ,  response);
+            //console.log('Hoooray! recorded your score: ' ,  response);
         }
     };
 }

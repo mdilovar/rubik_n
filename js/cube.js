@@ -43,7 +43,7 @@ function setup() {
 function setupScene() {
     //set the starting width and heigh of the scene
     var WIDTH = window.innerWidth,
-        HEIGHT = window.innerHeight;
+        HEIGHT = window.innerHeight * .80;
     //set starting camera attributes
     var VIEW_ANGLE = 45,
         ASPECT = WIDTH / HEIGHT,

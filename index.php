@@ -20,7 +20,7 @@
 <body>
 	<div class="login_wrapper">
 		<div class="login">
-			<h1>rubik_n</h1>
+			<h1>rubik_<span id="n">n</span></h1>
 			<form method="post" action="php/login.php">
 				<p>
 					<input type="text" name="username" value="" placeholder="username">

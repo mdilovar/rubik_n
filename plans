@@ -1,12 +1,12 @@
 done so far (current commit):
-made js validation interact with ui (incorrect passwor, etc.)
+made the game page prettier (cube size, hs, logout.)
 
 current task:
 
 
 next up:
-+make the game page prettier (cube size, hs, add logout.)
 +some congrats amination?
++canvas zize conflict with menu - menu->absolute?
 
 
 
@@ -17,7 +17,7 @@ next up:
 - user friendly step-by step guide for solution {Before even given cube status input, just like hints. input is the scrambled cube.}
 
 - create a prototype for detecting colors on one side of a cube from an image.
-- other credentials related stuff: sql injection tests, password change, password forgot, add email, othertab logout, etc, login attempts...
+- other credentials related stuff: successfull registration ui feedback, sql injection tests, password change, password forgot, add email, othertab logout, etc, login attempts...
 - adding facebook api and friends high scores.
 - if image prototype works, implement video feed cube scanner
 - and/or alternative manual cube status selection with center color picker
