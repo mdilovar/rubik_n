@@ -8,37 +8,32 @@
 ?>
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset=utf-8>
-		<title>Login - NxNxN Rubik's Cube</title>
-		<style>
-			body { margin: 0; background-color: #f0f0f0; overflow: hidden;}
-		</style>
-		<script src="./js/ajax.js"></script>
-		<script src="./js/login.js"></script>
-	</head>
-	<body>
+
+<head>
+	<meta charset=utf-8>
+	<title>Login - rubik_n</title>
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script src="./js/ajax.js"></script>
+	<script src="./js/login.js"></script>
+</head>
+
+<body>
+	<div class="login_wrapper">
 		<div class="login">
-	      <h1>Login to NxNxN Rubik's Cube</h1>
-	      <form method="post" action="php/login.php">
-	        <p><input type="text" name="username" value="" placeholder="Username"></p>
-	        <p><input type="password" name="password" value="" placeholder="Password"></p>
-	        <p class="submit">
-	        	<button type="button" onclick="sendForm(this.form.username.value,this.form.password.value,this.form.action);">Login</button>
-	        </p>
-	      </form>
-	    </div>
-	    <div class="resister">
-	      <h1>Register</h1>
-	      <form method="post" action="php/register.php">
-	        <p><input type="text" name="username" value="" placeholder="Username"></p>
-	        <p><input type="password" name="password" value="" placeholder="Password"></p>
-	        <p class="submit">
-	        	<button type="button" onclick="sendForm(this.form.username.value,this.form.password.value,this.form.action);">Register</button>
-	        </p>
-	      </form>
-	    </div>
-	</body>
+			<h1>rubik_n</h1>
+			<form method="post" action="php/login.php">
+				<p>
+					<input type="text" name="username" value="" placeholder="Username">
+				</p>
+				<p>
+					<input type="password" name="password" value="" placeholder="Password">
+				</p>
+				<p class="submit">
+					<input type="button" name="commit" onclick="sendForm(this.form.username.value,this.form.password.value,'php/login.php');" value="Log in">
+					<input type="button" name="commit" onclick="sendForm(this.form.username.value,this.form.password.value,'php/register.php');" value="Sign up">
+				</p>
+			</form>
+		</div>
+	</div>
+</body>
 </html>
-
-

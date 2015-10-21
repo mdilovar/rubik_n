@@ -1,12 +1,12 @@
 done so far (current commit):
-get personal hs (made corresponding changes to score.php) // CANCELLED: there's no need at all. just use HTTPS which I am. add password encryption by js / https - (is there a need for https isn't it already https?)// 
+//made the login page prettier
 
 current task:
-
+make js validation interact with ui
 
 next up:
 
-+make the login page prettier
+
 +make the game page prettier (cube size, hs, add logout.)
 +some congrats amination?
 

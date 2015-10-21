@@ -1,0 +1,58 @@
+	body {
+	    margin: 0;
+	    background-color: #f0f0f0;
+	    overflow: hidden;
+	}
+	
+	.login_wrapper {
+	    padding-top: 10%;
+	}
+	
+	.login {
+	    margin-left: auto;
+	    margin-right: auto;
+	    width: 200px;
+	    text-align: center;
+	}
+	
+	input[type="text"],
+	input[type="password"] {
+	    padding: 10px;
+	    border: none;
+	    border-bottom: solid 2px #c9c9c9;
+	    box-sizing: border-box;
+	    width: 100%;
+	    font-family: Lucida Console;
+	}
+	
+	input[type="text"]:focus,
+	input[type="password"]:focus {
+	    border-bottom: solid 2px #969696;
+	}
+	
+	input[type="button"]:hover {
+	    border-bottom: solid 2px #969696;
+	    cursor: pointer;
+	}
+	
+	input[type="button"]:active {
+	    /*border-top: solid 2px transparent ;*/
+	    border-bottom: solid 2px black;
+	}
+	
+	.register {
+	    display: none;
+	}
+	
+	h1 {
+	    font-family: Lucida Console;
+	}
+	
+	input[type="button"] {
+	    padding: 10px;
+	    border: none;
+	    border-bottom: solid 2px #c9c9c9;
+	    box-sizing: border-box;
+	    width: 49%;
+	    font-family: Lucida Console;
+	}
