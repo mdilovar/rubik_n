@@ -38,6 +38,8 @@ var theCube;
 function setup() {
     //setup all the scene objects
     setupScene();
+    //load the game
+    loadGame();
 }
 
 function setupScene() {
@@ -55,7 +57,7 @@ function setupScene() {
     });
     camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
     scene = new THREE.Scene();
-    //add ambient light to the scene #TODO: remove this if no need 
+    //add ambient light to the scene #TODO: remove this if no need
     //scene.add( new THREE.AmbientLight( 0xa7a7a7 ) );
     //set the camera starting position
     camera.position.z = 1500;
@@ -74,39 +76,35 @@ function setupScene() {
     //attach the renderer canvas to the DOM body
     var canvas_div = document.getElementById('canvas_div');
     canvas_div.appendChild(renderer.domElement);
-    // set up controls 
-    //controls = new THREE.OrbitControls( camera, renderer.domElement ); // OrbitControls has a natural 'up', TrackballControls doesn't.
-    controls = new THREE.TrackballControls(camera, renderer.domElement);
+    // set up controls
+    controls = new THREE.OrbitControls( camera, renderer.domElement ); // OrbitControls has a natural 'up', TrackballControls doesn't.
+    //controls = new THREE.TrackballControls(camera, renderer.domElement);
     controls.noPan = true;
     //add window resize listener to redraw everything in case of windaw size change
     window.addEventListener('resize', onWindowResize, false);
     //add eventscontrols object for moving the cube's sides
     eControls = new EventsControls(camera, renderer.domElement);
-    /*//define mouseover actions
-	eControls.attachEvent('mouseOver', function () {
-        //cahnge cursor to poiner when hovering over a cubicle
-		this.container.style.cursor = 'pointer';
-		//lighten the hovered cubicle
-		this.mouseOvered.currentHex=[];
-		for(var i in this.mouseOvered.material.materials){
-            this.mouseOvered.currentHex[i] = this.mouseOvered.material.materials[i].emissive.getHex();
-            this.mouseOvered.material.materials[i].emissive.setHex(0xff0000);
-		}
-		//console.log(this.mouseOvered);
+    //define mouseover actions
+	eControls.attachEvent('onclick', function () {
+        controls.enabled = false;
+        //how: get mouse start and ending points coordinates
+            //subtract the camera rotation coordinates from them,
+            //find out which face of the cubie received the click
+            //use the cubie and the cubie face to determina the two candidate tehcube faces for rotation.
+            //if the mousedelta-cameradelta 's y is grater choose the y-face, otherwise chose the z face.
+            //if the mousedelta-cameradelta 's chosen coordinate 's negativity or positivity to terermine rotation ridection
+            //call teh right rotation function with the right arguments
+        //this.mouseOvered
 	});
     //define mouse out actions
-	eControls.attachEvent( 'mouseOut', function () {
-        //cursor back to normal
-		this.container.style.cursor = 'auto';
-		//dim the object back to previous level
-		for(var i in this.mouseOvered.material.materials){
-            this.mouseOvered.material.materials[i].emissive.setHex(this.mouseOvered.currentHex[i]);
-		}
-	});*/
+	eControls.attachEvent( 'mouseUp', function () {
+	    if (!theCube.busy) {
+    	    theCube.rotateTopFace();
+	    }
+		controls.enabled = true;
+	});
     //var axes = new THREE.AxisHelper(1000);
     //scene.add(axes);
-    //setup the Cube
-    loadGame();
 }
 
 function draw() {
@@ -172,12 +170,6 @@ function moveWithKey(e) {
             theCube.busy = true;
             theCube.rotateMiddleZ();
         }
-    }
-    if (e.keyCode == 81) {
-        for (var i in theCube.cubies) {
-            scene.remove(theCube.cubies[i]);
-        }
-        theCube.initCube();
     }
 }
 
@@ -563,6 +555,7 @@ function Cube() {
         /* #TODO: some movement history recording should also be done*/
     };
     this.rotateBackFace = function rotateBackFace() {
+        this.busy = true;
         var myFace = [];
         var memArr = [];
         var from = 0;
@@ -575,19 +568,8 @@ function Cube() {
         }
         this.rotateFace(myFace, AXIS.Z, memArr);
     };
-    this.getBackFace = function getBackFace() {
-        // NOT USED FOR NOW, INSTEAD RELYING ON getMiddle[Axis] functions
-        var myFace = [];
-        var from = 0;
-        var thru = this.cubiesPerPlane;
-        for (var c in this.cubies) {
-            if (c >= from && c < thru) {
-                myFace.push(this.cubies[c]);
-            }
-        }
-        return new CubeFace(this.cubiesPerAxis, myFace);
-    };
     this.rotateFrontFace = function rotateFrontFace() {
+        this.busy = true;
         var myFace = [];
         var memArr = [];
         var from = this.cubies.length - this.cubiesPerPlane;
@@ -601,6 +583,7 @@ function Cube() {
         this.rotateFace(myFace, AXIS.Z, memArr);
     };
     this.rotateLeftFace = function rotateLeftFace() {
+        this.busy = true;
         var myFace = [];
         var memArr = [];
         for (var c in this.cubies) {
@@ -612,6 +595,7 @@ function Cube() {
         this.rotateFace(myFace, AXIS.X, memArr);
     };
     this.rotateRightFace = function rotateRightFace() {
+        this.busy = true;
         var myFace = [];
         var memArr = [];
         for (var c in this.cubies) {
@@ -623,6 +607,7 @@ function Cube() {
         this.rotateFace(myFace, AXIS.X, memArr);
     };
     this.rotateBottomFace = function rotateBottomFace() {
+        this.busy = true;
         var myFace = [];
         var memArr = [];
         for (var c in this.cubies) {
@@ -640,6 +625,7 @@ function Cube() {
         this.rotateFace(myFace, AXIS.Y, memArr);
     };
     this.rotateTopFace = function rotateTopFace() {
+        this.busy = true;
         var myFace = [];
         var memArr = [];
         for (var c in this.cubies) {
@@ -654,6 +640,7 @@ function Cube() {
         this.rotateFace(myFace, AXIS.Y, memArr);
     };
     this.rotateMiddleY = function rotateMiddleY(middleSliceNumber) { // parrallel to top and bottom
+        this.busy = true;
         var myFace = [];
         var memArr = [];
         // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
@@ -669,6 +656,7 @@ function Cube() {
         this.rotateFace(myFace, AXIS.Y, memArr);
     };
     this.rotateMiddleX = function rotateMiddleX(middleSliceNumber) { // parrallel to top and bottom
+        this.busy = true;
         var myFace = [];
         var memArr = [];
         // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
@@ -682,6 +670,7 @@ function Cube() {
         this.rotateFace(myFace, AXIS.X, memArr);
     };
     this.rotateMiddleZ = function rotateMiddleZ(middleSliceNumber) { // parrallel to top and bottom
+        this.busy = true;
         var myFace = [];
         var memArr = [];
         // for cubes with cubiclePerSide larger than 3 there will  be more than one one layer. middleSliceNumber specifies which slice is needed.
