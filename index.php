@@ -1,6 +1,6 @@
 <?php
     session_start();
-    if ($_SESSION["isLoggedIn"]){
+    if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] == true){
         echo json_encode(array("success" => false, "general_message" => "Already loged in." ));
         header("location:php/rc.php");
         exit();
@@ -15,7 +15,7 @@
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 	<script src="./js/ajax.js"></script>
 	<script src="./js/login.js"></script>
-	<!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent -->
+	<!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent
 	<script type="text/javascript">
 	    window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience.","dismiss":"Got it!","learnMore":"More info","link":null,"theme":"dark-top"};
 	</script>

@@ -1,4 +1,4 @@
-var SCORE_URL = "/php/score.php";
+var SCORE_URL = "../php/score.php";
 function loadGame() {
     this.highScore = 0;
 
@@ -12,6 +12,9 @@ function loadGame() {
 
 function IntroScreen() {
     this.display = function display() {
+        //clear
+        var gnotif = document.getElementById('gnotif');
+        gnotif.innerHTML='';
         //show:
         var cube_size_form = document.getElementById('cube_size_form');
         var sizen = document.getElementById('sizen');
@@ -49,7 +52,6 @@ function IntroScreen() {
         var csbox = document.getElementById('csbox');
         var sizen = document.getElementById("sizen");
         n = parseInt(n,10);
-        console.log(n);
         if (!(typeof n==='number' && (n%1)===0)){ //integer test
             csbox.style.borderColor = "red";
             sizen.innerHTML="please choose between 2 and 10";
@@ -109,15 +111,24 @@ function Timer() {
     };
     this.stop = function stop() {
         this.isRunning = false;
+        this.t.title = "or "+this.getElapsedTime()+" milliseconds, to be more precise...";
     };
     this.destroy = function destroy(){
        this.t.innerHTML = '';
+       this.t.title = '';
     };
 }
 
 function Game() {
     this.cubeSize = 3;
+    this.hs=Infinity;
     this.play = function play(n) {
+        var hs = document.getElementById('hs');
+        var timen = document.getElementById('timen');
+        var gnotif = document.getElementById('gnotif');
+        gnotif.innerHTML='';
+        hs.style.color='';
+        timen.style.color='';
         this.cubeSize = n;
         timer.display();
         //start the Cube
@@ -126,6 +137,21 @@ function Game() {
             //window.location = "php/rc.php";
             document.removeEventListener("keydown", moveWithKey);
             game.sendScore(timer.getElapsedTime(),theCube.cubiesPerAxis);
+            game.grabHS(theCube.cubiesPerAxis);
+            var hs = document.getElementById('hs');
+            var timen = document.getElementById('timen');
+            var gnotif = document.getElementById('gnotif');
+            if (game.hs > timer.getElapsedTime()){
+                gnotif.innerHTML='yay! this is your new personal record!';
+                hs.style.color='red';
+            }else if (game.hs === timer.getElapsedTime()){
+                gnotif.innerHTML='you almost set a new personal record there!';
+                hs.style.color='red';
+                timen.style.color='red';
+            }else {
+                gnotif.innerHTML='nice job! (though you have done better before.)';
+                timen.style.color='red';
+            }
         });
         theCube.scramble(function onComplete() {
             //just key controlled for now
@@ -156,6 +182,8 @@ function Game() {
             if(typeof response.data !== 'undefined'){
                 if(response.data.hs !== null){
                     hs.innerHTML = "HS: "+ timer.makeCuteTime(response.data.hs) +"&nbsp;&nbsp;|";
+                    hs.title = "or "+response.data.hs+" milliseconds, to be more precise...";
+                    game.hs=response.data.hs;
                 }
             }
             //console.log('Hoooray! recorded your score: ' ,  response);

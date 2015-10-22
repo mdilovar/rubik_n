@@ -1,12 +1,11 @@
 done so far (current commit):
-+aded max and min zoom, added some validation for cube size choice // also added a cookie consent plugin
+//disabled pan // made some path changes so it works in kodind env (see if compatible with cloud9)//added some congrats amination in cube.js plus congrats messages in game.js//fixed canvas size conflict with menu: canavas height (both initial and on window resize) is set to 80% of window height now
 
 current task:
 
 
 next up:
-+some congrats amination?
-+canvas zize conflict with menu - menu->absolute?
+
 
 
 
