@@ -12,6 +12,12 @@
 		<meta charset=utf-8>
 		<title>rubik_n</title>
 		<link rel="stylesheet" type="text/css" href="../css/main.css">
+		<!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent -->
+		<script type="text/javascript">
+		    window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience.","dismiss":"Got it!","learnMore":"More info","link":null,"theme":"dark-top"};
+		</script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.9/cookieconsent.min.js"></script>
+		<!-- End Cookie Consent plugin -->
 	</head>
 	<body>
 		<div id="cube_size_wrapper">
@@ -24,7 +30,7 @@
 		      	<span id="timen" class="notifs"></span>
 		      </h1>
 		      <form  id="cube_size_form">
-		        <p><input type="number" name="n" min="1" max="10" value="3" ></p>
+		        <p><input type="number" id="csbox" name="n" min="2" max="10" value="3" ></p>
 		        <p class="submit">
 		        	<input type="button" class="big" onclick="IntroScreen.getUserCubeSize(this.form.n.value);" value ="start">
 		        </p>
@@ -32,6 +38,7 @@
 		    </div>
 			<div class="notifs">
 				<div id="gnotif"></div>
+				<div id="cserr"></div>
 				<div id="sizen">choose cube size</div>
 			</div>
 		</div>

@@ -46,6 +46,22 @@ function IntroScreen() {
         n.innerHTML = new_n;
     };
     this.getUserCubeSize = function getUserCubeSize(n) {
+        var csbox = document.getElementById('csbox');
+        var sizen = document.getElementById("sizen");
+        n = parseInt(n,10);
+        console.log(n);
+        if (!(typeof n==='number' && (n%1)===0)){ //integer test
+            csbox.style.borderColor = "red";
+            sizen.innerHTML="please choose between 2 and 10";
+            return;
+        }else if (n < 2 || n > 10){
+            csbox.style.borderColor = "red";
+            sizen.innerHTML="please choose between 2 and 10";
+            return;
+        }else {
+            csbox.style.borderColor = "";
+            sizen.innerHTML="choose cube size";
+        }
         this.hide(n);
         game.play(n);
     };
@@ -137,8 +153,8 @@ function Game() {
             }
         }else{
             var hs = document.getElementById('hs');
-            if(response.data.hs !== null){
-                if(typeof response.data.hs !== 'undefined'){
+            if(typeof response.data !== 'undefined'){
+                if(response.data.hs !== null){
                     hs.innerHTML = "HS: "+ timer.makeCuteTime(response.data.hs) +"&nbsp;&nbsp;|";
                 }
             }

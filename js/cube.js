@@ -48,7 +48,7 @@ function setupScene() {
     var VIEW_ANGLE = 45,
         ASPECT = WIDTH / HEIGHT,
         NEAR = 0.1,
-        FAR = 10000;
+        FAR = 20000;
     //create the renderer, the camera, and the scene
     renderer = new THREE.WebGLRenderer({
         antialias: true
@@ -186,7 +186,7 @@ function Cube() {
     this.cubiesPerPlane;
     this.pivot = new THREE.Object3D(); //create a rotation pivot for the group
     this.busy = false;
-    this.rendersPerMove = 36; // #TODO actually consider renaming, this gets divided by cubize in initcube
+    this.rendersPerMove = 26;
     this.animationRequests = [];
     this.updateStep = 0;
     this.getCubieMesh = function getCubieMesh(x, y, z) { //console.log(x,y,z);
@@ -312,7 +312,9 @@ function Cube() {
         this.cubiesPerAxis = size * 1 || 3;
         this.cubiesPerPlane = Math.pow(this.cubiesPerAxis, 2);
         this.onIsSolved = onIsSolved;
-        this.rendersPerMove = this.rendersPerMove/this.cubiesPerPlane;
+        // set max and min zoom (depends on the cube size and degree)
+        controls.minDistance = 2.5 * this.cubiesPerAxis * cubieSize;
+        controls.maxDistance = camera.far - 2.5 * this.cubiesPerAxis * cubieSize;
         //create the cube
         for (var z = 0; z < this.cubiesPerAxis; z++) {
             for (var y = 0; y < this.cubiesPerAxis; y++) {
