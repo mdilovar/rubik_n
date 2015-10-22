@@ -10,31 +10,41 @@
 <html>
 	<head>
 		<meta charset=utf-8>
-		<title>NxNxN Rubik's Cube</title>
-		<style>
-			body { margin: 0; background-color: #f0f0f0; overflow: hidden;}
-			#cube_size_form{display: none}
-		</style>
+		<title>rubik_n</title>
+		<link rel="stylesheet" type="text/css" href="../css/main.css">
+		<!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent
+		<script type="text/javascript">
+		    window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience.","dismiss":"Got it!","learnMore":"More info","link":null,"theme":"dark-top"};
+		</script>
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.9/cookieconsent.min.js"></script>
+		<!-- End Cookie Consent plugin -->
 	</head>
 	<body>
-		<div id="cube_size_form">
-	      <h1>Choose your cube size.</h1>
-	      <form>
-	        <p><input type="number" name="n" min="1" max="10" value="3" ></p>
-	        <p class="submit">
-	        	<button type="button" onclick="IntroScreen.getUserCubeSize(this.form.n.value);">Start</button>
-	        </p>
-	      </form>
-	    </div>
-	    <div id="log_out">
-	      <a href="logout.php">Log out</a> 
-	    </div>
-	   	<div id="reset">
-	      <button type="button" onclick="IntroScreen.reset();">Restart</button>
-	    </div>
-	    <div id="user_hs">
-	      <span id="hs"></span>
-	    </div>
+		<div id="cube_size_wrapper">
+			<div class="cube_size">
+		      <h1>
+		      	rubik_<span id="n">n</span>
+		      	<a href="logout.php" title="logout"><img alt="logout" src="../images/logout.svg"></a>
+		      	<a onclick="IntroScreen.reset();" id="restart_button" title="restat"><img alt="restat" src="../images/restart.svg"></a>
+		      	<span id="hs" class="notifs"></span>
+		      	<span id="timen" class="notifs"></span>
+		      </h1>
+		      <form  id="cube_size_form">
+		        <p><input type="number" id="csbox" name="n" min="2" max="10" value="3" ></p>
+		        <p class="submit">
+		        	<input type="button" class="big" onclick="IntroScreen.getUserCubeSize(this.form.n.value);" value ="start">
+		        </p>
+		      </form>
+		    </div>
+			<div class="notifs">
+				<div id="gnotif"></div>
+				<div id="cserr"></div>
+				<div id="sizen">choose cube size</div>
+			</div>
+		</div>
+
+
+	    
 	    <div id='canvas_div'></div>
 	    <script src="../js/ajax.js"></script>
 	    <script src="../js/three.min.js"></script>

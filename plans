@@ -1,14 +1,11 @@
 done so far (current commit):
-get personal hs (made corresponding changes to score.php) // CANCELLED: there's no need at all. just use HTTPS which I am. add password encryption by js / https - (is there a need for https isn't it already https?)// 
+//disabled pan // made some path changes so it works in kodind env (see if compatible with cloud9)//added some congrats amination in cube.js plus congrats messages in game.js//fixed canvas size conflict with menu: canavas height (both initial and on window resize) is set to 80% of window height now
 
 current task:
 
 
 next up:
 
-+make the login page prettier
-+make the game page prettier (cube size, hs, add logout.)
-+some congrats amination?
 
 
 
@@ -19,6 +16,7 @@ next up:
 - user friendly step-by step guide for solution {Before even given cube status input, just like hints. input is the scrambled cube.}
 
 - create a prototype for detecting colors on one side of a cube from an image.
+- other credentials related stuff: successfull registration ui feedback, sql injection tests, password change, password forgot, add email, othertab logout, etc, login attempts...
 - adding facebook api and friends high scores.
 - if image prototype works, implement video feed cube scanner
 - and/or alternative manual cube status selection with center color picker

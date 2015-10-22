@@ -43,12 +43,12 @@ function setup() {
 function setupScene() {
     //set the starting width and heigh of the scene
     var WIDTH = window.innerWidth,
-        HEIGHT = window.innerHeight;
+        HEIGHT = window.innerHeight * .80;
     //set starting camera attributes
     var VIEW_ANGLE = 45,
         ASPECT = WIDTH / HEIGHT,
         NEAR = 0.1,
-        FAR = 10000;
+        FAR = 20000;
     //create the renderer, the camera, and the scene
     renderer = new THREE.WebGLRenderer({
         antialias: true
@@ -77,6 +77,7 @@ function setupScene() {
     // set up controls 
     //controls = new THREE.OrbitControls( camera, renderer.domElement ); // OrbitControls has a natural 'up', TrackballControls doesn't.
     controls = new THREE.TrackballControls(camera, renderer.domElement);
+    controls.noPan = true;
     //add window resize listener to redraw everything in case of windaw size change
     window.addEventListener('resize', onWindowResize, false);
     //add eventscontrols object for moving the cube's sides
@@ -102,8 +103,8 @@ function setupScene() {
             this.mouseOvered.material.materials[i].emissive.setHex(this.mouseOvered.currentHex[i]);
 		}
 	});*/
-    var axes = new THREE.AxisHelper(1000);
-    scene.add(axes);
+    //var axes = new THREE.AxisHelper(1000);
+    //scene.add(axes);
     //setup the Cube
     loadGame();
 }
@@ -124,8 +125,8 @@ function draw() {
 
 //redraw everything in case of window size change
 function onWindowResize(e) {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
+    renderer.setSize(window.innerWidth, window.innerHeight * .80);
+    camera.aspect = window.innerWidth / (window.innerHeight * .80);
     camera.updateProjectionMatrix();
 }
 
@@ -185,8 +186,9 @@ function Cube() {
     this.cubiesPerAxis;
     this.cubiesPerPlane;
     this.pivot = new THREE.Object3D(); //create a rotation pivot for the group
+    this.solvedAmiation = {obj:new THREE.Object3D(),flag:false};
     this.busy = false;
-    this.rendersPerMove = 36; // #TODO actually consider renaming, this gets divided by cubize in initcube
+    this.rendersPerMove = 26;
     this.animationRequests = [];
     this.updateStep = 0;
     this.getCubieMesh = function getCubieMesh(x, y, z) { //console.log(x,y,z);
@@ -312,7 +314,9 @@ function Cube() {
         this.cubiesPerAxis = size * 1 || 3;
         this.cubiesPerPlane = Math.pow(this.cubiesPerAxis, 2);
         this.onIsSolved = onIsSolved;
-        this.rendersPerMove = this.rendersPerMove/this.cubiesPerPlane;
+        // set max and min zoom (depends on the cube size and degree)
+        controls.minDistance = 2.5 * this.cubiesPerAxis * cubieSize;
+        controls.maxDistance = camera.far - 2.5 * this.cubiesPerAxis * cubieSize;
         //create the cube
         for (var z = 0; z < this.cubiesPerAxis; z++) {
             for (var y = 0; y < this.cubiesPerAxis; y++) {
@@ -348,7 +352,7 @@ function Cube() {
         draw();
     };
     this.scramble = function scramble(onComplete) {
-        var randomMoveCount = 1;
+        var randomMoveCount = 0;
         var moves = ['u', 'd', 'l', 'r', 'f', 'b', 'x', 'y', 'z'];
         //var dirrection = [0,1]; // clockwise/counter-clockwise
         var i = 0;
@@ -402,9 +406,26 @@ function Cube() {
     this.destroy = function destroy() {
         //destroy code goes here
         for (var c in this.cubies) {
+            scene.remove(this.solvedAmiation.obj);
             scene.remove(this.cubies[c]);
         }
         this.cubies = [];
+        this.cubiesPerAxis;
+        this.cubiesPerPlane;
+        this.pivot = new THREE.Object3D();
+        this.solvedAmiation = {obj:new THREE.Object3D(),flag:false};
+        this.busy = false;
+        this.rendersPerMove = 26;
+        this.animationRequests = [];
+        this.updateStep = 0;
+    };
+    this.go360 = function go360(){
+        for (var c in this.cubies) {
+            scene.remove(this.cubies[c]);
+            this.solvedAmiation.obj.add(this.cubies[c]);
+        }
+        scene.add(this.solvedAmiation.obj);
+        this.solvedAmiation.flag=true;
     };
     this.isSolved = function isSolved() {
         //check if solved after each user move
@@ -418,6 +439,8 @@ function Cube() {
             if (!this.getLayerY(nearfar[i]).isFaceUniform()) return false;
             if (!this.getLayerZ(nearfar[i]).isFaceUniform()) return false;
         }
+        this.busy = true;
+        this.go360();
         return true;
     };
     this.updateCubiesOrder = function updateCubiesOrder(memArr, faceArr) {
@@ -496,6 +519,12 @@ function Cube() {
     this.update = function update() {
         if (this.animationRequests.length > 0) {
             this.animateRequest(this.animationRequests[0]);
+        }
+        if (this.solvedAmiation.flag){
+            this.solvedAmiation.obj.rotation.x += (Math.PI / 8)/ this.rendersPerMove;
+            this.solvedAmiation.obj.rotation.y += (Math.PI / 8)/ this.rendersPerMove;
+            this.solvedAmiation.obj.rotation.z += (Math.PI / 16)/ this.rendersPerMove;
+            //this.solvedAmiation.obj.updateMatrixWorld();
         }
     };
     this.rotateFace = function rotateFace(face, axis, memArr) {

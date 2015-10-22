@@ -12,14 +12,13 @@
     $username = validateInput($_POST['username'],'username',$request_errors);
     $password = validateInput($_POST['password'],'password',$request_errors);
 
-
     if (count($request_errors) > 0) {
         echo json_encode(array("success" => false, "general_message" => "Invalid data was entered.", "errors" => $request_errors ));
     } else {
         include("db_connect.php");
         
         if (!isUsernameAvailable($username,$mysqli)){
-            echo json_encode(array("success" => false, "general_message" => "Username unavailable."));
+            echo json_encode(array("success" => false, "general_message" => "Username unavailable.", "errors" =>array("username"=>"Someone already has that username :(")));
         }else if (register($username,$password,$mysqli)){
             echo json_encode(array("success" => true, "general_message" => "User $username was successfully registered." ));
         }else{
