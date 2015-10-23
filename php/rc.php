@@ -25,14 +25,14 @@
 		      <h1>
 		      	rubik_<span id="n">n</span>
 		      	<a href="logout.php" title="logout"><img alt="logout" src="../images/logout.svg"></a>
-		      	<a onclick="IntroScreen.reset();" id="restart_button" title="restat"><img alt="restat" src="../images/restart.svg"></a>
+		      	<a onclick="startScene.reset();" id="restart_button" title="restat"><img alt="restat" src="../images/restart.svg"></a>
 		      	<span id="hs" class="notifs"></span>
 		      	<span id="timen" class="notifs"></span>
 		      </h1>
 		      <form  id="cube_size_form">
 		        <p><input type="number" id="csbox" name="n" min="2" max="10" value="3" ></p>
 		        <p class="submit">
-		        	<input type="button" class="big" onclick="IntroScreen.getUserCubeSize(this.form.n.value);" value ="start">
+		        	<input type="button" class="big" onclick="startScene.getUserCubeSize(this.form.n.value);" value ="start">
 		        </p>
 		      </form>
 		    </div>
@@ -44,13 +44,13 @@
 		</div>
 
 
-	    
+
 	    <div id='canvas_div'></div>
-	    <script src="../js/ajax.js"></script>
-	    <script src="../js/three.min.js"></script>
-		<script src="../js/OrbitControls.js"></script>
-		<script src="../js/TrackballControls.js"></script>
-		<script src="../js/EventsControls.js"></script>
+	    <script src="../js/lib/three.min.js"></script>
+		<script src="../js/lib/OrbitControls.js"></script>
+		<script src="../js/lib/TrackballControls.js"></script>
+		<script src="../js/lib/EventsControls.js"></script>
+		<script src="../js/ajax.js"></script>
 		<script src="../js/game.js"></script>
 		<script src="../js/cube.js"></script>
 

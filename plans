@@ -1,5 +1,5 @@
 done so far (current commit):
--- started working on the mouse rotation in event controls
+//moved js libs under libjs/ folder; releted some unneeded files (unused images, rtc.)// turned on js strict mode and fixed the errors // added successful registration ui feedback.
 
 current task:
 - add mouse movement support (counterclockwise should work too; for n>3 - all middle layers should rotate.)
@@ -18,7 +18,7 @@ next up:
 - create a prototype for detecting colors on one side of a cube from an image.
 - if image prototype works, implement video feed cube scanner as initial cube state input
 - adding facebook api and friends high scores.
-- other credentials related stuff: successful registration ui feedback, sql injection tests, password change, password recovery, add email, other tab logout, login attempts, etc.
+- other credentials related stuff: sql injection tests, password change, password recovery, add email, other tab logout, login attempts, etc.
 
 
 

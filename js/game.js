@@ -1,13 +1,16 @@
+"use strict";
+/*
+global Cube moveWithKey
+*/
 var SCORE_URL = "../php/score.php";
-function loadGame() {
-    this.highScore = 0;
+var timer, game, theCube, startScene;
 
-    IntroScreen = new IntroScreen();
+function loadGame() {
+    startScene = new IntroScreen();
     timer = new Timer();
     theCube = new Cube();
     game = new Game();
-    IntroScreen.display();
-
+    startScene.display();
 }
 
 function IntroScreen() {
@@ -44,7 +47,7 @@ function IntroScreen() {
         //move around:
         var cube_size_wrapper = document.getElementById('cube_size_wrapper');
         cube_size_wrapper.style.paddingTop = 0;
-        //change n to 
+        //change n to
         var n = document.getElementById('n');
         n.innerHTML = new_n;
     };

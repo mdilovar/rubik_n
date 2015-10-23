@@ -1,3 +1,4 @@
+"use strict";
 function Ajax(url,data,callback){
     this.aj = new XMLHttpRequest();
     this.aj.callback = callback;

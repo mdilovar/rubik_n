@@ -45,6 +45,17 @@
 			<p id="perr"></p>
 			<p id="gerr"></p>
 		</div>
+		<div class="notifs">
+			<div id="gnotif">
+				<?php
+					if (isset($_SESSION['registered']) && $_SESSION['registered'] == true){
+				        echo "you were successfully registered. please log in to start playing.";
+				        session_unset();
+						session_destroy();
+					}
+			    ?>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

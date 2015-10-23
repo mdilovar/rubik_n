@@ -9,7 +9,7 @@
     $request_errors = array();
     $username = validateInput($_POST['username'],'username',$request_errors);
     $password = validateInput($_POST['password'],'password',$request_errors);
-    
+
     if (count($request_errors) > 0) {
         echo json_encode(array("success" => false, "general_message" => "Invalid data was entered.", "errors" => $request_errors ));
     } else {
@@ -30,23 +30,23 @@
             echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
             return false;
         }
-        
+
         if (!$stmt->bind_param('s', $username)) {
             $error_message = "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
             $db_error = array("binding"=>$error_message);
             echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
             return false;
         }
-        
+
         if (!$stmt->execute()) {
             $error_message = "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
             $db_error = array("execution"=>$error_message);
             echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
             return false;
         }
-    
+
         $result = $stmt->get_result();
-    
+
         if ($result->num_rows != 1) {
             $errors['gerr'] = "Incorrect username or password.";
             return false;
@@ -60,6 +60,6 @@
             }
         }
     }
-    
+
 
 ?>

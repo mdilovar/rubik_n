@@ -1,6 +1,9 @@
-//"use strict"
+"use strict";
+/*
+global THREE EventsControls requestAnimationFrame timer loadGame
+*/
 //global scene variables
-var renderer, camera, scene, flashlight;
+var renderer, camera, scene, flashlight, controls, eControls;
 
 var AXIS = {
     X: "x",
@@ -77,8 +80,8 @@ function setupScene() {
     var canvas_div = document.getElementById('canvas_div');
     canvas_div.appendChild(renderer.domElement);
     // set up controls
-    controls = new THREE.OrbitControls( camera, renderer.domElement ); // OrbitControls has a natural 'up', TrackballControls doesn't.
-    //controls = new THREE.TrackballControls(camera, renderer.domElement);
+    //controls = new THREE.OrbitControls( camera, renderer.domElement ); // OrbitControls has a natural 'up', TrackballControls doesn't.
+    controls = new THREE.TrackballControls(camera, renderer.domElement);
     controls.noPan = true;
     //add window resize listener to redraw everything in case of windaw size change
     window.addEventListener('resize', onWindowResize, false);
@@ -504,8 +507,11 @@ function Cube() {
             this.updateCubiesOrientation(request.face, request.axis);
             this.animationRequests.shift();
             this.updateStep = 0;
-            if (this.isSolved()) this.onIsSolved();
-            theCube.busy = false;
+            if (this.isSolved()) {
+                this.onIsSolved();
+            }else{
+                this.busy = false;
+            }
         }
     };
     this.update = function update() {
