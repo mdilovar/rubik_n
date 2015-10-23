@@ -1,11 +1,11 @@
 done so far (current commit):
-//moved js libs under libjs/ folder; releted some unneeded files (unused images, rtc.)// turned on js strict mode and fixed the errors // added successful registration ui feedback.
+still adding mouse movement - all layers move, but in one dirrection. also the code is messy.// still can't figure out a way to move in both dirrections (detectectin the move dirrection just using two cubies/or plane )
 
 current task:
-- add mouse movement support (counterclockwise should work too; for n>3 - all middle layers should rotate.)
+- add mouse movement support (counter-right-hand-rule should work too; for n>3 - all middle layers should rotate.)
 
 next up:
-
+- tidy up? before merging mouse rotation branch? the code is messy.
 
 
 

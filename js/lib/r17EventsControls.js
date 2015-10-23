@@ -1,7 +1,7 @@
  /** This EventsControls will allow to facilitate development speed for simple manipulations by means of a mouse
  * - point and click, drag and drop.
  * @author Vildanov Almaz / alvild@gmail.com
- * R18 version 10.10.2015.
+ * R17 version 08.09.2015.
  */
 
 // intersects = raycaster.intersectObjects( objects );
@@ -16,33 +16,32 @@
 // this.event.face - intersected face
 // this.event.faceIndex - index of the intersected face
 // this.event.indices - indices of vertices comprising the intersected face
- 
+
 THREE.Object3D.userDataParent = null;
 THREE.Mesh.userDataParent = null;
- 
+
 EventsControls = function ( camera, domElement ) {
 
 	var _this = this;
 
 	this.camera = camera;
 	this.container = ( domElement !== undefined ) ? domElement : document;
-	
+
 	var _DisplaceFocused = null; // выделенный объект
 	this.focused = null; // выделенный объект
 	this.focusedChild = null; // выделенная часть 3D объекта
 	this.previous = new THREE.Vector3(); // предыдущие координаты выделенного объекта
-	var _DisplacemouseOvered = null; // наведенный объект	
+	var _DisplacemouseOvered = null; // наведенный объект
 	this.mouseOvered = null; // наведенный объект
-	this.mouseOveredChild = null; // наведенная часть 3D объекта	
+	this.mouseOveredChild = null; // наведенная часть 3D объекта
 
 	this.raycaster = new THREE.Raycaster();
 
 	this.map = null;
 	this.event = null;
 	this.offset = new THREE.Vector3();
-	this.offsetUse = false;	
-	this.scale = new THREE.Vector3( 1, 1, 1 );	
-	
+	this.offsetUse = false;
+
 	this._mouse = new THREE.Vector2();
 	this.mouse = new THREE.Vector2();
 	this._vector = new THREE.Vector3();
@@ -61,7 +60,7 @@ EventsControls = function ( camera, domElement ) {
 
 	this.objects = [];
 	var _DisplaceIntersects = [];
-	var _DisplaceIntersectsMap = [];	
+	var _DisplaceIntersectsMap = [];
 	this.intersects = [];
 	this.intersectsMap = [];
 
@@ -72,16 +71,16 @@ EventsControls = function ( camera, domElement ) {
 		}
 	}
 
-	this.dragAndDrop = function () {} // this.container.style.cursor = 'move'; 
+	this.dragAndDrop = function () {} // this.container.style.cursor = 'move';
 	this.mouseOver = function () {} // this.container.style.cursor = 'pointer';
 	this.mouseOut = function () {} // this.container.style.cursor = 'auto';
 	this.mouseUp = function () {} // this.container.style.cursor = 'auto';
-	this.mouseMove = function () {}	
+	this.mouseMove = function () {}
 	this.onclick = function () {}
 
 	this.attach = function ( object ) {
 
-		if ( object instanceof THREE.Mesh ) { 
+		if ( object instanceof THREE.Mesh ) {
 			this.objects.push( object );
 		}
 		else {
@@ -89,7 +88,7 @@ EventsControls = function ( camera, domElement ) {
 			this.objects.push( object );
 
 			for ( var i = 0; i < object.children.length; i++ ) {
-				object.children[i].userDataParent = object;		
+				object.children[i].userDataParent = object;
 			}
 		}
 
@@ -101,14 +100,14 @@ EventsControls = function ( camera, domElement ) {
 		this.objects.splice( item, 1 );
 
 	}
-	
+
 	var _mouseOverFlag = false;
-	var _mouseOutFlag = false;	
-	var _dragAndDropFlag = false;	
+	var _mouseOutFlag = false;
+	var _dragAndDropFlag = false;
 	var _mouseUpFlag = false;
 	var _onclickFlag = false;
 	var _mouseMoveFlag = false;
-	
+
 	this.attachEvent = function ( event, handler ) {
 
 		switch ( event ) {
@@ -117,7 +116,7 @@ EventsControls = function ( camera, domElement ) {
 			case 'dragAndDrop': 	this.dragAndDrop = handler; 	_dragAndDropFlag = true;	break;
 			case 'mouseUp': 		this.mouseUp = handler; 		_mouseUpFlag = true;		break;
 			case 'onclick': 		this.onclick = handler; 		_onclickFlag = true;		break;
-			case 'mouseMove': 		this.mouseMove = handler; 		_mouseMoveFlag = true;		break;			
+			case 'mouseMove': 		this.mouseMove = handler; 		_mouseMoveFlag = true;		break;
 			break;
 		}
 
@@ -204,15 +203,15 @@ EventsControls = function ( camera, domElement ) {
 		else {
 
 			var vector = new THREE.Vector3( _this._mouse.x, _this._mouse.y, 1 );
-			//_this._projector.unprojectVector( vector, camera ); 
+			//_this._projector.unprojectVector( vector, camera );
 			vector.unproject( _this.camera );
 			//	_this.raycaster = new THREE.Raycaster( _this.camera.position, vector.sub( _this.camera.position ).normalize() );
-			_this.raycaster.set( _this.camera.position, vector.sub( _this.camera.position ).normalize() );		
+			_this.raycaster.set( _this.camera.position, vector.sub( _this.camera.position ).normalize() );
 
 		}
 
 	}
-	
+
 	this._setMap = function () {
 
 		_this.intersectsMap = _DisplaceIntersectsMap;
@@ -222,11 +221,11 @@ EventsControls = function ( camera, domElement ) {
 	function getMousePos( event ) {
 		if ( _this.enabled ) {
 			var x = event.offsetX == undefined ? event.layerX : event.offsetX;
-			var y = event.offsetY == undefined ? event.layerY : event.offsetY;	
+			var y = event.offsetY == undefined ? event.layerY : event.offsetY;
 
 			_this._mouse.x = ( ( x ) / _this.container.width ) * 2 - 1;
 			_this._mouse.y = - ( ( y ) / _this.container.height ) * 2 + 1;
-			
+
 			onContainerMouseMove();
 			if ( _mouseMoveFlag ) _this.mouseMove();
 		}
@@ -234,7 +233,7 @@ EventsControls = function ( camera, domElement ) {
 
 	function onContainerMouseDown( event ) {
 
-		if ( _this.enabled && ( _onclickFlag || _dragAndDropFlag ) ) { 	
+		if ( _this.enabled && ( _onclickFlag || _dragAndDropFlag ) ) {
 			if ( _this.focused ) { return; }
 			_this._raySet();
 			_this.intersects = _this.raycaster.intersectObjects( _this.objects, true );
@@ -246,14 +245,10 @@ EventsControls = function ( camera, domElement ) {
 
 				if ( _dragAndDropFlag ) {
 					_this.intersects = _this.raycaster.intersectObject( _this.map );
-					
+
 					try {
-						if ( _this.offsetUse ) { 
-							var pos = new THREE.Vector3().copy( _this.focused.position );		
-								pos.x = pos.x / _this.scale.x; pos.y = pos.y / _this.scale.y; pos.z = pos.z / _this.scale.z;	
-							_this.offset.subVectors( _this.intersects[ 0 ].point, pos );
-							//console.log( _this.offset );
-						}
+						if ( _this.offsetUse ) _this.offset.subVectors( _this.intersects[ 0 ].point, _this.focused.position );
+						//console.log( _this.offset );
 						//_this.offset.copy( _this.intersects[ 0 ].point ).sub( _this.map.position );
 					}
 					catch( err ) {}
@@ -279,8 +274,7 @@ EventsControls = function ( camera, domElement ) {
 				_DisplaceIntersectsMap = _this.raycaster.intersectObject( _this.map );
 				//_this._setMap();
 				try {
-					var pos = new THREE.Vector3().copy( _DisplaceIntersectsMap[ 0 ].point.sub( _this.offset ) );		
-					pos.x *= _this.scale.x; pos.y *= _this.scale.y; pos.z *= _this.scale.z;			
+					var pos = new THREE.Vector3().copy( _DisplaceIntersectsMap[ 0 ].point.sub( _this.offset ) );
 					_this.focused.position.copy( pos );
 				}
 				catch( err ) {}
@@ -289,7 +283,7 @@ EventsControls = function ( camera, domElement ) {
 			}
 		}
 		else {
-		
+
 			if ( _mouseOverFlag ) {
 
 				_DisplaceIntersects = _this.raycaster.intersectObjects( _this.objects, true );
@@ -314,10 +308,10 @@ EventsControls = function ( camera, domElement ) {
 			}
 		}
 
-		if ( _this.focused ) {					
+		if ( _this.focused ) {
 		if ( _this.collidable ) {
 			var originPoint = _this.focused.position.clone();
-			for (var vertexIndex = 0; vertexIndex < _this.focused.geometry.vertices.length; vertexIndex++)	{		
+			for (var vertexIndex = 0; vertexIndex < _this.focused.geometry.vertices.length; vertexIndex++)	{
 				var localVertex = _this.focused.geometry.vertices[vertexIndex].clone();
 				var globalVertex = _this.focused.localToWorld( localVertex );
 				var directionVector = new THREE.Vector3().copy( globalVertex );
@@ -331,9 +325,9 @@ EventsControls = function ( camera, domElement ) {
 					break;
 				}
 
-			}		
+			}
 		}
-		
+
 		}
 
 	//}
@@ -341,7 +335,7 @@ EventsControls = function ( camera, domElement ) {
 
 	function onContainerMouseUp( event ) {
 
-		if ( _this.enabled ) { 
+		if ( _this.enabled ) {
 			if ( _this.focused ) {
 
 				_this.mouseUp();
