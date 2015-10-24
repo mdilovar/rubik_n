@@ -96,7 +96,7 @@ function setupScene() {
     window.addEventListener('resize', onWindowResize, false);
     plane = new THREE.Mesh(
 		new THREE.PlaneBufferGeometry( 2000, 2000, 8, 8 ),
-		new THREE.MeshBasicMaterial( { visible: true } )
+		new THREE.MeshBasicMaterial( { visible: false } )
 	);
 	scene.add( plane );
     renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
