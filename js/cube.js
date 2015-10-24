@@ -444,6 +444,8 @@ function Cube() {
     this.rendersPerMove = 26;
     this.animationRequests = [];
     this.updateStep = 0;
+    this.gameHasStarted = false;
+    this.scrambler;
     this.getCubieMesh = function getCubieMesh(x, y, z) { //console.log(x,y,z);
         var color_right = color_codes.white,
             color_left = color_codes.yellow,
@@ -500,7 +502,7 @@ function Cube() {
         var cubieGeometry = new THREE.BoxGeometry(cubieSize, cubieSize, cubieSize);
         var cubieMaterial;
         //create the cubies's material
-        if (this.cubiesPerAxis > 5) {
+        if (this.cubiesPerAxis > 50) { // #TODO: this val can be changed so that larde cube can be rendered without texture
             //load without texture if the cube is too big
             cubieMaterial = new THREE.MeshFaceMaterial([
                 new THREE.MeshBasicMaterial({
@@ -607,13 +609,14 @@ function Cube() {
         draw();
     };
     this.scramble = function scramble(onComplete) {
-        var randomMoveCount = 0;
+        var randomMoveCount = 20;
         var moves = ['u', 'd', 'l', 'r', 'f', 'b', 'x', 'y', 'z'];
         //var direction = [0,1]; // clockwise/counter-clockwise
         var i = 0;
-        var scrambler = setInterval(function() {
+        this.scrambler = setInterval(function() {
             if (i > randomMoveCount) {
-                clearInterval(scrambler);
+                clearInterval(this.scrambler);
+                this.gameHasStarted = true;
                 onComplete();
             }
             if (!theCube.busy) {
@@ -659,12 +662,13 @@ function Cube() {
         }, 1);
     };
     this.destroy = function destroy() {
-        //destroy code goes here
+        clearInterval(this.scrambler);
         for (var c in this.cubies) {
-            scene.remove(this.solvedAmiation.obj);
             scene.remove(this.cubies[c]);
-            objects = [];
         }
+        objects = [];
+        scene.remove(this.solvedAmiation.obj);
+        scene.remove(this.pivot);
         this.cubies = [];
         this.cubiesPerAxis;
         this.cubiesPerPlane;
@@ -674,6 +678,7 @@ function Cube() {
         this.rendersPerMove = 26;
         this.animationRequests = [];
         this.updateStep = 0;
+        this.gameHasStarted = false;
     };
     this.go360 = function go360(){
         for (var c in this.cubies) {
@@ -768,7 +773,7 @@ function Cube() {
             this.updateCubiesOrientation(request.face, request.axis);
             this.animationRequests.shift();
             this.updateStep = 0;
-            if (this.isSolved()) {
+            if (this.isSolved() && this.gameHasStarted) {
                 this.onIsSolved();
             }else{
                 this.busy = false;
@@ -1068,6 +1073,9 @@ setup();
 
 function draw() {
     //setup animation loop
+    //setTimeout( function() {
+    //    requestAnimationFrame( draw );
+    //}, 1000 / 30 );
     requestAnimationFrame(draw);
     //used by OrbitControls or TrackballControls for camera movement.
     controls.update();
