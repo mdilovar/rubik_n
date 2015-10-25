@@ -1,12 +1,12 @@
 done so far (current commit):
-still adding mouse movement - all layers move, but in one dirrection. also the code is messy.// still can't figure out a way to move in both dirrections (detectectin the move dirrection just using two cubies/or plane )
+
 
 current task:
 - add mouse movement support (counter-right-hand-rule should work too; for n>3 - all middle layers should rotate.)
 
 next up:
 - tidy up? before merging mouse rotation branch? the code is messy.
-
+- improve the scramble method to rotate all the layers and in both dirrections.
 
 /// more:
 

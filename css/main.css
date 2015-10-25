@@ -3,12 +3,12 @@
 		background-color: #f0f0f0;
 		overflow: hidden;
 	}
-	
+
 	.login_wrapper,
 	#cube_size_wrapper {
 		padding-top: 10%;
 	}
-	
+
 	.login,
 	.cube_size {
 		margin-left: auto;
@@ -16,7 +16,7 @@
 		width: 250px;
 		text-align: center;
 	}
-	
+
 	input[type="number"],
 	input[type="text"],
 	input[type="password"] {
@@ -27,27 +27,27 @@
 		width: 100%;
 		font-family: Lucida Console;
 	}
-	
+
 	input[type="text"]:focus,
 	input[type="number"]:focus,
 	input[type="password"]:focus {
 		border-bottom: solid 2px #969696;
 	}
-	
+
 	input[type="button"]:hover {
 		border-bottom: solid 2px #969696;
 		cursor: pointer;
 	}
-	
+
 	input[type="button"]:active {
 		/*border-top: solid 2px transparent ;*/
 		border-bottom: solid 2px black;
 	}
-	
+
 	h1 {
 		font-family: Lucida Console;
 	}
-	
+
 	input[type="button"] {
 		padding: 10px;
 		border: none;
@@ -56,11 +56,11 @@
 		width: 49%;
 		font-family: Lucida Console;
 	}
-	
+
 	input[type="button"].big {
 		width: 100%;
 	}
-	
+
 	#errors,
 	.notifs {
 		font-family: Lucida Console;
@@ -70,15 +70,15 @@
 		text-align: center;
 		font-size: 15px;
 	}
-	
+
 	#cube_size_form {
 		display: none
 	}
-	
+
 	#sizen {
 		display: none
 	}
-	
+
 	#restart_button {
 		display: none;
 		cursor: pointer;
