@@ -3,7 +3,7 @@
 global THREE EventsControls requestAnimationFrame timer loadGame
 */
 //global scene variables
-var renderer, camera, scene, flashlight, controls, canvas_div;
+var renderer, camera, scene, flashlight, controls, canvas_div, Detector;
 
 var AXIS = {
     X: "x",
@@ -56,6 +56,7 @@ function setup() {
 }
 
 function setupScene() {
+    if (!Detector.webgl) Detector.addGetWebGLMessage();
     //set the starting width and heigh of the scene
     var WIDTH = window.innerWidth,
         HEIGHT = window.innerHeight * .80;
@@ -107,8 +108,6 @@ function setupScene() {
     renderer.domElement.addEventListener('mouseup', onDocumentMouseUp, false);
 }
 
-
-
 //redraw everything in case of window size change
 function onWindowResize(e) {
     renderer.setSize(window.innerWidth, window.innerHeight * .80);
@@ -117,139 +116,80 @@ function onWindowResize(e) {
 }
 
 function onDocumentMouseMove(event) {
-
     event.preventDefault();
-
     var x = event.offsetX == undefined ? event.layerX : event.offsetX;
     var y = event.offsetY == undefined ? event.layerY : event.offsetY;
-
     mouse.x = (x / renderer.domElement.width) * 2 - 1;
     mouse.y = -(y / renderer.domElement.height) * 2 + 1;
-
-    //
-
     raycaster.setFromCamera(mouse, camera);
 
     if (SELECTED) {
-
         var intersects = raycaster.intersectObject(plane);
-
         if (intersects.length > 0) {
-
             //SELECTED.position.copy(intersects[0].point.sub(offset));
-
         }
-
         return;
-
     }
-
     var intersects = raycaster.intersectObjects(objects);
-
     if (intersects.length > 0) {
-
         if (INTERSECTED != intersects[0].object) {
-
             //if (INTERSECTED) INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
-
             INTERSECTED = intersects[0].object;
             //INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-
             plane.position.copy(INTERSECTED.position);
             //plane.lookAt(camera.position);
-
         }
-
         canvas_div.style.cursor = 'pointer';
-
     }
     else {
-
         //if (INTERSECTED) INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
-
         INTERSECTED = null;
-
         canvas_div.style.cursor = 'auto';
-
     }
-
 }
 
 function onDocumentMouseDown(event) {
-
     event.preventDefault();
-
     raycaster.setFromCamera(mouse, camera);
-
     var intersects = raycaster.intersectObjects(objects);
 
     if (intersects.length > 0) {
-
         controls.enabled = false;
-
         SELECTED = intersects[0].object;
         FACE = intersects[0].face;
         //SELECTED.ppp=intersects[0].point.sub(offset);
-
         //console.log(SELECTED.id);
-
         var intersects = raycaster.intersectObject(plane);
-
         if (intersects.length > 0) {
-
             offset.copy(intersects[0].point).sub(plane.position);
-
             SELECTED.pposition = intersects[0].point; //.sub(offset);
-
         }
-
         canvas_div.style.cursor = 'move';
-
     }
-
 }
 
 function onDocumentMouseUp(event) {
-
     event.preventDefault();
-
     controls.enabled = true;
     ////
-
     var intersects = raycaster.intersectObjects(objects);
-
     if (intersects.length > 0) {
-
         //controls.enabled = false;
-
         SELECTED2 = intersects[0].object;
-
         moveWithMouse(SELECTED, SELECTED2, FACE);
-
         var intersects = raycaster.intersectObject(plane);
-
         if (intersects.length > 0) {
-
             offset.copy(intersects[0].point).sub(plane.position);
-
             SELECTED2.pposition = intersects[0].point; //.sub(offset);
         }
-
         canvas_div.style.cursor = 'move';
-
     }
     ////
-
     if (INTERSECTED) {
-
         plane.position.copy(INTERSECTED.position);
-
         SELECTED = null;
-
     }
-
     canvas_div.style.cursor = 'auto';
-
 }
 
 function moveWithMouse(fromCubie, toCubie, face) {
