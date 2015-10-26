@@ -27,7 +27,7 @@
 	<div class="login_wrapper">
 		<div class="login">
 			<h1>rubik_<span id="n">n</span></h1>
-			<form method="post" action="php/login.php">
+			<form  action="javascript:void(0);">
 				<p>
 					<input type="text" name="username" value="" placeholder="username">
 				</p>
@@ -35,8 +35,8 @@
 					<input type="password" name="password" value="" placeholder="password">
 				</p>
 				<p class="submit">
-					<input type="button" name="commit" onclick="sendForm(this.form.username.value,this.form.password.value,'php/login.php');" value="log in">
-					<input type="button" name="commit" onclick="sendForm(this.form.username.value,this.form.password.value,'php/register.php');" value="sign up">
+					<input type="submit" onclick="sendForm(this.form.username.value,this.form.password.value,'php/login.php');" value="log in">
+					<input type="button" onclick="sendForm(this.form.username.value,this.form.password.value,'php/register.php');" value="sign up">
 				</p>
 			</form>
 		</div>

@@ -34,12 +34,14 @@
 		border-bottom: solid 2px #969696;
 	}
 
-	input[type="button"]:hover {
+	input[type="button"]:hover,
+	input[type="submit"]:hover {
 		border-bottom: solid 2px #969696;
 		cursor: pointer;
 	}
 
-	input[type="button"]:active {
+	input[type="button"]:active,
+	input[type="submit"]:active {
 		/*border-top: solid 2px transparent ;*/
 		border-bottom: solid 2px black;
 	}
@@ -48,7 +50,8 @@
 		font-family: Lucida Console;
 	}
 
-	input[type="button"] {
+	input[type="button"],
+	input[type="submit"] {
 		padding: 10px;
 		border: none;
 		border-bottom: solid 2px #c9c9c9;
@@ -57,7 +60,8 @@
 		font-family: Lucida Console;
 	}
 
-	input[type="button"].big {
+	input[type="button"].big,
+	input[type="submit"].big {
 		width: 100%;
 	}
 
@@ -83,6 +87,7 @@
 		display: none;
 		cursor: pointer;
 	}
+
 	#n {
 		color: red;
 	}

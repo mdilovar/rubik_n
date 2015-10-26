@@ -29,10 +29,10 @@
 		      	<span id="hs" class="notifs"></span>
 		      	<span id="timen" class="notifs"></span>
 		      </h1>
-		      <form  id="cube_size_form">
+		      <form id="cube_size_form" action="javascript:void(0);">
 		        <p><input type="number" id="csbox" name="n" min="2" max="10" value="3" ></p>
 		        <p class="submit">
-		        	<input type="button" class="big" onclick="startScene.getUserCubeSize(this.form.n.value);" value ="start">
+					<input type="submit" class="big" onclick="startScene.getUserCubeSize(this.form.n.value);" value ="start">
 		        </p>
 		      </form>
 		    </div>
