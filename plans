@@ -5,6 +5,8 @@ current task:
 - add mouse movement support (counter-right-hand-rule should work too; for n>3 - all middle layers should rotate.)
 
 next up:
+- css size make more responsive - on prof pc stuff was small (did some changes still more needed?). "HS" -> best time?
+- during scrambling tell user to wait
 - tidy up? before merging mouse rotation branch? the code is messy.
 - improve the scramble method to rotate all the layers and in both dirrections. - also scramble gets faster every restart.
 

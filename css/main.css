@@ -13,8 +13,13 @@
 	.cube_size {
 		margin-left: auto;
 		margin-right: auto;
-		width: 250px;
+		width: 274px;
 		text-align: center;
+	}
+
+	input {
+		height: 44px;
+		font-size: 16px;
 	}
 
 	input[type="number"],
@@ -48,6 +53,7 @@
 
 	h1 {
 		font-family: Lucida Console;
+		font-size: 38px;
 	}
 
 	input[type="button"],
@@ -56,7 +62,7 @@
 		border: none;
 		border-bottom: solid 2px #c9c9c9;
 		box-sizing: border-box;
-		width: 49%;
+		width: 48%;
 		font-family: Lucida Console;
 	}
 
@@ -72,7 +78,7 @@
 		width: 100%;
 		color: #969696;
 		text-align: center;
-		font-size: 15px;
+		font-size: 16px;
 	}
 
 	#cube_size_form {
