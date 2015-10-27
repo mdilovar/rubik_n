@@ -1,6 +1,6 @@
 "use strict";
 /*
-global Cube moveWithKey controls
+global Cube controls
 */
 var SCORE_URL = "../php/score.php";
 var timer, game, theCube, startScene;
@@ -74,7 +74,6 @@ function IntroScreen() {
         controls.reset();
     };
     this.reset = function rest() {
-        document.removeEventListener("keydown", moveWithKey);
         theCube.destroy();
         timer.destroy();
         timer = new Timer();
@@ -141,7 +140,6 @@ function Game() {
         theCube.initCube(this.cubeSize, function onIsSolved() {
             timer.stop();
             //window.location = "php/rc.php";
-            document.removeEventListener("keydown", moveWithKey);
             game.sendScore(timer.getElapsedTime(), theCube.cubiesPerAxis);
             game.grabHS(theCube.cubiesPerAxis);
             var hs = document.getElementById('hs');
@@ -162,8 +160,6 @@ function Game() {
             }
         });
         theCube.scramble(function onComplete() {
-            //just key controlled for now
-            document.addEventListener("keydown", moveWithKey);
             timer.start();
         });
         this.grabHS(theCube.cubiesPerAxis);
