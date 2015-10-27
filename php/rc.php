@@ -50,7 +50,6 @@
 	    <script src="../js/lib/Detector.js"></script>
 		<script src="../js/lib/OrbitControls.js"></script>
 		<script src="../js/lib/TrackballControls.js"></script>
-		<script src="../js/lib/EventsControls.js"></script>
 		<script src="../js/ajax.js"></script>
 		<script src="../js/game.js"></script>
 		<script src="../js/cube.js"></script>
