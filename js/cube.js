@@ -232,8 +232,8 @@ function shouldReverseDirection(c1, c2, face) {
             return false ^ negate4y;
         }
     }
-
-    throw ('the logic of shouldReverseDirection is faulty. It did not cover this combination of cubelets.')
+    return false;
+    //throw ('the logic of shouldReverseDirection is faulty. It did not cover this combination of cubelets.');
 }
 
 function moveWithMouse(fromCubie, toCubie, face) {
@@ -252,7 +252,7 @@ function moveWithMouse(fromCubie, toCubie, face) {
         }
     }
     //console.log(fromCubie, ' -> ', toCubie);
-    // #TODO: map not supported by ie8 and below.
+    // #TODO: map not supported by ie8 and below. even ie 10 doesn't suppor webgl! do forget about it.
     //console.log('incdex: ', (fromCubieIndex < toCubieIndex ? 'incr' : 'decr'));
 
     fromCubie = fromCubie.id;
@@ -395,7 +395,7 @@ function Cube() {
         var cubieGeometry = new THREE.BoxGeometry(cubieSize, cubieSize, cubieSize);
         var cubieMaterial;
         //create the cubies's material
-        if (this.cubiesPerAxis > 50) { // #TODO: this val can be changed so that larde cube can be rendered without texture
+        if (this.cubiesPerAxis > 5) { // #TODO: this val can be changed so that larde cube can be rendered without texture
             //load without texture if the cube is too big
             cubieMaterial = new THREE.MeshFaceMaterial([
                 new THREE.MeshBasicMaterial({
@@ -502,9 +502,10 @@ function Cube() {
         draw();
     };
     this.scramble = function scramble(onComplete) {
-        var randomMoveCount = 0;
-        var moves = ['u', 'd', 'l', 'r', 'f', 'b', 'x', 'y', 'z'];
-        //var direction = [0,1]; // clockwise/counter-clockwise
+        var randomMoveCount = 20;
+        //var moves = ['u', 'd', 'l', 'r', 'f', 'b', 'x', 'y', 'z'];
+        var axes = [AXIS.X, AXIS.Y, AXIS.Z]; //Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+
         var i = 0;
         var _this = this;
         this.scrambler = setInterval(function() {
@@ -514,43 +515,12 @@ function Cube() {
                 onComplete();
             }
             if (!_this.busy) {
-                var move = moves[Math.floor(Math.random() * moves.length)];
-                if (move == 'u') { //u
-                    _this.busy = true;
-                    _this.rotateTopFace();
-                }
-                else if (move == 'd') { //d
-                    _this.busy = true;
-                    _this.rotateBottomFace();
-                }
-                else if (move == 'l') { //l
-                    _this.busy = true;
-                    _this.rotateLeftFace();
-                }
-                else if (move == 'r') { //r
-                    _this.busy = true;
-                    _this.rotateRightFace();
-                }
-                else if (move == 'f') { //f
-                    _this.busy = true;
-                    _this.rotateFrontFace();
-                }
-                else if (move == 'b') { //b
-                    _this.busy = true;
-                    _this.rotateBackFace();
-                }
-                else if (move == 'x') { //x
-                    _this.busy = true;
-                    _this.rotateMiddleX();
-                }
-                else if (move == 'y') { //y
-                    _this.busy = true;
-                    _this.rotateMiddleY();
-                }
-                else if (move == 'z') { //z
-                    _this.busy = true;
-                    _this.rotateMiddleZ();
-                }
+                var random_direction = Math.round(Math.random());
+                var random_sliceNumber = Math.floor(Math.random() * (_this.cubiesPerAxis));
+                var random_axis = axes[Math.floor(Math.random() * axes.length)];
+                _this.busy = true;
+                var curFace = _this.getLayer(random_axis, random_sliceNumber);
+                _this.rotateFace(curFace.cubies, curFace.axis, curFace.memArr, random_direction);
                 i++;
             }
         }, 1);
@@ -601,10 +571,39 @@ function Cube() {
         this.go360();
         return true;
     };
-    this.updateCubiesOrder = function updateCubiesOrder(memArr, faceArr, direction) {
+    this.updateCubiesOrder = function updateCubiesOrder(memArr, faceArr, dir) {
+        //assumes a square matrix
         //update the this.cubies "matrix" so that it matches the new "physical" locations of the cubies.
         //memArr - is the reference array that matches the position id to the physical cubicle id occupying it
         //faceArr is the array that holds current face cubies
+        var sideLen = Math.sqrt(faceArr.length); // corresponds to cubiesPerAxis
+        if (sideLen % 1 !== 0) {
+            throw ('not a square matrix.');
+        }
+        if (dir === 0) { //cw rotation
+            console.log('NOT reversing.');
+        }
+        else if (dir === 1) { //ccw rotation
+            console.log('reversing first...');
+            faceArr.reverse();
+        }
+        else {
+            throw ('unknown direction!');
+        }
+        //var rotarr = [];
+        faceArr.forEach(function(entry, index, array) {
+            var x = index % sideLen;
+            var y = Math.floor(index / sideLen);
+            var newX = sideLen - y - 1;
+            var newY = x;
+            var newPos = newY * sideLen + newX;
+            this.cubies[memArr[newPos]] = faceArr[index];
+            //rotarr[newPos] = array[index];
+        }, this);
+        //console.log(rotarr);
+    };
+    this.OBSupdateCubiesOrder = function OBSupdateCubiesOrder(memArr, faceArr, direction) {
+        // #TODO: remove me if updateCubiesOrder turns out ok
         direction = 0;
         for (var k = 0; k < this.cubiesPerPlane; k++) {
             var x = k % this.cubiesPerAxis;
@@ -612,40 +611,70 @@ function Cube() {
             var newY;
             var newX;
             var newPos;
-            if (direction === 1){
+            if (direction === 1) {
                 newY = this.cubiesPerAxis - x - 1;
-            	newX = y;
-            }else if (direction === 0){
+                newX = y;
+            }
+            else if (direction === 0) {
                 newX = this.cubiesPerAxis - y - 1;
-            	newY = x;
+                newY = x;
             }
             newPos = newY * this.cubiesPerAxis + newX;
             this.cubies[memArr[newPos]] = faceArr[k];
         }
     };
     this.updateCubiesOrientation = function updateCubiesOrientation(faceArr, axis, direction) {
+        // #TODO: this could be simplified
         for (var k = 0; k < faceArr.length; k++) {
             if (faceArr[k].userData.orientation) { // the middle placeholder objects don't have this variable.
                 if (axis == AXIS.X) {
-                    var temp1 = faceArr[k].userData.orientation[AXIS.Y][0];
-                    faceArr[k].userData.orientation[AXIS.Y][0] = faceArr[k].userData.orientation[AXIS.Z][1];
-                    faceArr[k].userData.orientation[AXIS.Z][1] = faceArr[k].userData.orientation[AXIS.Y][1];
-                    faceArr[k].userData.orientation[AXIS.Y][1] = faceArr[k].userData.orientation[AXIS.Z][0];
-                    faceArr[k].userData.orientation[AXIS.Z][0] = temp1;
+                    if (direction == 0) {
+                        var temp1 = faceArr[k].userData.orientation[AXIS.Y][0];
+                        faceArr[k].userData.orientation[AXIS.Y][0] = faceArr[k].userData.orientation[AXIS.Z][1];
+                        faceArr[k].userData.orientation[AXIS.Z][1] = faceArr[k].userData.orientation[AXIS.Y][1];
+                        faceArr[k].userData.orientation[AXIS.Y][1] = faceArr[k].userData.orientation[AXIS.Z][0];
+                        faceArr[k].userData.orientation[AXIS.Z][0] = temp1;
+                    }
+                    else {
+                        var temp1 = faceArr[k].userData.orientation[AXIS.Y][0];
+                        faceArr[k].userData.orientation[AXIS.Y][0] = faceArr[k].userData.orientation[AXIS.Z][0];
+                        faceArr[k].userData.orientation[AXIS.Z][0] = faceArr[k].userData.orientation[AXIS.Y][1];
+                        faceArr[k].userData.orientation[AXIS.Y][1] = faceArr[k].userData.orientation[AXIS.Z][1];
+                        faceArr[k].userData.orientation[AXIS.Z][1] = temp1;
+                    }
+
                 }
                 if (axis == AXIS.Y) {
-                    var temp2 = faceArr[k].userData.orientation[AXIS.Z][0];
-                    faceArr[k].userData.orientation[AXIS.Z][0] = faceArr[k].userData.orientation[AXIS.X][1];
-                    faceArr[k].userData.orientation[AXIS.X][1] = faceArr[k].userData.orientation[AXIS.Z][1];
-                    faceArr[k].userData.orientation[AXIS.Z][1] = faceArr[k].userData.orientation[AXIS.X][0];
-                    faceArr[k].userData.orientation[AXIS.X][0] = temp2;
+                    if (direction == 0) {
+                        var temp2 = faceArr[k].userData.orientation[AXIS.Z][0];
+                        faceArr[k].userData.orientation[AXIS.Z][0] = faceArr[k].userData.orientation[AXIS.X][1];
+                        faceArr[k].userData.orientation[AXIS.X][1] = faceArr[k].userData.orientation[AXIS.Z][1];
+                        faceArr[k].userData.orientation[AXIS.Z][1] = faceArr[k].userData.orientation[AXIS.X][0];
+                        faceArr[k].userData.orientation[AXIS.X][0] = temp2;
+                    }
+                    else {
+                        var temp2 = faceArr[k].userData.orientation[AXIS.Z][0];
+                        faceArr[k].userData.orientation[AXIS.Z][0] = faceArr[k].userData.orientation[AXIS.X][0];
+                        faceArr[k].userData.orientation[AXIS.X][0] = faceArr[k].userData.orientation[AXIS.Z][1];
+                        faceArr[k].userData.orientation[AXIS.Z][1] = faceArr[k].userData.orientation[AXIS.X][1];
+                        faceArr[k].userData.orientation[AXIS.X][1] = temp2;
+                    }
                 }
                 if (axis == AXIS.Z) {
-                    var temp3 = faceArr[k].userData.orientation[AXIS.Y][0];
-                    faceArr[k].userData.orientation[AXIS.Y][0] = faceArr[k].userData.orientation[AXIS.X][0];
-                    faceArr[k].userData.orientation[AXIS.X][0] = faceArr[k].userData.orientation[AXIS.Y][1];
-                    faceArr[k].userData.orientation[AXIS.Y][1] = faceArr[k].userData.orientation[AXIS.X][1];
-                    faceArr[k].userData.orientation[AXIS.X][1] = temp3;
+                    if (direction == 0) {
+                        var temp3 = faceArr[k].userData.orientation[AXIS.Y][0];
+                        faceArr[k].userData.orientation[AXIS.Y][0] = faceArr[k].userData.orientation[AXIS.X][0];
+                        faceArr[k].userData.orientation[AXIS.X][0] = faceArr[k].userData.orientation[AXIS.Y][1];
+                        faceArr[k].userData.orientation[AXIS.Y][1] = faceArr[k].userData.orientation[AXIS.X][1];
+                        faceArr[k].userData.orientation[AXIS.X][1] = temp3;
+                    }
+                    else {
+                        var temp3 = faceArr[k].userData.orientation[AXIS.Y][0];
+                        faceArr[k].userData.orientation[AXIS.Y][0] = faceArr[k].userData.orientation[AXIS.X][1];
+                        faceArr[k].userData.orientation[AXIS.X][1] = faceArr[k].userData.orientation[AXIS.Y][1];
+                        faceArr[k].userData.orientation[AXIS.Y][1] = faceArr[k].userData.orientation[AXIS.X][0];
+                        faceArr[k].userData.orientation[AXIS.X][0] = temp3;
+                    }
                     /*x1 - y1
                     y1 - x2
                     x2 - y2
@@ -699,7 +728,12 @@ function Cube() {
         }
     };
     this.rotateFace = function rotateFace(face, axis, memArr, direction) {
-        if (direction == 1) console.log('shoulda gone the other way.');
+        //if (direction == 1) console.log('shoulda gone the other way.');
+        if (direction !== 0 && direction !== 1) {
+            console.log('WARNING! rotate called without direction.');
+            console.log(direction);
+            direction = 0;
+        }
         //remove the group from the scene, add it to the pivot group, rotate and then put it back on the scene
         this.pivot.rotation.set(0, 0, 0);
         this.pivot.updateMatrixWorld();
@@ -724,7 +758,7 @@ function Cube() {
             direction: 0 // 0 - rhr
         };
         request.direction = direction;
-        var rotationSign = (request.direction == 0)? 1 : -1;
+        var rotationSign = (request.direction == 0) ? 1 : -1;
         if (axis == AXIS.X) {
             request.rotateTo.x = rotationSign * Math.PI / 2;
         }
