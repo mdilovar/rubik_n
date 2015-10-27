@@ -1,9 +1,12 @@
+"use strict";
 function sendForm(u, p, url){
     var ubox = document.getElementsByName("username")[0];
     var pbox = document.getElementsByName("password")[0];
     var uerr = document.getElementById("uerr");
     var perr = document.getElementById("perr");
     var gerr = document.getElementById("gerr");
+    var gnotif = document.getElementById("gnotif");
+    gnotif.innerHTML="";
     var utrim=ubox.value.replace( /^\s+|\s+$/g, '');
     var ptrim=pbox.value.replace( /^\s+|\s+$/g, '');
     if (utrim == "" || ptrim == "") {
@@ -79,7 +82,7 @@ function handleResponse(response){
             }
         }
     }else{
-        window.location = "php/rc.php";
+        window.location = "index.php";
     }
 }
 

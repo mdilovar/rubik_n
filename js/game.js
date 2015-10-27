@@ -1,20 +1,23 @@
+"use strict";
+/*
+global Cube moveWithKey controls
+*/
 var SCORE_URL = "../php/score.php";
-function loadGame() {
-    this.highScore = 0;
+var timer, game, theCube, startScene;
 
-    IntroScreen = new IntroScreen();
+function loadGame() {
+    startScene = new IntroScreen();
     timer = new Timer();
     theCube = new Cube();
     game = new Game();
-    IntroScreen.display();
-
+    startScene.display();
 }
 
 function IntroScreen() {
     this.display = function display() {
         //clear
         var gnotif = document.getElementById('gnotif');
-        gnotif.innerHTML='';
+        gnotif.innerHTML = '';
         //show:
         var cube_size_form = document.getElementById('cube_size_form');
         var sizen = document.getElementById('sizen');
@@ -44,30 +47,33 @@ function IntroScreen() {
         //move around:
         var cube_size_wrapper = document.getElementById('cube_size_wrapper');
         cube_size_wrapper.style.paddingTop = 0;
-        //change n to 
+        //change n to
         var n = document.getElementById('n');
         n.innerHTML = new_n;
     };
     this.getUserCubeSize = function getUserCubeSize(n) {
         var csbox = document.getElementById('csbox');
         var sizen = document.getElementById("sizen");
-        n = parseInt(n,10);
-        if (!(typeof n==='number' && (n%1)===0)){ //integer test
+        n = parseInt(n, 10);
+        if (!(typeof n === 'number' && (n % 1) === 0)) { //integer test
             csbox.style.borderColor = "red";
-            sizen.innerHTML="please choose between 2 and 10";
+            sizen.innerHTML = "please choose between 2 and 10";
             return;
-        }else if (n < 2 || n > 10){
+        }
+        else if (n < 2 || n > 10) {
             csbox.style.borderColor = "red";
-            sizen.innerHTML="please choose between 2 and 10";
+            sizen.innerHTML = "please choose between 2 and 10";
             return;
-        }else {
+        }
+        else {
             csbox.style.borderColor = "";
-            sizen.innerHTML="choose cube size";
+            sizen.innerHTML = "choose cube size";
         }
         this.hide(n);
         game.play(n);
+        controls.reset();
     };
-    this.reset = function rest(){
+    this.reset = function rest() {
         document.removeEventListener("keydown", moveWithKey);
         theCube.destroy();
         timer.destroy();
@@ -90,7 +96,7 @@ function Timer() {
             this.t.innerHTML = 'Time: ' + this.makeCuteTime(this.getElapsedTime());
         }
     };
-    this.makeCuteTime = function makeCuteTime(time){
+    this.makeCuteTime = function makeCuteTime(time) {
         var now = Math.floor(time / 1000); //display only up to seconds
         var minutes = Math.floor(now / 60) % 60;
         now -= minutes * 60;
@@ -111,24 +117,24 @@ function Timer() {
     };
     this.stop = function stop() {
         this.isRunning = false;
-        this.t.title = "or "+this.getElapsedTime()+" milliseconds, to be more precise...";
+        this.t.title = "or " + this.getElapsedTime() + " milliseconds, to be more precise...";
     };
-    this.destroy = function destroy(){
-       this.t.innerHTML = '';
-       this.t.title = '';
+    this.destroy = function destroy() {
+        this.t.innerHTML = '';
+        this.t.title = '';
     };
 }
 
 function Game() {
     this.cubeSize = 3;
-    this.hs=Infinity;
+    this.hs = Infinity;
     this.play = function play(n) {
         var hs = document.getElementById('hs');
         var timen = document.getElementById('timen');
         var gnotif = document.getElementById('gnotif');
-        gnotif.innerHTML='';
-        hs.style.color='';
-        timen.style.color='';
+        gnotif.innerHTML = '';
+        hs.style.color = '';
+        timen.style.color = '';
         this.cubeSize = n;
         timer.display();
         //start the Cube
@@ -136,21 +142,23 @@ function Game() {
             timer.stop();
             //window.location = "php/rc.php";
             document.removeEventListener("keydown", moveWithKey);
-            game.sendScore(timer.getElapsedTime(),theCube.cubiesPerAxis);
+            game.sendScore(timer.getElapsedTime(), theCube.cubiesPerAxis);
             game.grabHS(theCube.cubiesPerAxis);
             var hs = document.getElementById('hs');
             var timen = document.getElementById('timen');
             var gnotif = document.getElementById('gnotif');
-            if (game.hs > timer.getElapsedTime()){
-                gnotif.innerHTML='yay! this is your new personal record!';
-                hs.style.color='red';
-            }else if (game.hs === timer.getElapsedTime()){
-                gnotif.innerHTML='you almost set a new personal record there!';
-                hs.style.color='red';
-                timen.style.color='red';
-            }else {
-                gnotif.innerHTML='nice job! (though you have done better before.)';
-                timen.style.color='red';
+            if (game.hs > timer.getElapsedTime()) {
+                gnotif.innerHTML = 'yay! this is your new personal record!';
+                hs.style.color = 'red';
+            }
+            else if (game.hs === timer.getElapsedTime()) {
+                gnotif.innerHTML = 'you almost set a new personal record there!';
+                hs.style.color = 'red';
+                timen.style.color = 'red';
+            }
+            else {
+                gnotif.innerHTML = 'nice job! (though you have done better before.)';
+                timen.style.color = 'red';
             }
         });
         theCube.scramble(function onComplete() {
@@ -160,30 +168,36 @@ function Game() {
         });
         this.grabHS(theCube.cubiesPerAxis);
     };
-    this.sendScore = function sendScore(score,cube_size){
-    	var data = {score:score, cube_size:cube_size};
-    	var ajax = new Ajax(SCORE_URL,data,this.handleResponse);
-    	ajax.post();
+    this.sendScore = function sendScore(score, cube_size) {
+        var data = {
+            score: score,
+            cube_size: cube_size
+        };
+        var ajax = new Ajax(SCORE_URL, data, this.handleResponse);
+        ajax.post();
     };
-    this.grabHS = function grabHS(cube_size){
-        var data = {cube_size:cube_size};
-    	var ajax = new Ajax(SCORE_URL,data,this.handleResponse);
-    	ajax.get();
+    this.grabHS = function grabHS(cube_size) {
+        var data = {
+            cube_size: cube_size
+        };
+        var ajax = new Ajax(SCORE_URL, data, this.handleResponse);
+        ajax.get();
     };
-    this.handleResponse = function handleResponse(response){
+    this.handleResponse = function handleResponse(response) {
         response = JSON.parse(response);
-        if (!response.success){
+        if (!response.success) {
             console.log(response.general_message);
             for (var prop in response.errors) {
                 console.log(response.errors[prop]);
             }
-        }else{
+        }
+        else {
             var hs = document.getElementById('hs');
-            if(typeof response.data !== 'undefined'){
-                if(response.data.hs !== null){
-                    hs.innerHTML = "HS: "+ timer.makeCuteTime(response.data.hs) +"&nbsp;&nbsp;|";
-                    hs.title = "or "+response.data.hs+" milliseconds, to be more precise...";
-                    game.hs=response.data.hs;
+            if (typeof response.data !== 'undefined') {
+                if (response.data.hs !== null) {
+                    hs.innerHTML = "HS: " + timer.makeCuteTime(response.data.hs) + "&nbsp;&nbsp;|";
+                    hs.title = "or " + response.data.hs + " milliseconds, to be more precise...";
+                    game.hs = response.data.hs;
                 }
             }
             //console.log('Hoooray! recorded your score: ' ,  response);

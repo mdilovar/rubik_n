@@ -1,29 +1,30 @@
 done so far (current commit):
-//disabled pan // made some path changes so it works in kodind env (see if compatible with cloud9)//added some congrats amination in cube.js plus congrats messages in game.js//fixed canvas size conflict with menu: canavas height (both initial and on window resize) is set to 80% of window height now
+completed mouse movement support (counter-right-hand-rule should work too; for n>3 - all middle layers should rotate.) //  improve the scramble method to rotate all the layers and in both dirrections.
 
 current task:
 
 
 next up:
-
-
-
-
+- css size make more responsive - on prof pc stuff was small (did some changes still more needed?). "HS" -> best time?
+- during scrambling tell user to wait
+- tidy up? before merging mouse rotation branch? the code is messy.
+- issue: scramble gets faster every restart.
 
 /// more:
 
-- add mosouse movement support (coun terclockwise shouild work too; for n>3 - all middle layers should rotate.)
-- user friendly step-by step guide for solution {Before even given cube status input, just like hints. input is the scrambled cube.}
 
+- user friendly step-by step guide for solution (this might take a while - includes the actual solving algorithm)
+- manual cube initial state entry as input for the hint solution guide. (includes valid cube state check)
 - create a prototype for detecting colors on one side of a cube from an image.
-- other credentials related stuff: successfull registration ui feedback, sql injection tests, password change, password forgot, add email, othertab logout, etc, login attempts...
+- if image prototype works, implement video feed cube scanner as initial cube state input
 - adding facebook api and friends high scores.
-- if image prototype works, implement video feed cube scanner
-- and/or alternative manual cube status selection with center color picker
-- consider dropping trackball/orbit/event-controls scripts (and implementing min req func yourself) to improve original/imported code ratio.
- 
+- other credentials related stuff: sql injection tests, password change, password recovery, add email, other tab logout, login attempts, etc.
 
-optional: 
+
+
+
+
+optional:
 - Make mobile friendly?
 
 

@@ -3,20 +3,25 @@
 		background-color: #f0f0f0;
 		overflow: hidden;
 	}
-	
+
 	.login_wrapper,
 	#cube_size_wrapper {
 		padding-top: 10%;
 	}
-	
+
 	.login,
 	.cube_size {
 		margin-left: auto;
 		margin-right: auto;
-		width: 250px;
+		width: 274px;
 		text-align: center;
 	}
-	
+
+	input {
+		height: 44px;
+		font-size: 16px;
+	}
+
 	input[type="number"],
 	input[type="text"],
 	input[type="password"] {
@@ -27,40 +32,45 @@
 		width: 100%;
 		font-family: Lucida Console;
 	}
-	
+
 	input[type="text"]:focus,
 	input[type="number"]:focus,
 	input[type="password"]:focus {
 		border-bottom: solid 2px #969696;
 	}
-	
-	input[type="button"]:hover {
+
+	input[type="button"]:hover,
+	input[type="submit"]:hover {
 		border-bottom: solid 2px #969696;
 		cursor: pointer;
 	}
-	
-	input[type="button"]:active {
+
+	input[type="button"]:active,
+	input[type="submit"]:active {
 		/*border-top: solid 2px transparent ;*/
 		border-bottom: solid 2px black;
 	}
-	
+
 	h1 {
 		font-family: Lucida Console;
+		font-size: 38px;
 	}
-	
-	input[type="button"] {
+
+	input[type="button"],
+	input[type="submit"] {
 		padding: 10px;
 		border: none;
 		border-bottom: solid 2px #c9c9c9;
 		box-sizing: border-box;
-		width: 49%;
+		width: 48%;
 		font-family: Lucida Console;
 	}
-	
-	input[type="button"].big {
+
+	input[type="button"].big,
+	input[type="submit"].big {
 		width: 100%;
 	}
-	
+
 	#errors,
 	.notifs {
 		font-family: Lucida Console;
@@ -68,21 +78,22 @@
 		width: 100%;
 		color: #969696;
 		text-align: center;
-		font-size: 15px;
+		font-size: 16px;
 	}
-	
+
 	#cube_size_form {
 		display: none
 	}
-	
+
 	#sizen {
 		display: none
 	}
-	
+
 	#restart_button {
 		display: none;
 		cursor: pointer;
 	}
+
 	#n {
 		color: red;
 	}
