@@ -13,7 +13,7 @@ function loadGame() {
     startScene.display();
 }
 
-function IntroScreen() {
+function IntroScreen() {// #TODO: add/remove .game_cp class from the .cube_size div
     this.display = function display() {
         //clear
         var gnotif = document.getElementById('gnotif');
@@ -31,6 +31,8 @@ function IntroScreen() {
         //move around:
         var cube_size_wrapper = document.getElementById('cube_size_wrapper');
         cube_size_wrapper.style.paddingTop = "10%";
+        var cp = document.getElementById('cp');
+        cp.className = "cube_size";
         //change n to n
         var n = document.getElementById('n');
         n.innerHTML = 'n';
@@ -47,6 +49,8 @@ function IntroScreen() {
         //move around:
         var cube_size_wrapper = document.getElementById('cube_size_wrapper');
         cube_size_wrapper.style.paddingTop = 0;
+        var cp = document.getElementById('cp');
+        cp.className = "cube_size game_cp";
         //change n to
         var n = document.getElementById('n');
         n.innerHTML = new_n;
@@ -191,7 +195,7 @@ function Game() {
             var hs = document.getElementById('hs');
             if (typeof response.data !== 'undefined') {
                 if (response.data.hs !== null) {
-                    hs.innerHTML = "HS: " + timer.makeCuteTime(response.data.hs) + "&nbsp;&nbsp;|";
+                    hs.innerHTML = "Best time: " + timer.makeCuteTime(response.data.hs) + "&nbsp;&nbsp;|";
                     hs.title = "or " + response.data.hs + " milliseconds, to be more precise...";
                     game.hs = response.data.hs;
                 }

@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $request_errors = array();
     $username = $_SESSION["username"];
     $cube_size = validateInput($_GET['cube_size'], 'cube_size', $request_errors);
-    
+
     if (count($request_errors) > 0) {
         echo json_encode(array(
             "success" => false,
@@ -34,9 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             ));
         }
         else {
-    
+
             // echo json_encode(array("success" => false, "general_message" => "Failed to save the score. Unexpected error."));
-    
+
         }
     }
 }elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $username = $_SESSION["username"];
     $score = validateInput($_POST['score'], 'score', $request_errors);
     $cube_size = validateInput($_POST['cube_size'], 'cube_size', $request_errors);
-    
+
     if (count($request_errors) > 0) {
         echo json_encode(array(
             "success" => false,
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     else {
         include ("db_connect.php");
-    
+
         if (saveScore($username, $score, $cube_size, $mysqli)) {
             echo json_encode(array(
                 "success" => true,
@@ -62,9 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             ));
         }
         else {
-    
+
             // echo json_encode(array("success" => false, "general_message" => "Failed to save the score. Unexpected error."));
-    
+
         }
     }
 }
@@ -73,7 +73,7 @@ function getHiScore($username, $cube_size, $mysqli, &$score)
 {
     if (!($stmt = $mysqli->prepare("SELECT MIN(time) AS hs FROM game
                                     WHERE player_id = (
-                                        SELECT id FROM player 
+                                        SELECT id FROM player
                                         WHERE username = ? LIMIT 1)
                                     AND cube_size = ? "))) {
         $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
@@ -113,9 +113,9 @@ function getHiScore($username, $cube_size, $mysqli, &$score)
         ));
         return false;
     }
-    
+
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows != 1) {
         $errors['username'] = "Incorrect username.";
         $score = 0;
@@ -127,7 +127,7 @@ function getHiScore($username, $cube_size, $mysqli, &$score)
 
 function saveScore($username, $score, $cube_size, $mysqli)
 {
-    if (!($stmt = $mysqli->prepare("INSERT INTO game(player_id,time,cube_size) 
+    if (!($stmt = $mysqli->prepare("INSERT INTO game(player_id,time,cube_size)
                                     SELECT id, ?,? FROM player WHERE username = ? LIMIT 1"))) {
         $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
         $db_error = array(

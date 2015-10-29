@@ -16,6 +16,9 @@
 		width: 274px;
 		text-align: center;
 	}
+	.game_cp {
+		width: 400px;
+	}
 
 	input {
 		height: 44px;

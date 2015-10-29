@@ -1,11 +1,11 @@
 done so far (current commit):
-// tidied up the code after the feature_mouse_rotation merging // used beautify // removed keyboard controls // removed EventControls lib // removed many now obsolete Cube functions (those referring to specific layers)
+changed "HS" to "Best time" and fixed some control pannel styling issues. fixes #4
 
 current task:
-
+fixing game control panel css (for rubik_10 and now for all cubes because of HS renaming)
 
 next up:
-- css size make more responsive - on prof pc stuff was small (did some changes still more needed?). "HS" -> best time?
+
 - during scrambling tell user to wait
 - issue: scramble gets faster every restart.
 
