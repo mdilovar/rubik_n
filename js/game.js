@@ -13,7 +13,7 @@ function loadGame() {
     startScene.display();
 }
 
-function IntroScreen() {// #TODO: add/remove .game_cp class from the .cube_size div
+function IntroScreen() {
     this.display = function display() {
         //clear
         var gnotif = document.getElementById('gnotif');
