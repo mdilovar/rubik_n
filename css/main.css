@@ -16,6 +16,7 @@
 		width: 274px;
 		text-align: center;
 	}
+
 	.game_cp {
 		width: 400px;
 	}
@@ -77,7 +78,7 @@
 	#errors,
 	.notifs {
 		font-family: Lucida Console;
-		padding-top: 5px;
+		height: 16px;
 		width: 100%;
 		color: #969696;
 		text-align: center;

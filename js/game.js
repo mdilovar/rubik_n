@@ -162,9 +162,12 @@ function Game() {
                 gnotif.innerHTML = 'nice job! (though you have done better before.)';
                 timen.style.color = 'red';
             }
-        });
-        theCube.scramble(function onComplete() {
+        }, function onFirstMove(){
             timer.start();
+        });
+        gnotif.innerHTML = 'Scrambling...';
+        theCube.scramble(function onComplete() {
+            gnotif.innerHTML = '';
         });
         this.grabHS(theCube.cubiesPerAxis);
     };

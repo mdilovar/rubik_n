@@ -1,13 +1,12 @@
 done so far (current commit):
-changed "HS" to "Best time" and fixed some control pannel styling issues. fixes #4
+// timer now fires after first move, not after scrambling is over (added a callback for rotation requests; scramble now uses this callback recursivesly instead of a timeinterval.) // added ui feedback during scrambling ('scrambling...')// incresed scramble speed, after completion rotation speed is set back to normal // the draw function was called everytime a cube was inited, which caused ever-faster animations every reset - fixed this. // added touch cube controls
 
 current task:
-fixing game control panel css (for rubik_10 and now for all cubes because of HS renaming)
+
+
 
 next up:
 
-- during scrambling tell user to wait
-- issue: scramble gets faster every restart.
 
 /// more:
 
@@ -25,6 +24,8 @@ next up:
 
 optional:
 - Make mobile friendly?
+- rotationrequest queue actually ony works with one request at a time now. If there is ever a need for a real queue,
+  // the getLayer function should be moved to inside the rotate function
 
 
 

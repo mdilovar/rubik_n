@@ -43,6 +43,8 @@ function setup() {
     setupScene();
     //load the game
     loadGame();
+    //start the animation
+    draw();
 }
 
 function setupScene() {
@@ -85,9 +87,12 @@ function setupScene() {
     controls.noPan = true;
     //add window resize listener to redraw everything in case of windaw size change
     window.addEventListener('resize', onWindowResize, false);
-    renderer.domElement.addEventListener('mousemove', onDocumentMouseMove, false);
-    renderer.domElement.addEventListener('mousedown', onDocumentMouseDown, false);
-    renderer.domElement.addEventListener('mouseup', onDocumentMouseUp, false);
+    renderer.domElement.addEventListener('mousemove', onCanvasMouseMove, false);
+    renderer.domElement.addEventListener('mousedown', onCanvasMouseDown, false);
+    renderer.domElement.addEventListener('mouseup', onCanvasMouseUp, false);
+    renderer.domElement.addEventListener('touchstart', onCanvasTouchStart, false);
+    renderer.domElement.addEventListener('touchend', onCanvasTouchEnd, false);
+    renderer.domElement.addEventListener('touchmove', onCanvasTouchMove, false);
 }
 
 function onWindowResize(e) {
@@ -97,7 +102,7 @@ function onWindowResize(e) {
     camera.updateProjectionMatrix();
 }
 
-function onDocumentMouseMove(event) {
+function onCanvasMouseMove(event) {
     event.preventDefault();
     var x = event.offsetX == undefined ? event.layerX : event.offsetX;
     var y = event.offsetY == undefined ? event.layerY : event.offsetY;
@@ -113,15 +118,15 @@ function onDocumentMouseMove(event) {
             INTERSECTED = intersects[0].object;
         }
         canvas_div.style.cursor = 'pointer';
-    } else {
+    }
+    else {
         INTERSECTED = null;
         canvas_div.style.cursor = 'auto';
     }
 }
 
-function onDocumentMouseDown(event) {
+function onCanvasMouseDown(event) {
     event.preventDefault();
-    raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects(objects);
     if (intersects.length > 0) {
         controls.enabled = false;
@@ -130,7 +135,7 @@ function onDocumentMouseDown(event) {
     }
 }
 
-function onDocumentMouseUp(event) {
+function onCanvasMouseUp(event) {
     event.preventDefault();
     controls.enabled = true;
     var intersects = raycaster.intersectObjects(objects);
@@ -143,6 +148,46 @@ function onDocumentMouseUp(event) {
     }
 }
 
+function onCanvasTouchMove(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.touches.length == 1) {
+        var x = event.touches[0].pageX - event.touches[0].target.offsetLeft;
+        var y = event.touches[0].pageY - event.touches[0].target.offsetTop;
+        mouse.x = (x / renderer.domElement.width) * 2 - 1;
+        mouse.y = -(y / renderer.domElement.height) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+    }
+}
+
+function onCanvasTouchStart(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.touches.length == 1) {
+        onCanvasTouchMove(event);
+        var intersects = raycaster.intersectObjects(objects);
+        if (intersects.length > 0) {
+            controls.enabled = false;
+            SELECTED = intersects[0].object;
+            FACE = intersects[0].face;
+        }
+    }
+
+}
+
+function onCanvasTouchEnd(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.touches.length == 0) {
+        controls.enabled = true;
+        var intersects = raycaster.intersectObjects(objects);
+        if (intersects.length > 0) {
+            SELECTED2 = intersects[0].object;
+            moveWithMouse(SELECTED, SELECTED2, FACE);
+        }
+    }
+}
+
 function shouldReverseDirection(c1, c2, face) {
     //returns true/1 || false/0: false - right hand rule; true - left hand rule
     var cpx = face.cubiesPerAxis;
@@ -151,28 +196,32 @@ function shouldReverseDirection(c1, c2, face) {
     if ((c1 >= (cps - cpx) || (c1 % cpx) === 0) && (c2 >= (cps - cpx) || (c2 % cpx) === 0)) {
         if (c2 > c1) {
             return true ^ negate4y;
-        } else if (c2 < c1) {
+        }
+        else if (c2 < c1) {
             return false ^ negate4y;
         }
     }
     if ((c1 < cpx || (c1 % cpx) === (cpx - 1)) && (c2 < cpx || (c2 % cpx) === (cpx - 1))) {
         if (c2 > c1) {
             return false ^ negate4y;
-        } else if (c2 < c1) {
+        }
+        else if (c2 < c1) {
             return true ^ negate4y;
         }
     }
     if ((c1 >= (cps - cpx) || (c1 % cpx) === (cpx - 1)) && (c2 >= (cps - cpx) || (c2 % cpx) === (cpx - 1))) {
         if (c2 > c1) {
             return false ^ negate4y;
-        } else if (c2 < c1) {
+        }
+        else if (c2 < c1) {
             return true ^ negate4y;
         }
     }
     if ((c1 < cpx || (c1 % cpx) === 0) && (c2 < cpx || (c2 % cpx) === 0)) {
         if (c2 > c1) {
             return true ^ negate4y;
-        } else if (c2 < c1) {
+        }
+        else if (c2 < c1) {
             return false ^ negate4y;
         }
     }
@@ -202,16 +251,22 @@ function moveWithMouse(fromCubie, toCubie, face) {
             for (var d in AXIS) {
                 if (AXIS[d] == landingFaceAxis) continue; // ignore the landing face.
                 curFace = theCube.getLayer(AXIS[d], s);
-                fromCubieIndex = curFace.cubies.map(function (e) {
+                fromCubieIndex = curFace.cubies.map(function(e) {
                     return e.id;
                 }).indexOf(fromCubie);
-                toCubieIndex = curFace.cubies.map(function (e) {
+                toCubieIndex = curFace.cubies.map(function(e) {
                     return e.id;
                 }).indexOf(toCubie);
                 if (curFace.hasCubie(fromCubie) && curFace.hasCubie(toCubie)) {
                     theCube.busy = true;
                     direction = shouldReverseDirection(fromCubieIndex, toCubieIndex, curFace);
-                    theCube.rotateFace(curFace.cubies, curFace.axis, curFace.memArr, direction);
+                    theCube.rotateFace(curFace.cubies, curFace.axis, curFace.memArr, direction, function() {
+                        if (!theCube.gameHasStarted) {
+                            theCube.gameHasStarted = true;
+                            theCube.onFirstMove();
+                        }
+                        if (theCube.isSolved()) theCube.onIsSolved();
+                    });
                     return;
                 }
             }
@@ -312,7 +367,8 @@ function Cube() {
                     color: color_back
                 })
             ]); //back - green
-        } else {
+        }
+        else {
             cubieMaterial = new THREE.MeshFaceMaterial([
                 new THREE.MeshPhongMaterial({
                     color: color_right,
@@ -341,8 +397,8 @@ function Cube() {
             ]); //back - green
         }
         //create and return the cubie mesh
-        var cubieMesh = new THREE.Mesh(cubieGeometry, cubieMaterial); //new THREE.MeshNormalMaterial( { transparent: true, opacity: 0.5 }));
-        cubieMesh.userData.has_color = has_color; // #TODO: add something  to keep track of orientation.
+        var cubieMesh = new THREE.Mesh(cubieGeometry, cubieMaterial); //new THREE.MeshNormalMaterial( { transparent: true, opacity: 0.5 });
+        cubieMesh.userData.has_color = has_color;
         cubieMesh.userData.orientation = {
             x: ['white', 'yellow'],
             y: ['red', 'orange'],
@@ -353,10 +409,11 @@ function Cube() {
         //y - UD
         return cubieMesh;
     };
-    this.initCube = function initCube(size, onIsSolved) {
+    this.initCube = function initCube(size, onIsSolved, onFirstMove) {
         this.cubiesPerAxis = size * 1 || 3;
         this.cubiesPerPlane = Math.pow(this.cubiesPerAxis, 2);
         this.onIsSolved = onIsSolved;
+        this.onFirstMove = onFirstMove;
         // set max and min zoom (depends on the cube size and degree)
         controls.minDistance = 2.5 * this.cubiesPerAxis * cubieSize;
         controls.maxDistance = camera.far - 2.5 * this.cubiesPerAxis * cubieSize;
@@ -392,33 +449,36 @@ function Cube() {
                 }
             }
         }
-        //start the animation
-        draw();
     };
     this.scramble = function scramble(onComplete) {
-        var randomMoveCount = 0,
-            axes = [AXIS.X, AXIS.Y, AXIS.Z],
-            i = 0;
+        var randomMoveCount = 3 * theCube.cubiesPerAxis;
         var _this = this;
-        this.scrambler = setInterval(function () {
-            if (i > randomMoveCount) {
-                clearInterval(_this.scrambler);
-                _this.gameHasStarted = true;
-                onComplete();
+        var normal_speed = _this.rendersPerMove;
+        _this.rendersPerMove = 3; // rotate fast during scrambling
+
+        function recSrcamble(randomMoveCount) {
+            var random_direction = Math.round(Math.random());
+            var random_sliceNumber = Math.floor(Math.random() * (_this.cubiesPerAxis));
+            var random_axis = [AXIS.X, AXIS.Y, AXIS.Z][Math.floor(Math.random() * 3)];
+            _this.busy = true;
+            var curFace = _this.getLayer(random_axis, random_sliceNumber);
+            if (randomMoveCount === 0) { // last scramble move
+                _this.rotateFace(curFace.cubies, curFace.axis, curFace.memArr, random_direction, function() {
+                    _this.rendersPerMove = normal_speed;
+                    onComplete();
+                });
             }
-            if (!_this.busy) {
-                var random_direction = Math.round(Math.random());
-                var random_sliceNumber = Math.floor(Math.random() * (_this.cubiesPerAxis));
-                var random_axis = axes[Math.floor(Math.random() * axes.length)];
-                _this.busy = true;
-                var curFace = _this.getLayer(random_axis, random_sliceNumber);
-                _this.rotateFace(curFace.cubies, curFace.axis, curFace.memArr, random_direction);
-                i++;
+            else {
+                randomMoveCount--;
+                _this.rotateFace(curFace.cubies, curFace.axis, curFace.memArr, random_direction, function() {
+                    recSrcamble(randomMoveCount);
+                });
             }
-        }, 1);
+        }
+        recSrcamble(randomMoveCount);
     };
     this.destroy = function destroy() {
-        clearInterval(this.scrambler);
+        //clearInterval(this.scrambler); //what ahppens now?
         for (var c in this.cubies) {
             scene.remove(this.cubies[c]);
         }
@@ -471,12 +531,14 @@ function Cube() {
         var sideLen = Math.sqrt(faceArr.length); // corresponds to cubiesPerAxis
         if (sideLen % 1 !== 0) {
             throw ('not a square matrix.');
-        } else if (dir === 1) {
+        }
+        else if (dir === 1) {
             faceArr.reverse(); // because ccw rotation == reverse + cw rotation
-        } else if (dir !== 0 && dir !== 1) {
+        }
+        else if (dir !== 0 && dir !== 1) {
             throw ('unknown direction!');
         }
-        faceArr.forEach(function (entry, index, array) {
+        faceArr.forEach(function(entry, index, array) {
             /* this performs the cw rotation (if after reverse the overall effect will be a ccw rotation) */
             var x = index % sideLen;
             var y = Math.floor(index / sideLen);
@@ -497,7 +559,8 @@ function Cube() {
                         faceArr[k].userData.orientation[AXIS.Z][1] = faceArr[k].userData.orientation[AXIS.Y][1];
                         faceArr[k].userData.orientation[AXIS.Y][1] = faceArr[k].userData.orientation[AXIS.Z][0];
                         faceArr[k].userData.orientation[AXIS.Z][0] = temp1;
-                    } else {
+                    }
+                    else {
                         var temp1 = faceArr[k].userData.orientation[AXIS.Y][0];
                         faceArr[k].userData.orientation[AXIS.Y][0] = faceArr[k].userData.orientation[AXIS.Z][0];
                         faceArr[k].userData.orientation[AXIS.Z][0] = faceArr[k].userData.orientation[AXIS.Y][1];
@@ -512,7 +575,8 @@ function Cube() {
                         faceArr[k].userData.orientation[AXIS.X][1] = faceArr[k].userData.orientation[AXIS.Z][1];
                         faceArr[k].userData.orientation[AXIS.Z][1] = faceArr[k].userData.orientation[AXIS.X][0];
                         faceArr[k].userData.orientation[AXIS.X][0] = temp2;
-                    } else {
+                    }
+                    else {
                         var temp2 = faceArr[k].userData.orientation[AXIS.Z][0];
                         faceArr[k].userData.orientation[AXIS.Z][0] = faceArr[k].userData.orientation[AXIS.X][0];
                         faceArr[k].userData.orientation[AXIS.X][0] = faceArr[k].userData.orientation[AXIS.Z][1];
@@ -527,28 +591,42 @@ function Cube() {
                         faceArr[k].userData.orientation[AXIS.X][0] = faceArr[k].userData.orientation[AXIS.Y][1];
                         faceArr[k].userData.orientation[AXIS.Y][1] = faceArr[k].userData.orientation[AXIS.X][1];
                         faceArr[k].userData.orientation[AXIS.X][1] = temp3;
-                    } else {
+                    }
+                    else {
                         var temp3 = faceArr[k].userData.orientation[AXIS.Y][0];
                         faceArr[k].userData.orientation[AXIS.Y][0] = faceArr[k].userData.orientation[AXIS.X][1];
                         faceArr[k].userData.orientation[AXIS.X][1] = faceArr[k].userData.orientation[AXIS.Y][1];
                         faceArr[k].userData.orientation[AXIS.Y][1] = faceArr[k].userData.orientation[AXIS.X][0];
                         faceArr[k].userData.orientation[AXIS.X][0] = temp3;
                     }
-                    /*x1 - y1
-                    y1 - x2
-                    x2 - y2
-                    y2 - x1*/
+                    /*x1 - y1 / y1 - x2 / x2 - y2 / y2 - x1*/
                 }
             }
         }
     };
     this.animateRequest = function animateRequest(request) {
+        if (!request.inProgress) {
+            /*  remove the group from the scene, add it to the pivot group, rotate the pivot
+            and then put its contents back on the scene
+            */
+            request.inProgress = true;
+            this.pivot.rotation.set(0, 0, 0);
+            this.pivot.updateMatrixWorld();
+            for (var i in request.face) {
+                var matrixWorldInverse = new THREE.Matrix4();
+                matrixWorldInverse.getInverse(this.pivot.matrixWorld);
+                request.face[i].applyMatrix(matrixWorldInverse);
+                scene.remove(request.face[i]);
+                this.pivot.add(request.face[i]);
+            }
+            scene.add(this.pivot);
+        }
         this.pivot.rotation.x += request.rotateTo.x / this.rendersPerMove;
         this.pivot.rotation.y += request.rotateTo.y / this.rendersPerMove;
         this.pivot.rotation.z += request.rotateTo.z / this.rendersPerMove;
         this.pivot.updateMatrixWorld();
         this.updateStep++;
-        if (this.updateStep > this.rendersPerMove) {
+        if (this.updateStep > this.rendersPerMove) { // request completed, wrap it up and call the callback if it has one
             this.pivot.rotation.x = request.rotateTo.x;
             this.pivot.rotation.y = request.rotateTo.y;
             this.pivot.rotation.z = request.rotateTo.z;
@@ -565,11 +643,8 @@ function Cube() {
             this.updateCubiesOrientation(request.face, request.axis, request.direction);
             this.animationRequests.shift();
             this.updateStep = 0;
-            if (this.isSolved() && this.gameHasStarted) {
-                this.onIsSolved();
-            } else {
-                this.busy = false;
-            }
+            this.busy = false;
+            if (request.callback) request.callback();
         }
     };
     this.update = function update() {
@@ -582,26 +657,12 @@ function Cube() {
             this.solvedAmiation.obj.rotation.z += (Math.PI / 16) / this.rendersPerMove;
         }
     };
-    this.rotateFace = function rotateFace(face, axis, memArr, direction) {
+    this.rotateFace = function rotateFace(face, axis, memArr, direction, callback) {
         if (direction !== 0 && direction !== 1) {
             console.log('WARNING! rotate called without direction.');
             console.log(direction);
             direction = 0;
         }
-        /*  remove the group from the scene, add it to the pivot group.
-            Later animateRequest will rotate the pivot and then put its
-            content back on the scene
-        */
-        this.pivot.rotation.set(0, 0, 0);
-        this.pivot.updateMatrixWorld();
-        for (var i in face) {
-            var matrixWorldInverse = new THREE.Matrix4();
-            matrixWorldInverse.getInverse(this.pivot.matrixWorld);
-            face[i].applyMatrix(matrixWorldInverse);
-            scene.remove(face[i]);
-            this.pivot.add(face[i]);
-        }
-        scene.add(this.pivot);
         var request = {
             rotateTo: {
                 x: 0,
@@ -611,15 +672,19 @@ function Cube() {
             face: face,
             axis: axis,
             memArr: memArr,
-            direction: 0 // 0 - rhr
+            direction: 0, // 0 - rhr
+            inProgress: false
         };
         request.direction = direction;
+        if (callback) request.callback = callback;
         var rotationSign = (request.direction == 0) ? 1 : -1;
         if (axis == AXIS.X) {
             request.rotateTo.x = rotationSign * Math.PI / 2;
-        } else if (axis == AXIS.Y) {
+        }
+        else if (axis == AXIS.Y) {
             request.rotateTo.y = rotationSign * Math.PI / 2;
-        } else if (axis == AXIS.Z) {
+        }
+        else if (axis == AXIS.Z) {
             request.rotateTo.z = rotationSign * Math.PI / 2;
         }
         this.animationRequests.push(request);
@@ -646,16 +711,19 @@ function Cube() {
                 return true;
             }
             return false;
-        } else if (axis == AXIS.Y) {
+        }
+        else if (axis == AXIS.Y) {
             if (((c % this.cubiesPerPlane) >= this.cubiesPerAxis * sliceNumber) && ((c % this.cubiesPerPlane) < (this.cubiesPerAxis * (sliceNumber + 1)))) {
                 return true;
             }
             return false;
-        } else if (axis == AXIS.Z) {
+        }
+        else if (axis == AXIS.Z) {
             if (c >= (this.cubiesPerPlane * sliceNumber) && c < (this.cubiesPerPlane * (sliceNumber + 1))) {
                 return true;
             }
-        } else {
+        }
+        else {
             throw ('invalid Axis value.');
         }
     };
@@ -709,7 +777,6 @@ function CubeFace(faceCubies, axis, farnear, memArr) { //rename to CubeLayer; fa
         return false;
     };
 }
-setup();
 
 function draw() {
     //setup animation loop
@@ -725,3 +792,5 @@ function draw() {
     theCube.update();
     timer.update();
 }
+
+setup();
