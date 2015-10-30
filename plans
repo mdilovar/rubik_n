@@ -1,8 +1,9 @@
 done so far (current commit):
-// timer now fires after first move, not after scrambling is over (added a callback for rotation requests; scramble now uses this callback recursivesly instead of a timeinterval.) // added ui feedback during scrambling ('scrambling...')// incresed scramble speed, after completion rotation speed is set back to normal // the draw function was called everytime a cube was inited, which caused ever-faster animations every reset - fixed this. // added touch cube controls
+aded - move history and undo(n) method for rewinding. // made somechanges to rotateface method's argument list // started working on SolutionGuide class - so far has two methods: higlightCublets(cublets,color) and attenuateCublets(cublets)
 
 current task:
-
+solving algorithm
+ - how do I do this? - optimal vs know intuitive algorithms
 
 
 next up:
@@ -15,7 +16,7 @@ next up:
 - manual cube initial state entry as input for the hint solution guide. (includes valid cube state check)
 - create a prototype for detecting colors on one side of a cube from an image.
 - if image prototype works, implement video feed cube scanner as initial cube state input
-- adding facebook api and friends high scores.
+- adding facebook api and friends' high scores.
 - other credentials related stuff: sql injection tests, password change, password recovery, add email, other tab logout, login attempts, etc.
 
 
