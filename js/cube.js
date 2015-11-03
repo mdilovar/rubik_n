@@ -38,7 +38,7 @@ var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),
     INTERSECTED, SELECTED, SELECTED2, FACE;
 
-var CubletType = {
+var CubeletType = {
     CORNER: 3,
     EDGE: 2,
     MIDDLE: 1
@@ -412,7 +412,7 @@ function Cube() {
             y: ['red', 'orange'],
             z: ['blue', 'green']
         };
-        //CubletType
+        //CubeletType
         if (z === this.cubiesPerAxis - 1 && x === this.cubiesPerAxis - 1 && y === this.cubiesPerAxis - 1 ||
             z === this.cubiesPerAxis - 1 && x === this.cubiesPerAxis - 1 && y === 0 ||
             z === this.cubiesPerAxis - 1 && x === 0 && y === this.cubiesPerAxis - 1 ||
@@ -421,17 +421,17 @@ function Cube() {
             z === 0 && x === this.cubiesPerAxis - 1 && y === 0 ||
             z === this.cubiesPerAxis - 1 && x === 0 && y === 0 ||
             z === 0 && x === 0 && y === 0) {
-            cubieMesh.CubletType = CubletType.CORNER;
+            cubieMesh.CubeletType = CubeletType.CORNER;
             //cubieMesh.visible = false;
         }
         else if (z < this.cubiesPerAxis - 1 && z > 0 && y < this.cubiesPerAxis - 1 && y > 0 ||
             z < this.cubiesPerAxis - 1 && z > 0 && x < this.cubiesPerAxis - 1 && x > 0 ||
             x < this.cubiesPerAxis - 1 && x > 0 && y < this.cubiesPerAxis - 1 && y > 0) {
-            cubieMesh.CubletType = CubletType.MIDDLE;
+            cubieMesh.CubeletType = CubeletType.MIDDLE;
             //cubieMesh.visible = false;
         }
         else {
-            cubieMesh.CubletType = CubletType.EDGE;
+            cubieMesh.CubeletType = CubeletType.EDGE;
             //cubieMesh.visible = false;
         }
         //x - LR
@@ -481,7 +481,6 @@ function Cube() {
         }
     };
     this.scramble = function scramble(onComplete) {
-        return; // #TODO: remove this
         var randomMoveCount = 3 * this.cubiesPerAxis;
         var _this = this;
         var normal_speed = _this.rendersPerMove;
@@ -558,7 +557,7 @@ function Cube() {
         //assumes a square matrix
         //updates the this.cubies array permutation. called after each move.
         //memArr - maps the layer cblets' indices with the this.cubies' indicec - each layer has this property.
-        //faceArr - is the array that holds current layer's cublets
+        //faceArr - is the array that holds current layer's cubelets
         var sideLen = Math.sqrt(request.layerObj.cubies.length); // corresponds to cubiesPerAxis
         if (sideLen % 1 !== 0) {
             throw ('not a square matrix.');
@@ -770,25 +769,30 @@ function Cube() {
         if (reverse4y) memArr.reverse();
         return new CubeLayer(myFace, axis, sliceNumber, memArr);
     };
-    this.getCubletsByColor = function getCubletsByColor(color, CubletsType) {
+    this.getCubeletsByColor = function getCubeletsByColor(color, type) {
         // not for rotation, the cubies might be on different layers.
-        CubletsType = typeof CubletsType !== 'undefined' ? CubletsType : false;
-        // check if CubletsType is one of CubletType or undefined;
-        // .CubletType = CubletType.CORNER;
-        color = colors_normal_order.indexOf(color);
-        var cublets = [];
+        color = typeof color !== 'undefined' ? colors_normal_order.indexOf(color) : null;
+        type = typeof type !== 'undefined' ? type : null;
+        console.log(color, type);
+        if ((color === -1 || color === null) && !type) throw ('please provide at least one of either the color or type of the of the cubelets.');
+        var cubelets = [];
         for (var c in this.cubies) {
-            if (this.filterCubiesByColor(color, c)) {
-                if (CubletsType){
-                    if (this.cubies[c].CubletsType !== CubletsType) continue;
+            if (color !== null) {
+                if (type !== null) {
+                    if (this.cubies[c].CubeletType !== type) continue;
                 }
-                cublets.push(this.cubies[c]);
+                if (this.filterCubiesByColor(color, c)) cubelets.push(this.cubies[c]);
+            }
+            else {
+                if (type !== null) {
+                    if (this.cubies[c].CubeletType === type) cubelets.push(this.cubies[c]);
+                }
             }
         }
-        return cublets;
+        return cubelets;
     };
-    this.layerFilter = function layerFilter(axis, sliceNumber, cubletIndex) {
-        var c = cubletIndex;
+    this.layerFilter = function layerFilter(axis, sliceNumber, cubeletIndex) {
+        var c = cubeletIndex;
         if (axis == AXIS.X) {
             if ((c % this.cubiesPerAxis) === sliceNumber) {
                 return true;
@@ -810,8 +814,8 @@ function Cube() {
             throw ('invalid Axis value.');
         }
     };
-    this.filterCubiesByColor = function filterCubiesByColor(color, cubletIndex) {
-        var c = cubletIndex;
+    this.filterCubiesByColor = function filterCubiesByColor(color, cubeletIndex) {
+        var c = cubeletIndex;
         if (this.cubies[c].userData.has_color) {
             if (this.cubies[c].userData.has_color[colors_normal_order[color]]) return true;
         }
@@ -878,22 +882,23 @@ function SolutionGuide() {
         }
         this.cube = cube;
     };
-    this.higlightCublets = function higlightCublets(cublets, color) {
-        cublets.forEach(function(element, index, array) {
-            if (element.material) { // the placeholder cublets in middle don't have material and should be skipped.
+    this.highlightCubelets = function highlightCubelets(cubelets, stickers) {
+        cubelets.forEach(function(element, index, array) {
+            if (element.material) { // the placeholder cubelets in middle don't have material and should be skipped.
                 element.material.materials.forEach(function(element, index, array) {
-                    console.log(array, index, color);
-                    if (typeof color !== 'undefined') {
-                        if (index !== color) return;
+                    console.log(array, index, stickers);
+                    //if(this.userData.has_color[colors[stickers]]){} # TODO: each sticker against this.has color and then check if index is that color - if no return
+                    if (typeof stickers !== 'undefined') {
+                        if (stickers.indexOf(index) == -1) return;
                     }
                     element.transparent = false;
-                });
+                },element);
             }
         });
     };
-    this.attenuateCublets = function attenuateCublets(cublets) {
-        cublets.forEach(function(element, index, array) {
-            if (element.material) { // the placeholder cublets in middle don't have material and should be skipped.
+    this.attenuateCubelets = function attenuateCubelets(cubelets) {
+        cubelets.forEach(function(element, index, array) {
+            if (element.material) { // the placeholder cubelets in middle don't have material and should be skipped.
                 element.material.materials.forEach(function(element, index, array) {
                     element.transparent = true;
                     element.opacity = 0.2;
@@ -906,8 +911,8 @@ function SolutionGuide() {
         // #TODO: check how far solved and skip steps in necessary / later /
         // build correctly oriented cross
         //  highlight cross
-        this.attenuateCublets(this.cube.cubies);
-        this.higlightCublets()
+        this.attenuateCubelets(this.cube.cubies);
+        this.highlightCubelets(this.cube.getCubeletsByColor(undefined,CubeletType.MIDDLE),[0]);
             // build corners
             // build 2n'd layer edges
             // build 3rd layer cross
