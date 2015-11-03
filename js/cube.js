@@ -38,6 +38,12 @@ var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),
     INTERSECTED, SELECTED, SELECTED2, FACE;
 
+var CubletType = {
+    CORNER: 3,
+    EDGE: 2,
+    MIDDLE: 1
+};
+
 function setup() {
     //setup all the scene objects
     setupScene();
@@ -342,6 +348,7 @@ function Cube() {
             texture_front = null;
             has_color.blue = false;
         }
+
         //create the cubies's geometry
         var cubieGeometry = new THREE.BoxGeometry(cubieSize, cubieSize, cubieSize);
         var cubieMaterial;
@@ -405,6 +412,28 @@ function Cube() {
             y: ['red', 'orange'],
             z: ['blue', 'green']
         };
+        //CubletType
+        if (z === this.cubiesPerAxis - 1 && x === this.cubiesPerAxis - 1 && y === this.cubiesPerAxis - 1 ||
+            z === this.cubiesPerAxis - 1 && x === this.cubiesPerAxis - 1 && y === 0 ||
+            z === this.cubiesPerAxis - 1 && x === 0 && y === this.cubiesPerAxis - 1 ||
+            z === 0 && x === this.cubiesPerAxis - 1 && y === this.cubiesPerAxis - 1 ||
+            z === 0 && x === 0 && y === this.cubiesPerAxis - 1 ||
+            z === 0 && x === this.cubiesPerAxis - 1 && y === 0 ||
+            z === this.cubiesPerAxis - 1 && x === 0 && y === 0 ||
+            z === 0 && x === 0 && y === 0) {
+            cubieMesh.CubletType = CubletType.CORNER;
+            //cubieMesh.visible = false;
+        }
+        else if (z < this.cubiesPerAxis - 1 && z > 0 && y < this.cubiesPerAxis - 1 && y > 0 ||
+            z < this.cubiesPerAxis - 1 && z > 0 && x < this.cubiesPerAxis - 1 && x > 0 ||
+            x < this.cubiesPerAxis - 1 && x > 0 && y < this.cubiesPerAxis - 1 && y > 0) {
+            cubieMesh.CubletType = CubletType.MIDDLE;
+            //cubieMesh.visible = false;
+        }
+        else {
+            cubieMesh.CubletType = CubletType.EDGE;
+            //cubieMesh.visible = false;
+        }
         //x - LR
         //z - FB
         //y - UD
@@ -452,6 +481,7 @@ function Cube() {
         }
     };
     this.scramble = function scramble(onComplete) {
+        return; // #TODO: remove this
         var randomMoveCount = 3 * this.cubiesPerAxis;
         var _this = this;
         var normal_speed = _this.rendersPerMove;
@@ -740,12 +770,18 @@ function Cube() {
         if (reverse4y) memArr.reverse();
         return new CubeLayer(myFace, axis, sliceNumber, memArr);
     };
-    this.getCubletsByColor = function getCubletsByColor(color) {
+    this.getCubletsByColor = function getCubletsByColor(color, CubletsType) {
         // not for rotation, the cubies might be on different layers.
+        CubletsType = typeof CubletsType !== 'undefined' ? CubletsType : false;
+        // check if CubletsType is one of CubletType or undefined;
+        // .CubletType = CubletType.CORNER;
         color = colors_normal_order.indexOf(color);
         var cublets = [];
         for (var c in this.cubies) {
             if (this.filterCubiesByColor(color, c)) {
+                if (CubletsType){
+                    if (this.cubies[c].CubletsType !== CubletsType) continue;
+                }
                 cublets.push(this.cubies[c]);
             }
         }
@@ -842,12 +878,12 @@ function SolutionGuide() {
         }
         this.cube = cube;
     };
-    this.higlightCublets = function higlightCublets(cublets,color) {
+    this.higlightCublets = function higlightCublets(cublets, color) {
         cublets.forEach(function(element, index, array) {
             if (element.material) { // the placeholder cublets in middle don't have material and should be skipped.
                 element.material.materials.forEach(function(element, index, array) {
-                    console.log(array,index,color);
-                    if (typeof color !== 'undefined'){
+                    console.log(array, index, color);
+                    if (typeof color !== 'undefined') {
                         if (index !== color) return;
                     }
                     element.transparent = false;
@@ -855,7 +891,7 @@ function SolutionGuide() {
             }
         });
     };
-    this.attenuateCublets = function attenuateCublets(cublets){
+    this.attenuateCublets = function attenuateCublets(cublets) {
         cublets.forEach(function(element, index, array) {
             if (element.material) { // the placeholder cublets in middle don't have material and should be skipped.
                 element.material.materials.forEach(function(element, index, array) {
@@ -864,6 +900,23 @@ function SolutionGuide() {
                 });
             }
         });
+    };
+    this.startGuide = function startGuide() {
+        // #TODO: choose the best/user-given top color - for now just going with white
+        // #TODO: check how far solved and skip steps in necessary / later /
+        // build correctly oriented cross
+        //  highlight cross
+        this.attenuateCublets(this.cube.cubies);
+        this.higlightCublets()
+            // build corners
+            // build 2n'd layer edges
+            // build 3rd layer cross
+            // correct the 3rd layer cross
+            // place 3rd layer corners
+            // rotate 3rd layer corners
+    };
+    this.isTopCross = function isTopCross(topColor) {
+        //#TODO: check how far solved and skip steps in necessary / later /
     };
 }
 
@@ -884,5 +937,4 @@ function draw() {
 
 setup();
 
-//var sg = new SolutionGuide();
-//sg.initGuide(theCube);
+//var sg = new SolutionGuide(); sg.initGuide(theCube);

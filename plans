@@ -1,9 +1,18 @@
 done so far (current commit):
-aded - move history and undo(n) method for rewinding. // made somechanges to rotateface method's argument list // started working on SolutionGuide class - so far has two methods: higlightCublets(cublets,color) and attenuateCublets(cublets)
+
 
 current task:
 solving algorithm
- - how do I do this? - optimal vs know intuitive algorithms
+    steps:
+    choosing top color - user vs automatic vs fixed - white? /for now fixed - white/
+    check how far solved and skip steps in necessary / later /
+    build correctly oriented cross
+    build corners
+    build 2n'd layer edges
+    build 3rd layer cross
+    correct the 3rd layer cross
+    place 3rd layer corners
+    rotate 3rd layer corners
 
 
 next up:
