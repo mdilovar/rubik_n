@@ -481,7 +481,6 @@ function Cube() {
         }
     };
     this.scramble = function scramble(onComplete) {
-        return; // #TODO: remove this
         var randomMoveCount = 3 * this.cubiesPerAxis;
         var _this = this;
         var normal_speed = _this.rendersPerMove;
