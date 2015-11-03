@@ -29,10 +29,10 @@
 			<h1>rubik_<span id="n">n</span></h1>
 			<form  action="javascript:void(0);">
 				<p>
-					<input type="text" name="username" value="" placeholder="username">
+					<input type="text" name="username" value="test" placeholder="username">
 				</p>
 				<p>
-					<input type="password" name="password" value="" placeholder="password">
+					<input type="password" name="password" value="test" placeholder="password">
 				</p>
 				<p class="submit">
 					<input type="submit" onclick="sendForm(this.form.username.value,this.form.password.value,'php/login.php');" value="log in">
@@ -47,6 +47,7 @@
 		</div>
 		<div class="notifs">
 			<div id="gnotif">
+				This is a demo of a work in progress. You may login with 'test' for both username and password.
 				<?php
 					if (isset($_SESSION['registered']) && $_SESSION['registered'] == true){
 				        echo "you were successfully registered. please log in to start playing.";
