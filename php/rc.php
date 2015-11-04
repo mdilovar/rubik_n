@@ -45,8 +45,6 @@
 			</div>
 		</div>
 
-
-
 	    <div id='canvas_div'></div>
 	    <script src="../js/lib/three.min.js"></script>
 	    <script src="../js/lib/Detector.js"></script>
@@ -54,7 +52,9 @@
 		<script src="../js/lib/TrackballControls.js"></script>
 		<script src="../js/ajax.js"></script>
 		<script src="../js/game.js"></script>
+		<script src="../js/cubeControls.js"></script>
 		<script src="../js/cube.js"></script>
+		<script src="../js/solutionGuide.js"></script>
 
 	</body>
 </html>
