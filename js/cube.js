@@ -686,8 +686,8 @@ function Cube() {
         }
         if (this.solvedAmiation.flag) {
             this.solvedAmiation.obj.rotation.x += (Math.PI / 8) / this.rendersPerMove;
-            this.solvedAmiation.obj.rotation.y += (Math.PI / 8) / this.rendersPerMove;
-            this.solvedAmiation.obj.rotation.z += (Math.PI / 16) / this.rendersPerMove;
+            this.solvedAmiation.obj.rotation.y += (Math.PI / 16) / this.rendersPerMove;
+            //this.solvedAmiation.obj.rotation.z += (Math.PI / 16) / this.rendersPerMove;
         }
     };
     this.undo = function undo(depth) {
@@ -871,28 +871,55 @@ function CubeLayer(faceCubies, axis, sliceNumber, memArr) {
         }
         return false;
     };
+    this.getNonCornerPieces = function getNonCornerPieces() {
+        // returns rhr-ordered the nonCornerPieces, which are just edges for outer layers, and corner pieces for inner layers.
+        if (this.cubiesPerAxis !== 3) throw ('getNonCornerPieces only works for 3x3x3 cubes!');
+        var nonCornerPieces = [];
+        this.cubies.forEach(function(cubelet, index) {
+            if (index % 2 == 1) { // matches edgepiece of the layer
+                nonCornerPieces.push(cubelet);
+            }
+        });
+        // swap last two cubies
+        var tmp = nonCornerPieces[3];
+        nonCornerPieces[3] = nonCornerPieces[2];
+        nonCornerPieces[2] = tmp;
+        if (this.axis !== AXIS.Y) {
+            // only for y axis the order will follow rhr, for the other layers, order neers to be reversed.
+            nonCornerPieces.reverse();
+        }
+        return nonCornerPieces;
+    };
 }
 
 function SolutionGuide() {
     this.cube = null;
     this.initGuide = function initGuide(cube) {
-        if (cube.cubiesPerAxis !== 3) {
+        /*if (cube.cubiesPerAxis !== 3) {
             console.log('Solution guide only available for 3x3x3 cube for now!');
             return false;
-        }
+        }*/
         this.cube = cube;
     };
-    this.highlightCubelets = function highlightCubelets(cubelets, stickers) {
+    this.highlightCubelets = function highlightCubelets(cubelets) { // ex this.highlightCubelets(this.cube.getCubeletsByColor(undefined,CubeletType.MIDDLE));
         cubelets.forEach(function(element, index, array) {
             if (element.material) { // the placeholder cubelets in middle don't have material and should be skipped.
                 element.material.materials.forEach(function(element, index, array) {
-                    console.log(array, index, stickers);
-                    //if(this.userData.has_color[colors[stickers]]){} # TODO: each sticker against this.has color and then check if index is that color - if no return
-                    if (typeof stickers !== 'undefined') {
-                        if (stickers.indexOf(index) == -1) return;
-                    }
                     element.transparent = false;
-                },element);
+                }, element);
+            }
+        });
+    };
+    this.highlightStickers = function highlightStickers(cublets, stickers) { // ex. this.highlightStickers([color_codes.green]);
+        if (typeof stickers === 'undefined') throw ('sticker argument is required');
+        cublets = typeof cublets !== 'undefined' ? cublets : this.cube.cubies;
+        cublets.forEach(function(cubelet) {
+            if (cubelet.material) {
+                cubelet.material.materials.forEach(function(material, material_index) {
+                    for (var i = 0; i < stickers.length; i++) {
+                        if (material.color.equals(new THREE.Color(stickers[i]))) material.transparent = false;
+                    }
+                });
             }
         });
     };
@@ -907,21 +934,138 @@ function SolutionGuide() {
         });
     };
     this.startGuide = function startGuide() {
-        // #TODO: choose the best/user-given top color - for now just going with white
-        // #TODO: check how far solved and skip steps in necessary / later /
-        // build correctly oriented cross
-        //  highlight cross
+        this.highlightCubelets(this.cube.cubies);
+        if (this.cube.isSolved()) {
+            console.log('the cube is already solved!');
+            return;
+        }
+        this.determineTopColor();
         this.attenuateCubelets(this.cube.cubies);
-        this.highlightCubelets(this.cube.getCubeletsByColor(undefined,CubeletType.MIDDLE),[0]);
-            // build corners
-            // build 2n'd layer edges
-            // build 3rd layer cross
-            // correct the 3rd layer cross
-            // place 3rd layer corners
-            // rotate 3rd layer corners
+        if (!this.areTopLayerEdgesInPlace()) {
+            console.log("Let's start with solving the top layer cross. \
+            I have highlighted the cubelets to make it easier.\
+            You don't need to worry about the faded cubelets. ");
+            this.highlightCubelets(this.cube.getCubeletsByColor(undefined, CubeletType.MIDDLE));
+            this.highlightCubelets(this.cube.getCubeletsByColor(this.topColor, CubeletType.EDGE));
+            this.solveTopLayerEdgesPosition();
+        }
+        else if (!this.areTopLayerEdgesOrientated()) {
+            this.solveTopLayerEdgesOrentation();
+        }
+        else if (!this.topHasRegularCorners()) {}
+        else if (!this.isMiddleLayerSolved()) {}
+        else if (!this.areLastLayerEdgesOrientated()) {}
+        else if (!this.areLastLayerEdgesPermutated()) {}
+        else if (!this.areLastLayerCornersOrientated()) {}
+        else if (!this.areLastLayerCornersPermutated()) {}
+        else {
+            throw ('there is a flaw in the solving guide algoruithm.');
+        }
+        //this.highlightCubelets(this.cube.getCubeletsByColor(undefined,CubeletType.MIDDLE));
+        //this.highlightStickers(this.cube.getCubeletsByColor('white', CubeletType.EDGE), [color_codes.white]);
+        //this.highlightCubelets(this.cube.getCubeletsByColor('white',CubeletType.EDGE));
+        //this.highlightStickers([color_codes.green]);
+        // build corners
+        // build 2n'd layer edges
+        // build 3rd layer cross
+        // correct the 3rd layer cross
+        // place 3rd layer corners
+        // rotate 3rd layer corners
     };
-    this.isTopCross = function isTopCross(topColor) {
+    this.determineTopColor = function determineTopColor() {
+        // #TODO: derermine the top layer by most solved. for now:
+        this.topColor = colors_normal_order[0]; //white
+
+        //get the top centerpiece #TODO: move this to CubeLayer?
+        this.topCenterPiece = null;
+        this.cube.cubies.forEach(function(cubelet) {
+            if (cubelet.CubeletType === CubeletType.MIDDLE) {
+                if (cubelet.userData.has_color[this.topColor]) {
+                    this.topCenterPiece = cubelet;
+                }
+            }
+        }, this);
+
+        //get the face with that centerpiece.
+        this.topLayer = null;
+        var curFace;
+        for (var s = 0; s < theCube.cubiesPerAxis; s++) { // s - slice number
+            if (s == 1) continue; // ignore the middle layers
+            if (this.topLayer !== null) break;
+            for (var d in AXIS) {
+                curFace = theCube.getLayer(AXIS[d], s);
+                if(curFace.hasCubie(this.topCenterPiece.id)){
+                    this.topLayer = curFace;
+                    break;
+                }
+            }
+        }
+
+        // #TODO: /incomlete/ using the top layer determine the order of middle layer.
+        var sgAxis = this.topLayer.axis;
+        var middleCornerPieces = this.cube.getLayer(sgAxis,1).getNonCornerPieces();
+        middleCornerPieces.forEach(function(piece){
+            //piece.visible = false;
+        });
+        this.middleOrder = [colors_normal_order[2], colors_normal_order[4], colors_normal_order[3], colors_normal_order[5]]; //red,blue,orange,green - 2435
+    };
+
+    this.solveTopLayerEdgesPosition = function solveTopLayerEdgesPosition() {
+        console.log("ok, let's move the top layer edges to their correct order. For now we don't care\
+        about their orientation. Remember, the edges need to be in the same order as the center pieces of\
+        the middle layer.");
+        this.middleOrder.forEach(function(color) {
+            //console.log(this.topLayer);
+        }, this);
+    };
+    this.areTopLayerEdgesInPlace = function areTopLayerEdgesInPlace() {
+        console.log('checking if top layer edges are in place ', this.topColor);
+        var topLayerEdgePieces = this.topLayer.getNonCornerPieces();
+
+        //this.middleOrder
+        for (var i = topLayerEdgePieces.length; i--;) {
+            console.log(topLayerEdgePieces[i].userData.has_color[this.topColor]);
+            if (!topLayerEdgePieces[i].userData.has_color[this.topColor]) {
+                return false;
+            }
+        }
+        console.log("top layer edges are in place!");
+        return true;
+    };
+    this.areTopLayerEdgesOrientated = function areTopLayerEdgesOrientated() {
         //#TODO: check how far solved and skip steps in necessary / later /
+        console.log('checking if top layer edges are correctly oriented ', this.topColor);
+        return false;
+    };
+    this.topHasRegularCorners = function topHasRegularCorners() {
+        //#TODO: check how far solved and skip steps in necessary / later /
+        console.log('checking if top has a regular corners for ', this.topColor);
+        return true;
+    };
+    this.isMiddleLayerSolved = function isMiddleLayerSolved() {
+        //#TODO: check how far solved and skip steps in necessary / later /
+        console.log('checking if middle layer solved for topcolor ', this.topColor);
+        return true;
+    };
+    this.areLastLayerEdgesOrientated = function areLastLayerEdgesOrientated() {
+        //#TODO: check how far solved and skip steps in necessary / later /
+        console.log('checking if last layer edges are oriented correctly ', this.topColor);
+        return true;
+    };
+    this.areLastLayerEdgesPermutated = function areLastLayerEdgesPermutated() {
+        //#TODO: check how far solved and skip steps in necessary / later /
+        console.log('checking if last layer edges are permutated correctly ', this.topColor);
+        return true;
+    };
+    this.areLastLayerCornersOrientated = function areLastLayerCornersOrientated() {
+        //#TODO: check how far solved and skip steps in necessary / later /
+        console.log('checking if last layer Corners are oriented correctly ', this.topColor);
+        return true;
+    };
+    this.areLastLayerCornersPermutated = function areLastLayerCornersPermutated() {
+        //#TODO: check how far solved and skip steps in necessary / later /
+        console.log('checking if last layer Corners are permutated correctly ', this.topColor);
+        return true;
     };
 }
 
