@@ -1,9 +1,9 @@
 /**
  * @author Miri Manzarshohi Dilovar
-*/
+ */
 "use strict";
 /*
-global THREE requestAnimationFrame timer loadGame
+global THREE requestAnimationFrame timer loadGame CubeLayer
 */
 //global scene variables
 var renderer, camera, scene, flashlight, controls, canvas_div, Detector;
@@ -595,6 +595,34 @@ function Cube() {
         if (reverse4y) memArr.reverse();
         return new CubeLayer(myFace, axis, sliceNumber, memArr);
     };
+    this.getFaceLayerByCenterpieceColor = function getFaceLayerByCenterpieceColor(color) {
+        if (this.cubiesPerAxis !== 3) throw ('getFaceLayerByCenterpieceColor only works for 3x3x3 cubes!');
+        var theCenterPiece = null;
+        var theLayer = null;
+        var curFace;
+        //get the top centerpiece
+        this.cubies.forEach(function(cubelet) {
+            if (cubelet.CubeletType === CubeletType.MIDDLE) {
+                if (cubelet.userData.has_color[color]) {
+                    theCenterPiece = cubelet;
+                    return;
+                }
+            }
+        });
+        //get the face with that centerpiece.
+        for (var s = 0; s < theCube.cubiesPerAxis; s++) { // s - slice number
+            if (s == 1) continue; // ignore the middle layers
+            if (theLayer !== null) break;
+            for (var d in AXIS) {
+                curFace = theCube.getLayer(AXIS[d], s);
+                if (curFace.hasCubie(theCenterPiece.id)) {
+                    theLayer = curFace;
+                    break;
+                }
+            }
+        }
+        return theLayer;
+    };
     this.getCubeletsByColor = function getCubeletsByColor(color, type) {
         // not for rotation, the cubies might be on different layers.
         color = typeof color !== 'undefined' ? colors_normal_order.indexOf(color) : null;
@@ -649,75 +677,6 @@ function Cube() {
     };
 }
 
-function CubeLayer(faceCubies, axis, sliceNumber, memArr) {
-    //#TODO: maybe add partially/completely solved checkers to the face class, like cross, full first layer, etc
-    this.cubiesPerAxis = Math.sqrt(faceCubies.length);
-    if (this.cubiesPerAxis % 1 !== 0) {
-        throw ('the facecubies array length must be a square of two.');
-    }
-    this.memArr = memArr;
-    this.axis = axis;
-    this.cubies = faceCubies;
-    this.faceColor = null;
-    this.layer = sliceNumber;
-    this.isFaceLayer = (sliceNumber !== 0 && sliceNumber !== this.cubiesPerAxis - 1) ? false : true;
-    if (sliceNumber !== 0) sliceNumber = 1; // can only be front/back, left/right, etc
-    var nearfar = 1 - sliceNumber; // swapping the near and the far //throw ('this is not a face layer');
-    this.isLayerUniform = function isLayerUniform() { // checks is cubies are in the righ layer regardless of their orientation
-        if (!this.isFaceLayer) throw ('this is not a face layer');
-        for (var c = 0; c < colors.length; c++) {
-            for (var i = 0; i < this.cubies.length; i++) {
-                if (!this.cubies[i].userData.has_color[colors[c]]) break;
-                if (i == this.cubies.length - 1) {
-                    this.faceColor = colors[c];
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-    this.getFaceColor = function getFaceColor() { // may return the face color even if the cubies are in the wrong orientation.
-        if (!this.isFaceLayer) throw ('this is not a face layer');
-        if (this.faceColor !== null) return this.faceColor;
-        if (this.isLayerUniform()) return this.faceColor;
-        throw ('Layer not uniform.');
-    };
-    this.isFaceUniform = function isFaceUniform() { //checks if cbies are in rigth layer and in the right orientation
-        if (!this.isFaceLayer) throw ('this is not a face layer');
-        if (!this.isLayerUniform()) return false; //a face can't be unifor if the layer doesn't have all the right cubies.
-        for (var i = 0; i < this.cubies.length; i++) {
-            if (this.cubies[i].userData.orientation[axis][nearfar] !== this.faceColor) break; //e.g.[y2]
-            if (i == this.cubies.length - 1) return true;
-        }
-        return false;
-    };
-    this.hasCubie = function hasCubie(cid) {
-        for (var i = 0; i < this.cubies.length; i++) {
-            if (this.cubies[i].id === cid) return true;
-        }
-        return false;
-    };
-    this.getNonCornerPieces = function getNonCornerPieces() {
-        // returns rhr-ordered the nonCornerPieces, which are just edges for outer layers, and corner pieces for inner layers.
-        if (this.cubiesPerAxis !== 3) throw ('getNonCornerPieces only works for 3x3x3 cubes!');
-        var nonCornerPieces = [];
-        this.cubies.forEach(function(cubelet, index) {
-            if (index % 2 == 1) { // matches edgepiece of the layer
-                nonCornerPieces.push(cubelet);
-            }
-        });
-        // swap last two cubies
-        var tmp = nonCornerPieces[3];
-        nonCornerPieces[3] = nonCornerPieces[2];
-        nonCornerPieces[2] = tmp;
-        if (this.axis !== AXIS.Y) {
-            // only for y axis the order will follow rhr, for the other layers, order neers to be reversed.
-            nonCornerPieces.reverse();
-        }
-        return nonCornerPieces;
-    };
-}
-
 function draw() {
     //setup animation loop
     //setTimeout( function() {
@@ -734,4 +693,3 @@ function draw() {
 }
 
 setup();
-

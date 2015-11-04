@@ -54,6 +54,7 @@
 		<script src="../js/game.js"></script>
 		<script src="../js/cubeControls.js"></script>
 		<script src="../js/cube.js"></script>
+		<script src="../js/cubeLayer.js"></script>
 		<script src="../js/solutionGuide.js"></script>
 
 	</body>

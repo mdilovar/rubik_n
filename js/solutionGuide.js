@@ -91,30 +91,8 @@ function SolutionGuide() {
         // #TODO: derermine the top layer by most solved. for now:
         this.topColor = colors_normal_order[0]; //white
 
-        //get the top centerpiece #TODO: move this to CubeLayer?
-        this.topCenterPiece = null;
-        this.cube.cubies.forEach(function(cubelet) {
-            if (cubelet.CubeletType === CubeletType.MIDDLE) {
-                if (cubelet.userData.has_color[this.topColor]) {
-                    this.topCenterPiece = cubelet;
-                }
-            }
-        }, this);
-
-        //get the face with that centerpiece.
-        this.topLayer = null;
-        var curFace;
-        for (var s = 0; s < theCube.cubiesPerAxis; s++) { // s - slice number
-            if (s == 1) continue; // ignore the middle layers
-            if (this.topLayer !== null) break;
-            for (var d in AXIS) {
-                curFace = theCube.getLayer(AXIS[d], s);
-                if (curFace.hasCubie(this.topCenterPiece.id)) {
-                    this.topLayer = curFace;
-                    break;
-                }
-            }
-        }
+        //get the top layer - note this should be called dynamycally after last move to update the topLayer
+        this.topLayer = this.cube.getFaceLayerByCenterpieceColor(this.topColor);
 
         // #TODO: /incomlete/ determine the order of middle layer.
         var sgAxis = this.topLayer.axis;
