@@ -3,7 +3,8 @@
  */
 "use strict";
 /*
-global THREE requestAnimationFrame timer loadGame CubeLayer
+global THREE requestAnimationFrame timer loadGame CubeLayer onCanvasTouchEnd
+onCanvasTouchMove onCanvasMouseMove onCanvasMouseDown onCanvasMouseUp onCanvasTouchStart
 */
 //global scene variables
 var renderer, camera, scene, flashlight, controls, canvas_div, Detector;
@@ -30,7 +31,7 @@ var textures = {
     green: THREE.ImageUtils.loadTexture("../images/colors_512/green.png")
 };
 var colors = ["green", "red", "blue", "yellow", "white", "orange"];
-var colors_normal_order = ["white", "yellow", "red", "orange", "blue", "green"]; // #TODO: replace var colors with this?
+var colors_normal_order = ["white" /*0:x0*/, "yellow"/*1:x1*/, "red"/*2:y0*/, "orange"/*3:y1*/, "blue"/*4:z0*/, "green"/*5:z1*/]; // #TODO: replace var colors with this?
 //set cubicle size
 var cubieSize = 200;
 //..and the Cube object
@@ -97,6 +98,8 @@ function setupScene() {
     renderer.domElement.addEventListener('touchstart', onCanvasTouchStart, false);
     renderer.domElement.addEventListener('touchend', onCanvasTouchEnd, false);
     renderer.domElement.addEventListener('touchmove', onCanvasTouchMove, false);
+    var axisHelper = new THREE.AxisHelper(1000);
+    scene.add( axisHelper );
 }
 
 function onWindowResize(e) {
