@@ -107,7 +107,7 @@ function CubeLayer(faceCubies, axis, sliceNumber, memArr) {
     this.areEdgesOrdered = function areEdgesOrdered() {
         if (!this.isFaceLayer) throw ('this is not a face layer');
         if (this.cubiesPerAxis !== 3) throw ('areEdgesOrdered only works for 3x3x3 cubes!');
-        if (!this.hasAlltheRightEdges()) return false;
+        if (!this.hasAlltheRightEdges()) return false; //presence
         var correct_order = this.getCorrectEgeOrder();
         this.determineCenterColor();
         var edges = this.getNonCornerPieces();
@@ -127,7 +127,7 @@ function CubeLayer(faceCubies, axis, sliceNumber, memArr) {
         }
         // finally, compare the edges color order to correct_order
         for (var x = 0; x < correct_order.length; x++){
-            if (!edges[x].userData.has_color[correct_order[x]]) return false;
+            if (!edges[x].userData.has_color[correct_order[x]]) return false; //order
         }
         return true;
     };
@@ -137,9 +137,15 @@ function CubeLayer(faceCubies, axis, sliceNumber, memArr) {
         this.determineCenterColor();
         var edges = this.getNonCornerPieces();
         for (var i = 0; i < edges.length; i++) {
-            if (!edges[i].userData.has_color[colors[this.centerColor]]) return false; // presence
+            if (!edges[i].userData.has_color[this.centerColor]) return false; // presence
             if (edges[i].userData.orientation[this.axis][nearfar] !== this.centerColor) return false; // orientation
         }
+        return true;
+    };
+    this.areEdgesSolved = function areEdgesSolved(){
+        if (!this.isFaceLayer) throw ('this is not a face layer');
+        if (this.cubiesPerAxis !== 3) throw ('areEdgesOriented only works for 3x3x3 cubes!');
+        if (!this.areEdgesOrdered() || !this.areEdgesOriented()) return false;
         return true;
     };
     this.getCorrectEgeOrder = function getCorrectEgeOrder(){

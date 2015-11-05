@@ -54,11 +54,8 @@ function SolutionGuide() {
         }
         this.determineTopColor();
         this.attenuateCubelets(this.cube.cubies);
-        if (!this.areTopLayerEdgesInPlace()) {
-            console.log(["Let's start with solving the top layer cross.",
-                "I have highlighted the cubelets to make it easier.",
-                "You don't need to worry about the faded cubelets."
-            ].join(' '));
+        if (!this.topLayer.areEdgesOrdered()) {
+            console.log(["First: order top edge layers in the same order as middle layer centerpieces."].join(' '));
             this.highlightCubelets(this.cube.getCubeletsByColor(undefined, CubeletType.MIDDLE));
             this.highlightCubelets(this.cube.getCubeletsByColor(this.topColor, CubeletType.EDGE));
             this.solveTopLayerEdgesPosition();
@@ -90,65 +87,26 @@ function SolutionGuide() {
     this.determineTopColor = function determineTopColor() {
         // #TODO: derermine the top layer by most solved. for now:
         this.topColor = colors_normal_order[0]; //white
-
         //get the top layer - note this should be called dynamycally after last move to update the topLayer
         this.topLayer = this.cube.getFaceLayerByCenterpieceColor(this.topColor);
-
-        // #TODO: /incomlete/ determine the order of middle layer.
-        var sgAxis = this.topLayer.axis;
-        var middleCornerPieces = this.cube.getLayer(sgAxis, 1).getNonCornerPieces();
-        middleCornerPieces.forEach(function(piece, index) {
-            //this.middleOrder = piece.userData.has_color
-        });
-        this.middleOrder = middleCornerPieces; //[colors_normal_order[2], colors_normal_order[4], colors_normal_order[3], colors_normal_order[5]]; //red,blue,orange,green - 2435
     };
 
-    this.areTopLayerEdgesInPlace = function areTopLayerEdgesInPlace() {
-        console.log('checking if top layer edges are in place ', this.topColor);
-        var topLayerEdgePieces = this.topLayer.getNonCornerPieces();
-        var edgesWithRightColor = [];
-        // check if they are in the right layer first
-        for (var i = 0; i < topLayerEdgePieces.length; i++) {
-            console.log(topLayerEdgePieces[i].userData.has_color[this.topColor]);
-            if (!topLayerEdgePieces[i].userData.has_color[this.topColor]) {
-                return false;
-            }
-            else {
-                edgesWithRightColor.push(topLayerEdgePieces[i]);
-            }
-        }
-        // check if middle centerpieces' order matches that of the top layer
-        //  find the beginning centerpies and start matching from there.
-        var middleOrderStartingIndex = null;
-        for (var i = 0; i < this.middleOrder.length; i++) {
-            var flag = false;
-            edgesWithRightColor[0].userData.has_color[this.topColor] = false; // set to false temporarily for comparision
-            console.log('json comarision. ', JSON.stringify(edgesWithRightColor[0].userData.has_color) , JSON.stringify(this.middleOrder[i].userData.has_color));
-            if(JSON.stringify(edgesWithRightColor[0].userData.has_color) === JSON.stringify(this.middleOrder[i].userData.has_color)) {
-                flag = true;
-                middleOrderStartingIndex = i;
-            }
-            edgesWithRightColor[0].userData.has_color[this.topColor] = true; // set back to true
-            if (flag) break;
-        }
-        for (var i =0; i < middleOrderStartingIndex.length; i++) {
 
-        }
-        console.log("top layer edges are in place!");
-        return true;
-    };
     this.solveTopLayerEdgesPosition = function solveTopLayerEdgesPosition() {
-        console.log("ok, let's move the top layer edges to their correct order. For now we don't care\
-        about their orientation. Remember, the edges need to be in the same order as the center pieces of\
-        the middle layer.");
-        this.middleOrder.forEach(function(color) {
-            //console.log(this.topLayer);
-        }, this);
-    };
-    this.areTopLayerEdgesOrientated = function areTopLayerEdgesOrientated() {
-        //#TODO: check how far solved and skip steps in necessary / later /
-        console.log('checking if top layer edges are correctly oriented ', this.topColor);
-        return false;
+        // for each cubelet from virtual face, check if in actual face
+        // if yes put in current_order array
+        // if no, record emty value in the current_order array
+        // if currect_array has > 1 acctual cubelets
+        //   check against correct order --- choose the best order match.
+        //   set the pointer to the first cubelet that is out of order.
+        //   putEdgeCubeletInOrder()
+        // if 1 actual cubelet
+        //   use as a beginning point of order
+        //   begin with first non top cubelet
+        //   putEdgeCubeletInOrder()
+        // if no actual cubelets.
+        //   begin with any cubelet
+        //   putEdgeCubeletInOrder()
     };
     this.topHasRegularCorners = function topHasRegularCorners() {
         //#TODO: check how far solved and skip steps in necessary / later /
@@ -182,4 +140,4 @@ function SolutionGuide() {
     };
 }
 
-//var sg = new SolutionGuide(); sg.initGuide(theCube);
+//var sg = new SolutionGuide(); sg.initGuide(theCube); sg.startGuide();
