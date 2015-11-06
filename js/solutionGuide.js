@@ -87,8 +87,10 @@ function SolutionGuide() {
     this.determineTopColor = function determineTopColor() {
         // #TODO: derermine the top layer by most solved. for now:
         this.topColor = colors_normal_order[0]; //white
+        this.bottomColor = colors_normal_order[1]; //yellow
         //get the top layer - note this should be called dynamycally after last move to update the topLayer
         this.topLayer = this.cube.getFaceLayerByCenterpieceColor(this.topColor);
+        this.bottomLayer = this.cube.getFaceLayerByCenterpieceColor(this.bottomColor);
     };
 
 
@@ -107,6 +109,59 @@ function SolutionGuide() {
         // if no actual cubelets.
         //   begin with any cubelet
         //   putEdgeCubeletInOrder()
+
+        //get the virtual top layer edges - the edge pieces that should be in the top taler
+        var virtualTopEdges = this.cube.getCubeletsByColor(this.topColor, CubeletType.EDGE);
+        // array of virtual edges already at the top layer
+        this.placedVirtualTopEdges = [];
+        //get the correct order of top edges
+        var correctOrder = this.topLayer.getCorrectEgeOrder();
+        //this.cube.getCubeletsByColor(this.topColor, CubeletType.EDGE)
+        virtualTopEdges.forEach(function(cubelet){
+            if (this.topLayer.hasCubie(cubelet.id)){
+                this.placedVirtualTopEdges.push(cubelet);
+            }
+        },this);
+        if (this.placedVirtualTopEdges.length === 0){
+            //find the first edge cubelet of the correct order
+            var edgePiece = virtualTopEdges.filter(function(piece){
+                return piece.userData.has_color[correctOrder[0]];
+            })[0];
+            if (this.bottomLayer.hasCubie(edgePiece.id)){
+                // get the layers that have the cubelet
+                var layersWithEdgePiece = this.cube.getFaceLayersByCubie(edgePiece);
+                // pick the non-bottom layer
+                var sideFaceWithEdgePiece = layersWithEdgePiece.filter(function(layer){
+                    return layer.axis !== this.bottomLayer.axis;
+                },this)[0];
+                // rotate the side face 180 degrees.
+                var _this = this;
+                this.cube.rotateFace(sideFaceWithEdgePiece, 0, false, function(){
+                    _this.cube.rotateFace(_this.cube.getLayer(sideFaceWithEdgePiece.axis,sideFaceWithEdgePiece.layer), 0, false, undefined );
+                });
+            } // if it's not in bottom layer...
+        }else if(this.placedVirtualTopEdges.length > 0){
+            //find the next edge cubelet of the correct order
+            var nextCorrctEdgeColor = correctOrder.filter(function(color,index,array){
+                return this.placedVirtualTopEdges[this.placedVirtualTopEdges.length - 1].userData.has_color[array[index-1]]; // get the next color
+            },this)[0];
+            var edgePiece = virtualTopEdges.filter(function(piece){
+                return piece.userData.has_color[nextCorrctEdgeColor];
+            })[0];
+            if (this.bottomLayer.hasCubie(edgePiece.id)){
+                // get the layers that have the cubelet
+                var layersWithEdgePiece = this.cube.getFaceLayersByCubie(edgePiece);
+                // pick the non-bottom layer
+                var sideFaceWithEdgePiece = layersWithEdgePiece.filter(function(layer){
+                    return layer.axis !== this.bottomLayer.axis;
+                },this)[0];
+                // rotate the side face 180 degrees.
+                var _this = this;
+                this.cube.rotateFace(sideFaceWithEdgePiece, 0, false, function(){
+                    _this.cube.rotateFace(_this.cube.getLayer(sideFaceWithEdgePiece.axis,sideFaceWithEdgePiece.layer), 0, false, undefined );
+                });
+            } // if it's not in bottom layer...
+        }
     };
     this.topHasRegularCorners = function topHasRegularCorners() {
         //#TODO: check how far solved and skip steps in necessary / later /

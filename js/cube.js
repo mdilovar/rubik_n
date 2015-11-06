@@ -598,6 +598,21 @@ function Cube() {
         if (reverse4y) memArr.reverse();
         return new CubeLayer(myFace, axis, sliceNumber, memArr);
     };
+    this.getFaceLayersByCubie = function getFaceLayersByCubie(cubelet){
+        //get the faces with cubelet with id cid.
+        var layers = [];
+        var curFace;
+        for (var s = 0; s < this.cubiesPerAxis; s++) { // s - slice number
+            if (s !== 0 && s !== this.cubiesPerAxis-1) continue; // ignore the middle layers
+            for (var d in AXIS) {
+                curFace = theCube.getLayer(AXIS[d], s);
+                if (curFace.hasCubie(cubelet.id)) {
+                    layers.push(curFace);
+                }
+            }
+        }
+        return layers;
+    };
     this.getFaceLayerByCenterpieceColor = function getFaceLayerByCenterpieceColor(color) {
         if (this.cubiesPerAxis !== 3) throw ('getFaceLayerByCenterpieceColor only works for 3x3x3 cubes!');
         var theCenterPiece = null;
