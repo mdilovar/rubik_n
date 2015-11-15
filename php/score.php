@@ -13,7 +13,7 @@ include ("validate.php");
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $request_errors = array();
-    $username = $_SESSION["username"];
+    $email = $_SESSION["email"];
     $cube_size = validateInput($_GET['cube_size'], 'cube_size', $request_errors);
 
     if (count($request_errors) > 0) {
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     else {
         include ("db_connect.php");
         $score = 0;
-        if (getHiScore($username, $cube_size, $mysqli, $score)) {
+        if (getHiScore($email, $cube_size, $mysqli, $score)) {
             echo json_encode(array(
                 "success" => true,
                 "general_message" => "User HS was successfully retrieved.",
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 }elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $request_errors = array();
-    $username = $_SESSION["username"];
+    $email = $_SESSION["email"];
     $score = validateInput($_POST['score'], 'score', $request_errors);
     $cube_size = validateInput($_POST['cube_size'], 'cube_size', $request_errors);
 
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     else {
         include ("db_connect.php");
 
-        if (saveScore($username, $score, $cube_size, $mysqli)) {
+        if (saveScore($email, $score, $cube_size, $mysqli)) {
             echo json_encode(array(
                 "success" => true,
                 "general_message" => "The score was successfully recorded."
@@ -69,12 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 }
 
-function getHiScore($username, $cube_size, $mysqli, &$score)
+function getHiScore($email, $cube_size, $mysqli, &$score)
 {
     if (!($stmt = $mysqli->prepare("SELECT MIN(time) AS hs FROM game
                                     WHERE player_id = (
                                         SELECT id FROM player
-                                        WHERE username = ? LIMIT 1)
+                                        WHERE email = ? LIMIT 1)
                                     AND cube_size = ? "))) {
         $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
         $db_error = array(
@@ -88,7 +88,7 @@ function getHiScore($username, $cube_size, $mysqli, &$score)
         return false;
     }
 
-    if (!$stmt->bind_param("si", $username, $cube_size)) {
+    if (!$stmt->bind_param("si", $email, $cube_size)) {
         $error_message = "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
         $db_error = array(
             "binding" => $error_message
@@ -117,7 +117,7 @@ function getHiScore($username, $cube_size, $mysqli, &$score)
     $result = $stmt->get_result();
 
     if ($result->num_rows != 1) {
-        $errors['username'] = "Incorrect username.";
+        $errors['email'] = "Incorrect email.";
         $score = 0;
     } else {
         $score = $result->fetch_object()->hs;
@@ -125,10 +125,10 @@ function getHiScore($username, $cube_size, $mysqli, &$score)
     return true;
 }
 
-function saveScore($username, $score, $cube_size, $mysqli)
+function saveScore($email, $score, $cube_size, $mysqli)
 {
     if (!($stmt = $mysqli->prepare("INSERT INTO game(player_id,time,cube_size)
-                                    SELECT id, ?,? FROM player WHERE username = ? LIMIT 1"))) {
+                                    SELECT id, ?,? FROM player WHERE email = ? LIMIT 1"))) {
         $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
         $db_error = array(
             "prepare" => $error_message
@@ -141,7 +141,7 @@ function saveScore($username, $score, $cube_size, $mysqli)
         return false;
     }
 
-    if (!$stmt->bind_param("iis", $score, $cube_size, $username)) {
+    if (!$stmt->bind_param("iis", $score, $cube_size, $email)) {
         $error_message = "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
         $db_error = array(
             "binding" => $error_message

@@ -1,7 +1,12 @@
 done so far (current commit):
 
 
-current task:
+current tasks:
+- adding facebook api and friends' high scores.
+- other credentials related stuff: sql injection tests, password change, password recovery, add email, other tab logout, login attempts, etc.
+
+
+next up:
 solving algorithm
     steps:
     choosing top color - user vs automatic vs fixed - white? /for now fixed - white/
@@ -14,10 +19,6 @@ solving algorithm
     place 3rd layer corners
     rotate 3rd layer corners
 
-
-next up:
-
-
 /// more:
 
 
@@ -25,8 +26,7 @@ next up:
 - manual cube initial state entry as input for the hint solution guide. (includes valid cube state check)
 - create a prototype for detecting colors on one side of a cube from an image.
 - if image prototype works, implement video feed cube scanner as initial cube state input
-- adding facebook api and friends' high scores.
-- other credentials related stuff: sql injection tests, password change, password recovery, add email, other tab logout, login attempts, etc.
+
 
 
 

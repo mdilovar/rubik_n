@@ -21,6 +21,30 @@
 		<!-- End Cookie Consent plugin -->
 	</head>
 	<body>
+		<!-- FACEBOOK SDK START-->
+		<script>
+			/*global FB*/
+			window.fbAsyncInit = function() {
+				FB.init({
+					appId: '1500653416897531',
+					xfbml: true,
+					version: 'v2.5'
+				});
+			};
+
+			(function(d, s, id) {
+				var js, fjs = d.getElementsByTagName(s)[0];
+				if (d.getElementById(id)) {
+					return;
+				}
+				js = d.createElement(s);
+				js.id = id;
+				js.src = "//connect.facebook.net/en_US/sdk.js";
+				fjs.parentNode.insertBefore(js, fjs);
+			}(document, 'script', 'facebook-jssdk'));
+		</script>
+		<!-- FACEBOOK SDK END-->
+
 		<div id="cube_size_wrapper">
 			<div id="cp" class="cube_size">
 		      <h1>
