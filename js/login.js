@@ -21,7 +21,8 @@ function sendForm(url) {
         //pbox.placeholder = "password is required";
         perr.innerHTML = "password is required";
         noErr = false;
-    } else if (pval.length <6) {
+    }
+    else if (pval.length < 6) {
         pbox.style.borderColor = "red";
         //pbox.placeholder = "password must have 6 or more characters";
         perr.innerHTML = "password must have 6 or more characters";
@@ -53,7 +54,7 @@ function sendForm(url) {
 
     if (noErr) {
         var data = {
-            email : emval,
+            email: emval,
             password: pval
         };
         var ajax = new Ajax(url, data, handleResponse);
@@ -122,14 +123,14 @@ function statusChangeCallback(response) {
     }
     else if (response.status === 'not_authorized') {
         // The person is logged into Facebook, but not your app.
-        document.getElementById('status').innerHTML = 'Please log ' +
-            'into this app.';
+        // document.getElementById('status').innerHTML = 'Please log ' +
+        //     'into this app.';
     }
     else {
         // The person is not logged into Facebook, so we're not sure if
         // they are logged into this app or not.
-        document.getElementById('status').innerHTML = 'Please log ' +
-            'into Facebook.';
+        // document.getElementById('status').innerHTML = 'Please log ' +
+        //     'into Facebook.';
     }
 }
 
@@ -142,18 +143,30 @@ function checkLoginState() {
 // successful.  See statusChangeCallback() for when this call is made.
 function testAPI() {
     console.log('Welcome!  Fetching your information.... ');
-    FB.api('/me', {fields: 'email,first_name,last_name,gender'}, function(response) {
-        console.log('Successful login for: ' + response.name);
+    FB.api('/me', {
+        fields: 'email,first_name,last_name,gender'
+    }, function(response) {
+        console.log('Successful login for: ' + response.first_name);
         console.log(response);
-        document.getElementById('status').innerHTML =
-            'Thanks for logging in, ' + response.name + '!';
-        var data = {
-            id: response.id,
-            email : response.email,
-            fname : response.first_name,
-            lname : response.last_name
-        };
-        var ajax = new Ajax('php/fbauth.php', data, handleResponse);
+
+        var data = null;
+        var ajax = new Ajax('php/fbauth.php', data, handleFbAuthResponse);
         ajax.post();
+    });
+}
+
+function handleFbAuthResponse (){
+    window.location = "index.php";
+}
+
+function logout(){
+    FB.getLoginStatus(function(response) {
+        if (response.status === 'connected') {
+            FB.logout(function(response) {
+                window.location.replace('logout.php');
+            });
+        } else {
+            window.location.replace('logout.php');
+        }
     });
 }

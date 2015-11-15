@@ -49,7 +49,7 @@
 			<div id="cp" class="cube_size">
 		      <h1>
 		      	rubik_<span id="n">n</span>
-		      	<a href="logout.php" title="logout"><img alt="logout" src="../images/logout.svg"></a>
+		      	<a href="javascript:logout();" title="logout"><img alt="logout" src="../images/logout.svg"></a>
 				<a onclick="startScene.reset();" id="restart_button" title="restart"><img alt="restart" src="../images/restart.svg"></a>
 		      	<br>
 		      	<span id="hs" class="notifs"></span>
@@ -77,6 +77,7 @@
 		<script src="../js/lib/OrbitControls.js"></script>
 		<script src="../js/lib/TrackballControls.js"></script>
 		<script src="../js/ajax.js"></script>
+		<script src="../js/login.js"></script>
 		<script src="../js/game.js"></script>
 		<script src="../js/cube.js"></script>
 

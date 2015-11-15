@@ -12,10 +12,10 @@
 	function authForm() {
         ?>
             <p>
-				<input type="text" name="email" value="test123@b.c" placeholder="email">
+				<input type="text" name="email" value="" placeholder="email">
 			</p>
 			<p>
-				<input type="password" name="password" value="test123" placeholder="password">
+				<input type="password" name="password" value="" placeholder="password">
 			</p>
 			<div class="submit">
 				<input type="submit" onclick="sendForm('php/login.php');" value="log in">
@@ -104,7 +104,7 @@
 		</div>
 		<div class="notifs">
 			<div id="gnotif">
-				This is a demo of a work in progress. You may login with 'test123' for both username and password.
+				<!--This is a demo of a work in progress. You may login with 'test123' for both username and password.-->
 				<?php
 					if (isset($_SESSION['registered']) && $_SESSION['registered'] == true){
 				        echo "you were successfully registered. please log in to start playing.";
@@ -115,8 +115,8 @@
 			</div>
 		</div>
 		<!-- FACEBOOK DEBUG START -->
-		<div id="status"></div>
-		<a href="javascript:FB.logout()">FB logout</a>
+		<!--<div id="status"></div>-->
+		<!--<a href="javascript:FB.logout()">FB logout</a>-->
 		<!-- FACEBOOK DEBUG END -->
 		<!--FACEBOOK LIKE BUTTON-->
 		<!--<div-->
