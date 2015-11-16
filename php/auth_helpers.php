@@ -1,8 +1,16 @@
 <?php
-    define("BLOW_COST", 10); //The two digit cost parameter is the base-2 logarithm of the iteration count for the Blowfish alg.
+    include("db_connect.php");
 
-    function login($email,$password,$mysqli,&$errors) {
-        if (!($stmt = $mysqli->prepare('SELECT hash, email FROM player WHERE email = (?) LIMIT 1'))) {
+    function login($email,$password,&$errors) {
+        global $mysqli;
+        $query_string = "
+            SELECT email, hash
+            FROM player plyr
+            JOIN password pass ON plyr.player_id = pass.player_id
+            WHERE email = (?)
+            LIMIT 1
+        ";
+        if ( !( $stmt = $mysqli->prepare($query_string) ) ) {
             $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
             $db_error = array("prepare"=>$error_message);
             echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
@@ -39,8 +47,20 @@
         }
     }
 
-    function register($email,$password,$mysqli) {
-        if (!($stmt = $mysqli->prepare("INSERT INTO player(email,hash) VALUES (?,?)"))) {
+    function register($email,$password) {
+        global $mysqli;
+        $query_string = "
+            INSERT INTO player(email)
+            VALUES (?);
+            INSERT INTO password(player_id,hash)
+            VALUES ( (
+            		 SELECT player_id
+                	 FROM player
+                	 WHERE email = (?)
+                	 LIMIT 1
+                	), (?) ) )
+        ";
+        if ( !( $stmt = $mysqli->prepare($query_string) ) ) {
             $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
             $db_error = array("prepare"=>$error_message);
             echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
@@ -50,7 +70,7 @@
         $options = array('cost' => BLOW_COST);
         $hash = password_hash($password, PASSWORD_BCRYPT, $options);
 
-        if (!$stmt->bind_param("ss", $email, $hash)) {
+        if (!$stmt->bind_param("sss", $email, $email, $hash)) {
             $error_message = "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
             $db_error = array("binding"=>$error_message);
             echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
@@ -66,20 +86,60 @@
         return true;
     }
 
-    function registerFB($email, $mysqli) {
-        if (!($stmt = $mysqli->prepare("INSERT INTO player(email,hash) VALUES (?,?)"))) {
-            $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
-            $db_error = array("prepare"=>$error_message);
-            echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
-            return false;
+    function addFbuid($fbuid, $email) {
+        global $mysqli;
+        // will create a corresponding player entry if it doesn't already exist.
+        if ( !doesPlayerExist($email) ) {
+            $query_string = "
+                INSERT INTO player(email)
+                VALUES (?);
+                INSERT INTO fbuid(player_id, fbuid)
+                VALUES ( (
+                		 SELECT player_id
+                    	 FROM player
+                    	 WHERE email = (?)
+                    	 LIMIT 1
+                    	), (?) ) )
+            ";
+            if (!($stmt = $mysqli->prepare($query_string))) {
+                $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+                $db_error = array("prepare"=>$error_message);
+                echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
+                return false;
+            }
+
+            if (!$stmt->bind_param("sss", $email, $email, $fbuid)) {
+                $error_message = "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                $db_error = array("binding"=>$error_message);
+                echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
+                return false;
+            }
+        }else {
+            $query_string = "
+                    INSERT INTO fbuid(player_id, fbuid)
+                    VALUES ( (
+                    		 SELECT player_id
+                        	 FROM player
+                        	 WHERE email = (?)
+                        	 LIMIT 1
+                        	), (?) ) )
+            ";
+            if (!($stmt = $mysqli->prepare($query_string))) {
+                $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+                $db_error = array("prepare"=>$error_message);
+                echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
+                return false;
+            }
+
+            if (!$stmt->bind_param("ss", $email, $fbuid)) {
+                $error_message = "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+                $db_error = array("binding"=>$error_message);
+                echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
+                return false;
+            }
         }
 
-        if (!$stmt->bind_param("ss", $email, $hash)) {
-            $error_message = "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
-            $db_error = array("binding"=>$error_message);
-            echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
-            return false;
-        }
+
 
         if (!$stmt->execute()) {
             $error_message = "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
@@ -90,7 +150,8 @@
         return true;
     }
 
-    function isEmailAvailable($email,$mysqli){
+    function doesPlayerExist($email){
+        global $mysqli;
         if (!($stmt = $mysqli->prepare('SELECT email FROM player WHERE email = (?) LIMIT 1'))) {
             $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
             $db_error = array("prepare"=>$error_message);
@@ -113,7 +174,34 @@
         }
 
         $result = $stmt->get_result();
-        return $result->num_rows != 0 ? false : true;
+        return $result->num_rows == 1 ? true : false;
+    }
+
+    function doesFbuidExist($fbuid){
+        global $mysqli;
+        if (!($stmt = $mysqli->prepare('SELECT fbuid FROM fbuid WHERE fbuid = (?) LIMIT 1'))) {
+            $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+            $db_error = array("prepare"=>$error_message);
+            echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
+            return false;
+        }
+
+        if (!$stmt->bind_param('s', $fbuid)) {
+            $error_message = "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+            $db_error = array("binding"=>$error_message);
+            echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
+            return false;
+        }
+
+        if (!$stmt->execute()) {
+            $error_message = "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+            $db_error = array("execution"=>$error_message);
+            echo json_encode(array("success" => false, "general_message" => "Internal db error.", "errors" => $db_error ));
+            return false;
+        }
+
+        $result = $stmt->get_result();
+        return $result->num_rows == 1 ? true : false;
     }
 
 ?>

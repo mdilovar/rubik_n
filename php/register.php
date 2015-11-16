@@ -16,7 +16,7 @@
     } else {
         include("db_connect.php");
         include("auth_helpers.php");
-        if (!isEmailAvailable($email,$mysqli)){
+        if (!doesUserExist($email,$mysqli)){
             echo json_encode(array("success" => false, "general_message" => "Email not available.", "errors" =>array("email"=>"Sorry, it looks like $email belongs to an existing account.")));
         }else if (register($email,$password,$mysqli)){
             echo json_encode(array("success" => true, "general_message" => "User $username was successfully registered." ));

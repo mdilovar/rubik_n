@@ -13,7 +13,6 @@
     if (count($request_errors) > 0) {
         echo json_encode(array("success" => false, "general_message" => "Invalid data was entered.", "errors" => $request_errors ));
     } else {
-        include("db_connect.php");
         include("auth_helpers.php");
         $login_errors = array();
          if (login($email,$password,$mysqli,$login_errors)){
