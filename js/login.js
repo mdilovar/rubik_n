@@ -107,31 +107,9 @@ function handleResponse(response) {
 // FACEBOOK LOGIN
 function facebookLogin() {
     FB.login(checkLoginState, {
-        scope: 'public_profile,email',
+        scope: 'public_profile,email,user_friends',
         auth_type: 'rerequest'
     });
-}
-// This is called with the results from from FB.getLoginStatus().
-function statusChangeCallback(response) {
-    console.log('statusChangeCallback');
-    console.log(response);
-    // The response object is returned with a status field that lets the
-    // app know the current login status of the person.
-    if (response.status === 'connected') {
-        // Logged into your app and Facebook.
-        testAPI();
-    }
-    else if (response.status === 'not_authorized') {
-        // The person is logged into Facebook, but not your app.
-        // document.getElementById('status').innerHTML = 'Please log ' +
-        //     'into this app.';
-    }
-    else {
-        // The person is not logged into Facebook, so we're not sure if
-        // they are logged into this app or not.
-        // document.getElementById('status').innerHTML = 'Please log ' +
-        //     'into Facebook.';
-    }
 }
 
 function checkLoginState() {
@@ -139,24 +117,29 @@ function checkLoginState() {
         statusChangeCallback(response);
     });
 }
-// Here we run a very simple test of the Graph API after login is
-// successful.  See statusChangeCallback() for when this call is made.
-function testAPI() {
-    console.log('Welcome!  Fetching your information.... ');
-    FB.api('/me', {
-        fields: 'email,first_name,last_name,gender'
-    }, function(response) {
-        console.log('Successful login for: ' + response.first_name);
-        console.log(response);
 
-        var data = null;
-        var ajax = new Ajax('php/fbauth.php', data, handleFbAuthResponse);
-        ajax.post();
-    });
-}
-
-function handleFbAuthResponse (){
-    window.location = "index.php";
+// This is called with the results from from FB.getLoginStatus().
+function statusChangeCallback(response) {
+    // The response object is returned with a status field that lets the
+    // app know the current login status of the person.
+    if (response.status === 'connected') {
+        // Logged into the app and Facebook. Updating backend.
+        FB.api('/me', function(response) {
+            var data = null; // even with data null the cookie will have the fb access token
+            var ajax = new Ajax('php/fbauth.php', data, function (){
+                // redirrect to main page after login.
+                // If there is a session, php will redirrect to the game page.
+                window.location = "index.php";
+            });
+            ajax.post();
+        });
+    }
+    // else if (response.status === 'not_authorized') {
+    //     // The person is logged into Facebook, but not the app.
+    // }
+    // else {
+    //     // The person is not logged into Facebook
+    // }
 }
 
 function logout(){

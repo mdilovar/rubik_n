@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 15, 2015 at 06:26 PM
+-- Generation Time: Nov 16, 2015 at 12:09 PM
 -- Server version: 5.5.43-0ubuntu0.14.04.1
 -- PHP Version: 5.5.9-1ubuntu4.9
 
@@ -23,13 +23,18 @@ USE `rc`;
 --
 
 CREATE TABLE IF NOT EXISTS `fbplayer` (
-  `id` int(15) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fbuid` int(15) NOT NULL,
   `email` varchar(255) NOT NULL,
   `fname` varchar(255) NOT NULL,
   `lname` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  UNIQUE KEY `fbuid` (`fbuid`),
+  UNIQUE KEY `email_2` (`email`),
+  UNIQUE KEY `id` (`id`),
+  KEY `email` (`email`),
+  KEY `id_2` (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
 
 -- --------------------------------------------------------
 
@@ -54,16 +59,21 @@ CREATE TABLE IF NOT EXISTS `game` (
 
 CREATE TABLE IF NOT EXISTS `player` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(15) NOT NULL,
   `email` varchar(255) NOT NULL,
   `hash` binary(60) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=66 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=73 ;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `fbplayer`
+--
+ALTER TABLE `fbplayer`
+  ADD CONSTRAINT `email_constraint` FOREIGN KEY (`email`) REFERENCES `player` (`email`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `game`
