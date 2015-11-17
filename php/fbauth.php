@@ -3,8 +3,9 @@
     include("config.php");
     session_start();
     if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] == true){
-        // #TODOL: in this part of every script, add destroy session
         echo json_encode(array("success" => false, "general_message" => "Please logout first." ));
+        session_unset();
+        session_destroy();
         exit();
     }
     // CREATE FB APP CONNECTION AND CHECK REQUEST COOKIES for

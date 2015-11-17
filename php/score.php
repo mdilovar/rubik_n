@@ -6,6 +6,8 @@ if (!(isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] == true)) {
         "success" => false,
         "general_message" => "Please login first."
     ));
+    session_unset();
+    session_destroy();
     exit();
 }
 
