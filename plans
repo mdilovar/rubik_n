@@ -3,7 +3,7 @@ done so far (current commit):
 
 current tasks:
 - guest mode
-- make cube size box smaller, add a "Finish" button.
+- make cube size box smaller, add a "Finish" button. (scramble slowlier, add more moves for demo)
 - add friends' high scores.
 - password recovery
 

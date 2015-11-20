@@ -1,7 +1,7 @@
 <?php
 session_start();
 header('Content-Type: application/json');
-if (!(isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] == true)) {
+if (!(isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] === true)) {
     echo json_encode(array(
         "success" => false,
         "general_message" => "Please login first."

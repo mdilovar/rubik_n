@@ -1,6 +1,6 @@
 <?php
     session_start();
-    if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] == true){
+    if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] === true){
         echo json_encode(array("success" => false, "general_message" => "Already loged in." ));
         header("location:php/rc.php");
         exit();
@@ -24,6 +24,7 @@
                     <span>or</span>
                 </p>
 				<input type="button" class='fb big' onclick="facebookLogin()">
+				<input type="button" class='big' onclick="window.location.replace('php/rc.php?inGuestMode=true');" value="play in guest mode">
 				<div class="forgotsu">
                     <p>
                         <a href=".?forgot">forgot password</a>
@@ -43,12 +44,6 @@
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 	<script src="./js/ajax.js"></script>
 	<script src="./js/login.js"></script>
-	<!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent
-	<script type="text/javascript">
-	    window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience.","dismiss":"Got it!","learnMore":"More info","link":null,"theme":"dark-top"};
-	</script>
-	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.9/cookieconsent.min.js"></script>
-	<!-- End Cookie Consent plugin -->
 </head>
 
 <body>
@@ -114,17 +109,6 @@
 			    ?>
 			</div>
 		</div>
-		<!-- FACEBOOK DEBUG START -->
-		<!--<div id="status"></div>-->
-		<!--<a href="javascript:FB.logout()">FB logout</a>-->
-		<!-- FACEBOOK DEBUG END -->
-		<!--FACEBOOK LIKE BUTTON-->
-		<!--<div-->
-		<!--  class="fb-like"-->
-		<!--  data-share="true"-->
-		<!--  data-width="450"-->
-		<!--  data-show-faces="true">-->
-		<!--</div>-->
 	</div>
 </body>
 </html>
