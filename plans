@@ -2,8 +2,10 @@ done so far (current commit):
 
 
 current tasks:
-- adding facebook api and friends' high scores.
-- other credentials related stuff: sql injection tests, password change, password recovery, add email, other tab logout, login attempts, etc.
+- guest mode
+- make cube size box smaller, add a "Finish" button.
+- add friends' high scores.
+- password recovery
 
 
 next up:
