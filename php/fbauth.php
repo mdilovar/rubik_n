@@ -1,13 +1,17 @@
 <?php
-    require_once __DIR__ . '/lib/facebook-php-sdk-v4-5.0.0/src/Facebook/autoload.php';
-    include("config.php");
     session_start();
+    header('Content-Type: application/json');
+
     if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] == true){
         echo json_encode(array("success" => false, "general_message" => "Please logout first." ));
         session_unset();
         session_destroy();
         exit();
     }
+
+    require_once __DIR__ . '/lib/facebook-php-sdk-v4-5.0.0/src/Facebook/autoload.php';
+    include("config.php");
+
     // CREATE FB APP CONNECTION AND CHECK REQUEST COOKIES for
     // fb access token. The actual login is handled in the front-end
     // with Facebook JS SDK.
@@ -40,6 +44,7 @@
     // -- access token set and user is Logged in to facebook --
 
     // GRAB FB ID and FB EMAIL USING THE ACCESS TOKEN
+
     $_SESSION['fb_access_token'] = (string) $accessToken;
 
     // Sets the default fallback access token so we don't have to pass it to each request
@@ -61,45 +66,30 @@
     $email = $userNode->getField('email'); // $userNode['email']
     $fbuid = $userNode->getField('id'); // $userNode['id']
 
-    // CHECK IF PLAYER ALREAY EXISTS; IF NO, CREATE ONE.
+    // CHECK IF PLAYER ALREAY EXISTS; IF NO, CREATE ONE. THEN CREATE A SESSION.
     include("validate.php");
     include("auth_helpers.php");
 
-    // First, check if the user exists in fbuid table.
-    // Given the FK constraints on that table, if the user exists
-    // there, they must also exist in the player table, and nothing
-    // needs to be done, just a session is establised and player_id is fetched
-    if ( doesFbuidExist($fbuid) ) {
+    if (!is_numeric($player_id = getPlayerIdByFbuid($fbuid))){
+        $request_errors = array();
+        $email = validateInput($email, 'email', $request_errors);
 
-      if ( $player_id = getPlayerIdFromFbuid($fbuid) ){
-              $_SESSION["fbuid"] = $fbuid;
-              $_SESSION["player_id"] = $player_id;
-              $_SESSION["isLoggedIn"] = true;
-              echo json_encode(array("success" => true, "general_message" => "User was successfully logged in." ));
-          }else{
-              echo json_encode(array("success" => false, "general_message" => "Failed to log in. Unexpected error."));
-          }
+        if (count($request_errors) > 0) {
+            echo json_encode(array("success" => false, "general_message" => "Invalid data was provided.", "errors" => $request_errors ));
+            exit;
+        }
 
-    } else {
+        registerFbuid($fbuid, $email);
 
-      $request_errors = array();
-      $email = validateInput($email, 'email', $request_errors);
-
-      if (count($request_errors) > 0) {
-        echo json_encode(array("success" => false, "general_message" => "Invalid data was provided.", "errors" => $request_errors ));
-      } else {
-          if ( addFbuid($fbuid, $email) ){ // works even if user already has a regular account and is logging in with fb now.
-              if ( $player_id = getPlayerIdFromFbuid($fbuid) ){
-                  $_SESSION["fbuid"] = $fbuid;
-                  $_SESSION["player_id"] = $player_id;
-                  $_SESSION["isLoggedIn"] = true;
-                  echo json_encode(array("success" => true, "general_message" => "User was successfully registered and logged in." ));
-              }else{
-                  echo json_encode(array("success" => false, "general_message" => "Registered but Failed to log in. Unexpected error."));
-              }
-          }else{
-              echo json_encode(array("success" => false, "general_message" => "Failed to register user. Unexpected error."));
-          }
-      }
     }
+
+    if (is_numeric($player_id = getPlayerIdByFbuid($fbuid))){
+        $_SESSION["fbuid"] = $fbuid;
+        $_SESSION["player_id"] = $player_id;
+        $_SESSION["isLoggedIn"] = true;
+        echo json_encode(array("success" => true, "general_message" => "FB user was successfully registered and logged in." ));
+        exit;
+    }
+
+    echo json_encode(array("success" => false, "general_message" => "Failed to register FB user. Unexpected error."));
 ?>

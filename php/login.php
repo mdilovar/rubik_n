@@ -1,5 +1,6 @@
 <?php
     session_start();
+    header('Content-Type: application/json');
     if (isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] == true){
         echo json_encode(array("success" => false, "general_message" => "You are already logged in." ));
         session_unset();
@@ -16,18 +17,13 @@
         echo json_encode(array("success" => false, "general_message" => "Invalid data was entered.", "errors" => $request_errors ));
     } else {
         include("auth_helpers.php");
-        $login_errors = array();
-        if (login($email,$password,$login_errors)){
-            if ( $player_id = getPlayerIdFromFbuid($fbuid) ){
-                $_SESSION["email"] = $email;
-                $_SESSION["player_id"] = $player_id;
-                $_SESSION["isLoggedIn"] = true;
-                echo json_encode(array("success" => true, "general_message" => "User $email was successfully logged in." ));
-              }else{
-                  echo json_encode(array("success" => false, "general_message" => "Logged in, but player id not found. Unexpected error."));
-              }
+        if (is_numeric($player_id = login($email,$password))){
+            $_SESSION["email"] = $email;
+            $_SESSION["player_id"] = $player_id;
+            $_SESSION["isLoggedIn"] = true;
+            echo json_encode(array("success" => true, "general_message" => "User $email was successfully logged in." ));
         }else{
-            echo json_encode(array("success" => false, "general_message" => "Failed to log in.", "errors" => $login_errors));
+            echo json_encode(array("success" => false, "general_message" => "Failed to log in. Unexpected error."));
         }
     }
 ?>
