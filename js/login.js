@@ -146,10 +146,10 @@ function logout(){
     FB.getLoginStatus(function(response) {
         if (response.status === 'connected') {
             FB.logout(function(response) {
-                window.location.replace('php/logout.php');
+                window.location.replace('logout.php');
             });
         } else {
-            window.location.replace('php/logout.php');
+            window.location.replace('logout.php');
         }
     });
 }

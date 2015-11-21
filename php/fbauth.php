@@ -87,6 +87,7 @@
         $_SESSION["fbuid"] = $fbuid;
         $_SESSION["player_id"] = $player_id;
         $_SESSION["isLoggedIn"] = true;
+        $_SESSION['inGuestMode'] = false;
         echo json_encode(array("success" => true, "general_message" => "FB user was successfully registered and logged in." ));
         exit;
     }

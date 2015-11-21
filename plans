@@ -1,14 +1,17 @@
 done so far (current commit):
-
+- finished guest mode
+- made cube size box smaller
+- added a "Finish" button.
+- fixed mouse offset
+- scramble slowlier, add more moves for demo
+- completed leaderboard
 
 current tasks:
-- guest mode
-- make cube size box smaller, add a "Finish" button. (scramble slowlier, add more moves for demo)
-- add friends' high scores.
-- password recovery
+
 
 
 next up:
+- merge the two branches
 solving algorithm
     steps:
     choosing top color - user vs automatic vs fixed - white? /for now fixed - white/
@@ -23,7 +26,7 @@ solving algorithm
 
 /// more:
 
-
+- password recovery (should I?)
 - user friendly step-by step guide for solution (this might take a while - includes the actual solving algorithm)
 - manual cube initial state entry as input for the hint solution guide. (includes valid cube state check)
 - create a prototype for detecting colors on one side of a cube from an image.

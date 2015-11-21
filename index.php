@@ -25,11 +25,11 @@
                 </p>
 				<input type="button" class='fb big' onclick="facebookLogin()">
 				<input type="button" class='big' onclick="window.location.replace('php/rc.php?inGuestMode=true');" value="play in guest mode">
-				<div class="forgotsu">
-                    <p>
-                        <a href=".?forgot">forgot password</a>
-                    </p>
-				</div>
+				<!--<div class="forgotsu">-->
+    <!--                <p>-->
+    <!--                    <a href=".?forgot">forgot password</a>-->
+    <!--                </p>-->
+				<!--</div>-->
 			</div>
         <?php
     }

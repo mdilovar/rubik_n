@@ -108,7 +108,7 @@
 	#errors,
 	.notifs {
 		font-family: Lucida Console;
-		height: 16px;
+		height: 19px;
 		width: 100%;
 		color: #969696;
 		text-align: center;
@@ -123,7 +123,9 @@
 		display: none
 	}
 
-	#restart_button {
+	#restart_button,
+	#giveup_button,
+	#lb_button {
 		display: none;
 		cursor: pointer;
 	}
@@ -132,27 +134,67 @@
 		color: red;
 	}
 
-	/*REMOVE IF NO FOOTER*/
-	/*footer {*/
-	/*	color: #757575;*/
-	/*	border-top: 1px solid #464646;*/
-	/*	padding: 10px 0;*/
-	/*	background: #2b2b2b;*/
-	/*	width: 100%;*/
-	/*	height: 20px;*/
-	/*	position: absolute;*/
-	/*	bottom: 0;*/
-	/*	left: 0;*/
-	/*}*/
+	#csbox {
+		width: 80px;
+	}
 
-	/*.right {*/
-	/*	float: right;*/
-	/*}*/
+	#csinput {
+		background-color: #E5E5E5;
+		float: left;
+		padding-left: 10px;
+	}
 
-	/*.right a {*/
-	/*	margin-right: 18px;*/
-	/*	display: block;*/
-	/*	float: left;*/
-	/*	color: inherit;*/
-	/*	text-decoration: none;*/
-	/*}*/
+	table {
+		width: 100%;
+	}
+
+	table,
+	th,
+	td {
+		border: 1px solid black;
+		border-collapse: collapse;
+	}
+
+	th,
+	td {
+		padding: 5px;
+		text-align: left;
+	}
+
+	table tr:nth-child(even) {
+		background-color: #eee;
+	}
+
+	table tr:nth-child(odd) {
+		background-color: #fff;
+	}
+
+	table th {
+		background-color: black;
+		color: white;
+	}
+
+	#lb {
+		position: absolute;
+		left: 0;
+		right: 0;
+		margin-left: auto;
+		margin-right: auto;
+		width: 700px;
+		background-color: rgb(240, 240, 240);
+		overflow: auto;
+		height: 90%;
+	}
+
+	#notloggedin {
+		text-align: center;
+		margin-top: 90px;
+	}
+
+	.closeX {
+		float: right;
+		background: url("/images/close.png");
+		background-size: 24px 24px;
+		width: 24px;
+		height: 24px;
+	}

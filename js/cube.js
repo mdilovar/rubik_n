@@ -32,11 +32,6 @@ var colors_normal_order = ["white", "yellow", "red", "orange", "blue", "green"];
 var cubieSize = 200;
 //..and the Cube object
 var theCube;
-// vars used by mouse controls
-var objects = [];
-var raycaster = new THREE.Raycaster();
-var mouse = new THREE.Vector2(),
-    INTERSECTED, SELECTED, SELECTED2, FACE;
 
 var CubletType = {
     CORNER: 3,
@@ -70,7 +65,7 @@ function setupScene() {
     camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
     scene = new THREE.Scene();
     //set the camera starting position
-    camera.position.z = 1500;
+    camera.position.copy({ x: 1000, y: 1000, z: 1000 });
     // and the camera to the scene
     scene.add(camera);
     //create a flashlight
@@ -108,10 +103,18 @@ function onWindowResize(e) {
     camera.updateProjectionMatrix();
 }
 
+// vars used by mouse controls
+var objects = [];
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2(),
+    INTERSECTED, SELECTED, SELECTED2, FACE;
+
 function onCanvasMouseMove(event) {
     event.preventDefault();
-    var x = event.offsetX == undefined ? event.layerX : event.offsetX;
-    var y = event.offsetY == undefined ? event.layerY : event.offsetY;
+    // var x = event.offsetX == undefined ? event.layerX : event.offsetX;
+    // var y = event.offsetY == undefined ? event.layerY : event.offsetY;
+    var x = event.pageX - event.target.offsetLeft;
+    var y = event.pageY - event.target.offsetTop;
     mouse.x = (x / renderer.domElement.width) * 2 - 1;
     mouse.y = -(y / renderer.domElement.height) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
@@ -481,10 +484,11 @@ function Cube() {
         }
     };
     this.scramble = function scramble(onComplete) {
-        var randomMoveCount = 3 * this.cubiesPerAxis;
+        var randomMoveCount = 5 * this.cubiesPerAxis;
+        // var randomMoveCount = 0;
         var _this = this;
         var normal_speed = _this.rendersPerMove;
-        _this.rendersPerMove = 3; // rotate fast during scrambling
+        _this.rendersPerMove = 10; // rotate fast during scrambling
 
         function recSrcamble(randomMoveCount) {
             var random_direction = Math.round(Math.random());

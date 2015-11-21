@@ -167,7 +167,7 @@
             $success = false;
         }
 
-        else if (!$stmt->bind_param("sd", $email, $fbuid)) {
+        else if (!$stmt->bind_param("ss", $email, $fbuid)) {
             $db_error = "\nBinding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
             $success = false;
         }

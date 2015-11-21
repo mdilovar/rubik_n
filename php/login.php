@@ -21,6 +21,7 @@
             $_SESSION["email"] = $email;
             $_SESSION["player_id"] = $player_id;
             $_SESSION["isLoggedIn"] = true;
+            $_SESSION['inGuestMode'] = false;
             echo json_encode(array("success" => true, "general_message" => "User $email was successfully logged in." ));
         }else{
             echo json_encode(array("success" => false, "general_message" => "Failed to log in. Unexpected error."));
