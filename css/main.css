@@ -2,6 +2,7 @@
 		margin: 0;
 		background-color: #f0f0f0;
 		overflow: hidden;
+		font-family: Lucida Console;
 	}
 
 	.login_wrapper,
@@ -17,6 +18,15 @@
 		text-align: center;
 	}
 
+	.forgotsu a {
+		color: #757575;
+	}
+
+	.logo {
+		text-decoration: none;
+		color: black;
+	}
+
 	.game_cp {
 		width: 400px;
 	}
@@ -28,7 +38,8 @@
 
 	input[type="number"],
 	input[type="text"],
-	input[type="password"] {
+	input[type="password"],
+	input[type="email"] {
 		padding: 10px;
 		border: none;
 		border-bottom: solid 2px #c9c9c9;
@@ -39,7 +50,8 @@
 
 	input[type="text"]:focus,
 	input[type="number"]:focus,
-	input[type="password"]:focus {
+	input[type="password"]:focus,
+	input[type="email"]:focus {
 		border-bottom: solid 2px #969696;
 	}
 
@@ -65,9 +77,27 @@
 		padding: 10px;
 		border: none;
 		border-bottom: solid 2px #c9c9c9;
+		background-color: #E5E5E5;
 		box-sizing: border-box;
 		width: 48%;
+		margin-top: 10px;
 		font-family: Lucida Console;
+	}
+
+	p.or {
+		border-bottom: 1px solid #757575;
+	}
+
+	p.or span {
+		width: 38px;
+		margin: 8px auto -9px;
+		display: block;
+		color: #757575;
+		background: #f0f0f0;
+	}
+
+	.fb {
+		background-image: url('/images/fblogin.png');
 	}
 
 	input[type="button"].big,
@@ -78,7 +108,7 @@
 	#errors,
 	.notifs {
 		font-family: Lucida Console;
-		height: 16px;
+		height: 19px;
 		width: 100%;
 		color: #969696;
 		text-align: center;
@@ -93,11 +123,78 @@
 		display: none
 	}
 
-	#restart_button {
+	#restart_button,
+	#giveup_button,
+	#lb_button {
 		display: none;
 		cursor: pointer;
 	}
 
 	#n {
 		color: red;
+	}
+
+	#csbox {
+		width: 80px;
+	}
+
+	#csinput {
+		background-color: #E5E5E5;
+		float: left;
+		padding-left: 10px;
+	}
+
+	table {
+		width: 100%;
+	}
+
+	table,
+	th,
+	td {
+		border: 1px solid black;
+		border-collapse: collapse;
+	}
+
+	th,
+	td {
+		padding: 5px;
+		text-align: left;
+	}
+
+	table tr:nth-child(even) {
+		background-color: #eee;
+	}
+
+	table tr:nth-child(odd) {
+		background-color: #fff;
+	}
+
+	table th {
+		background-color: black;
+		color: white;
+	}
+
+	#lb {
+		position: absolute;
+		left: 0;
+		right: 0;
+		margin-left: auto;
+		margin-right: auto;
+		width: 700px;
+		background-color: rgb(240, 240, 240);
+		overflow: auto;
+		height: 90%;
+	}
+
+	#notloggedin {
+		text-align: center;
+		margin-top: 90px;
+	}
+
+	.closeX {
+		float: right;
+		background: url("/images/close.png");
+		background-size: 24px 24px;
+		width: 24px;
+		height: 24px;
 	}

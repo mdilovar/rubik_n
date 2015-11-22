@@ -69,7 +69,7 @@ function setupScene() {
     camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
     scene = new THREE.Scene();
     //set the camera starting position
-    camera.position.z = 1500;
+    camera.position.copy({ x: 1000, y: 1000, z: 1000 });
     // and the camera to the scene
     scene.add(camera);
     //create a flashlight
@@ -310,10 +310,11 @@ function Cube() {
         }
     };
     this.scramble = function scramble(onComplete) {
-        var randomMoveCount = 3 * this.cubiesPerAxis;
+        var randomMoveCount = 5 * this.cubiesPerAxis;
+        // var randomMoveCount = 0;
         var _this = this;
         var normal_speed = _this.rendersPerMove;
-        _this.rendersPerMove = 3; // rotate fast during scrambling
+        _this.rendersPerMove = 10; // rotate fast during scrambling
 
         function recSrcamble(randomMoveCount) {
             var random_direction = Math.round(Math.random());

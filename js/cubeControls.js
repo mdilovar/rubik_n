@@ -5,6 +5,8 @@
 /*
 global THREE requestAnimationFrame timer loadGame controls canvas_div renderer camera AXIS theCube colors_normal_order
 */
+
+
 // vars used by mouse controls
 var objects = [];
 var raycaster = new THREE.Raycaster();
@@ -13,8 +15,10 @@ var mouse = new THREE.Vector2(),
 
 function onCanvasMouseMove(event) {
     event.preventDefault();
-    var x = event.offsetX == undefined ? event.layerX : event.offsetX;
-    var y = event.offsetY == undefined ? event.layerY : event.offsetY;
+    // var x = event.offsetX == undefined ? event.layerX : event.offsetX;
+    // var y = event.offsetY == undefined ? event.layerY : event.offsetY;
+    var x = event.pageX - event.target.offsetLeft;
+    var y = event.pageY - event.target.offsetTop;
     mouse.x = (x / renderer.domElement.width) * 2 - 1;
     mouse.y = -(y / renderer.domElement.height) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);

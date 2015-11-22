@@ -1,6 +1,7 @@
 /**
  * @author Miri Manzarshohi Dilovar
 */
+"use strict";
 /*
 global colors, AXIS colors_normal_order
 */
