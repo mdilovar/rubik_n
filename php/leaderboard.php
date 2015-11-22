@@ -4,7 +4,7 @@ session_start();
 if (!(isset($_SESSION['isLoggedIn']) && $_SESSION['isLoggedIn'] === true) ||
     !(isset($_SESSION['fbuid']))) {
     echo"<a class='closeX' href='javascript:startScene.hideLeaderBoard();'></a>";
-    echo "<div id='notloggedin'>Please <a href = '../index.php'>login with Facebook</a> first.</div>";
+    echo "<div id='notloggedin'>Please <a href = 'javascript:logout()'>login with Facebook</a> first.</div>";
     exit();
 }
 $fbuid = $_SESSION["fbuid"];
@@ -38,11 +38,15 @@ try {
   $graphEdge = $response->getGraphEdge();
 } catch(Facebook\Exceptions\FacebookResponseException $e) {
   // When Graph returns an error
-  echo json_encode(array("success" => false, "general_message" => 'Graph returned an error: ' . $e->getMessage() ));
+  error_log('\n'.$e->getMessage(), 3, "../tmp/errors.log");
+  echo"<a class='closeX' href='javascript:startScene.hideLeaderBoard();'></a>";
+  echo "<div id='notloggedin'>Something went wrong. Please try again later.</div>";
   exit;
 } catch(Facebook\Exceptions\FacebookSDKException $e) {
   // When validation fails or other local issues
-  echo json_encode(array("success" => false, "general_message" => 'Facebook SDK returned an error: ' . $e->getMessage() ));
+  error_log('\n'.$e->getMessage(), 3, "../tmp/errors.log");
+  echo"<a class='closeX' href='javascript:startScene.hideLeaderBoard();'></a>";
+  echo "<div id='notloggedin'>Something went wrong. Please try again later.</div>";
   exit;
 }
 

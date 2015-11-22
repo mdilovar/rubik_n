@@ -1,10 +1,5 @@
 done so far (current commit):
-- finished guest mode
-- made cube size box smaller
-- added a "Finish" button.
-- fixed mouse offset
-- scramble slowlier, add more moves for demo
-- completed leaderboard
+- fixed 'login with facebook' scoreboard link bevaviour for nonfb users.
 
 current tasks:
 
