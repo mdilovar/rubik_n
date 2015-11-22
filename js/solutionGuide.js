@@ -145,47 +145,23 @@ function SolutionGuide() {
                 return piece.userData.has_color[correctOrder[0]];
             })[0];
             // rotate the first face with that cube until the cube's at top.
-            var sideFaceWithEdgePiece = this.cube.getFaceLayersByCubie(edgePiece)[0];
-            /*
-            var cubieInPlace;
+            var sideFaceWithEdgePiece = this.cube.getFaceLayersByCubie(edgePiece).filter(function(layer){
+                return !(layer.axis === this.axis && layer.layer === this.layer); // chooses only non-bottom faces
+            },this.bottomLayer)[0];
+
+
             var _this = this;
-            function rotationSeq(cubieInPlace) {
-                cubieInPlace = Math.floor((Math.random() * 3) + 1); //sg.topLayer.hasCubie(edgePiece.id);
-                theCube.getFaceLayerByCenterpieceColor(colors_normal_order[0]).cubies.forEach(function(el){
-                        if (el.CubeletType ==2) console.log(el.id);
-                    });
-                if (cubieInPlace != 1) {
-                    _this.cube.busy = true;
-                    _this.cube.rotateFace(sideFaceWithEdgePiece, 0, false, function() {
-                        rotationSeq(cubieInPlace);
-                    });
-                }
-                console.log('done!');
+            function bringToTop() {
+                _this.cube.rotateFace(_this.cube.getLayer(sideFaceWithEdgePiece.axis, sideFaceWithEdgePiece.layer), 0, false, function() {
+                    if (_this.cube.getFaceLayerByCenterpieceColor(colors_normal_order[0]).hasCubie(edgePiece.id)) {
+                        bringToTop = function(){};
+                    }
+                    bringToTop();
+                });
             }
-            rotationSeq(cubieInPlace);*/
+            bringToTop();
 
-            var cubieInPlace = false;
 
-            var _this = this.cube;
-
-            function rotationSeq(cubieInPlace) {
-
-                // _this.busy = true;
-                var curFace = sideFaceWithEdgePiece;//_this.getFaceLayerByCenterpieceColor(colors_normal_order[0]);
-                if (cubieInPlace === true) { // last scramble move
-                    console.log('done');
-                }
-                else {
-
-                    //cubieInPlace = _this.getFaceLayerByCenterpieceColor(colors_normal_order[0]).hasCubie(edgePiece.id);
-                    _this.rotateFace(curFace, 0, false, function() {
-                        rotationSeq(cubieInPlace);
-                        cubieInPlace = _this.getLayer(AXIS.X, 0).hasCubie(edgePiece.id);
-                        console.log(cubieInPlace,' id: ',edgePiece.id);
-                    });
-                }
-            }
-            rotationSeq(cubieInPlace);
 
         }else if(this.placedVirtualTopEdges.length > 0){
             //find the next edge cubelet of the correct order
@@ -195,19 +171,20 @@ function SolutionGuide() {
             var edgePiece = virtualTopEdges.filter(function(piece){
                 return piece.userData.has_color[nextCorrctEdgeColor];
             })[0];
-            if (this.bottomLayer.hasCubie(edgePiece.id)){
-                // get the layers that have the cubelet
-                var layersWithEdgePiece = this.cube.getFaceLayersByCubie(edgePiece);
-                // pick the non-bottom layer
-                var sideFaceWithEdgePiece = layersWithEdgePiece.filter(function(layer){
-                    return layer.axis !== this.bottomLayer.axis;
-                },this)[0];
-                // rotate the side face 180 degrees.
-                var _this = this;
-                this.cube.rotateFace(sideFaceWithEdgePiece, 0, false, function(){
-                    _this.cube.rotateFace(_this.cube.getLayer(sideFaceWithEdgePiece.axis,sideFaceWithEdgePiece.layer), 0, false, undefined );
+            // rotate the first face with that cube until the cube's at top.
+            var sideFaceWithEdgePiece = this.cube.getFaceLayersByCubie(edgePiece).filter(function(layer){
+                return !(layer.axis === this.axis && layer.layer === this.layer); // chooses only non-bottom faces
+            },this.bottomLayer)[0];
+            var _this = this;
+            function bringToTop() {
+                _this.cube.rotateFace(_this.cube.getLayer(sideFaceWithEdgePiece.axis, sideFaceWithEdgePiece.layer), 0, false, function() {
+                    if (_this.cube.getFaceLayerByCenterpieceColor(colors_normal_order[0]).hasCubie(edgePiece.id)) {
+                        bringToTop = function(){};
+                    }
+                    bringToTop();
                 });
-            } // if it's not in bottom layer...
+            }
+            bringToTop();
         }
     };
     this.topHasRegularCorners = function topHasRegularCorners() {
