@@ -1,6 +1,10 @@
+/**
+ * @author Miri Manzarshohi Dilovar
+ */
 "use strict";
 /*
-global THREE requestAnimationFrame timer loadGame
+global THREE requestAnimationFrame timer loadGame CubeLayer onCanvasTouchEnd
+onCanvasTouchMove onCanvasMouseMove onCanvasMouseDown onCanvasMouseUp onCanvasTouchStart
 */
 //global scene variables
 var renderer, camera, scene, flashlight, controls, canvas_div, Detector;
@@ -27,13 +31,13 @@ var textures = {
     green: THREE.ImageUtils.loadTexture("../images/colors_512/green.png")
 };
 var colors = ["green", "red", "blue", "yellow", "white", "orange"];
-var colors_normal_order = ["white", "yellow", "red", "orange", "blue", "green"]; // #TODO: replace var colors with this?
+var colors_normal_order = ["white" /*0:x0*/, "yellow"/*1:x1*/, "red"/*2:y0*/, "orange"/*3:y1*/, "blue"/*4:z0*/, "green"/*5:z1*/]; // #TODO: replace var colors with this?
 //set cubicle size
 var cubieSize = 200;
 //..and the Cube object
 var theCube;
 
-var CubletType = {
+var CubeletType = {
     CORNER: 3,
     EDGE: 2,
     MIDDLE: 1
@@ -94,6 +98,8 @@ function setupScene() {
     renderer.domElement.addEventListener('touchstart', onCanvasTouchStart, false);
     renderer.domElement.addEventListener('touchend', onCanvasTouchEnd, false);
     renderer.domElement.addEventListener('touchmove', onCanvasTouchMove, false);
+    var axisHelper = new THREE.AxisHelper(1000);
+    scene.add( axisHelper );
 }
 
 function onWindowResize(e) {
@@ -235,7 +241,7 @@ function Cube() {
             y: ['red', 'orange'],
             z: ['blue', 'green']
         };
-        //CubletType
+        //CubeletType
         if (z === this.cubiesPerAxis - 1 && x === this.cubiesPerAxis - 1 && y === this.cubiesPerAxis - 1 ||
             z === this.cubiesPerAxis - 1 && x === this.cubiesPerAxis - 1 && y === 0 ||
             z === this.cubiesPerAxis - 1 && x === 0 && y === this.cubiesPerAxis - 1 ||
@@ -244,17 +250,17 @@ function Cube() {
             z === 0 && x === this.cubiesPerAxis - 1 && y === 0 ||
             z === this.cubiesPerAxis - 1 && x === 0 && y === 0 ||
             z === 0 && x === 0 && y === 0) {
-            cubieMesh.CubletType = CubletType.CORNER;
+            cubieMesh.CubeletType = CubeletType.CORNER;
             //cubieMesh.visible = false;
         }
         else if (z < this.cubiesPerAxis - 1 && z > 0 && y < this.cubiesPerAxis - 1 && y > 0 ||
             z < this.cubiesPerAxis - 1 && z > 0 && x < this.cubiesPerAxis - 1 && x > 0 ||
             x < this.cubiesPerAxis - 1 && x > 0 && y < this.cubiesPerAxis - 1 && y > 0) {
-            cubieMesh.CubletType = CubletType.MIDDLE;
+            cubieMesh.CubeletType = CubeletType.MIDDLE;
             //cubieMesh.visible = false;
         }
         else {
-            cubieMesh.CubletType = CubletType.EDGE;
+            cubieMesh.CubeletType = CubeletType.EDGE;
             //cubieMesh.visible = false;
         }
         //x - LR
@@ -381,7 +387,7 @@ function Cube() {
         //assumes a square matrix
         //updates the this.cubies array permutation. called after each move.
         //memArr - maps the layer cblets' indices with the this.cubies' indicec - each layer has this property.
-        //faceArr - is the array that holds current layer's cublets
+        //faceArr - is the array that holds current layer's cubelets
         var sideLen = Math.sqrt(request.layerObj.cubies.length); // corresponds to cubiesPerAxis
         if (sideLen % 1 !== 0) {
             throw ('not a square matrix.');
@@ -510,8 +516,8 @@ function Cube() {
         }
         if (this.solvedAmiation.flag) {
             this.solvedAmiation.obj.rotation.x += (Math.PI / 8) / this.rendersPerMove;
-            this.solvedAmiation.obj.rotation.y += (Math.PI / 8) / this.rendersPerMove;
-            this.solvedAmiation.obj.rotation.z += (Math.PI / 16) / this.rendersPerMove;
+            this.solvedAmiation.obj.rotation.y += (Math.PI / 16) / this.rendersPerMove;
+            //this.solvedAmiation.obj.rotation.z += (Math.PI / 16) / this.rendersPerMove;
         }
     };
     this.undo = function undo(depth) {
@@ -593,25 +599,73 @@ function Cube() {
         if (reverse4y) memArr.reverse();
         return new CubeLayer(myFace, axis, sliceNumber, memArr);
     };
-    this.getCubletsByColor = function getCubletsByColor(color, CubletsType) {
-        // not for rotation, the cubies might be on different layers.
-        CubletsType = typeof CubletsType !== 'undefined' ? CubletsType : false;
-        // check if CubletsType is one of CubletType or undefined;
-        // .CubletType = CubletType.CORNER;
-        color = colors_normal_order.indexOf(color);
-        var cublets = [];
-        for (var c in this.cubies) {
-            if (this.filterCubiesByColor(color, c)) {
-                if (CubletsType){
-                    if (this.cubies[c].CubletsType !== CubletsType) continue;
+    this.getFaceLayersByCubie = function getFaceLayersByCubie(cubelet){
+        //get the faces with cubelet with id cid.
+        var layers = [];
+        var curFace;
+        for (var s = 0; s < this.cubiesPerAxis; s++) { // s - slice number
+            if (s !== 0 && s !== this.cubiesPerAxis-1) continue; // ignore the middle layers
+            for (var d in AXIS) {
+                curFace = theCube.getLayer(AXIS[d], s);
+                if (curFace.hasCubie(cubelet.id)) {
+                    layers.push(curFace);
                 }
-                cublets.push(this.cubies[c]);
             }
         }
-        return cublets;
+        return layers;
     };
-    this.layerFilter = function layerFilter(axis, sliceNumber, cubletIndex) {
-        var c = cubletIndex;
+    this.getFaceLayerByCenterpieceColor = function getFaceLayerByCenterpieceColor(color) {
+        if (this.cubiesPerAxis !== 3) throw ('getFaceLayerByCenterpieceColor only works for 3x3x3 cubes!');
+        var theCenterPiece = null;
+        var theLayer = null;
+        var curFace;
+        //get the top centerpiece
+        this.cubies.forEach(function(cubelet) {
+            if (cubelet.CubeletType === CubeletType.MIDDLE) {
+                if (cubelet.userData.has_color[color]) {
+                    theCenterPiece = cubelet;
+                    return;
+                }
+            }
+        });
+        //get the face with that centerpiece.
+        for (var s = 0; s < theCube.cubiesPerAxis; s++) { // s - slice number
+            if (s == 1) continue; // ignore the middle layers
+            if (theLayer !== null) break;
+            for (var d in AXIS) {
+                curFace = theCube.getLayer(AXIS[d], s);
+                if (curFace.hasCubie(theCenterPiece.id)) {
+                    theLayer = curFace;
+                    break;
+                }
+            }
+        }
+        return theLayer;
+    };
+    this.getCubeletsByColor = function getCubeletsByColor(color, type) {
+        // not for rotation, the cubies might be on different layers.
+        color = typeof color !== 'undefined' ? colors_normal_order.indexOf(color) : null;
+        type = typeof type !== 'undefined' ? type : null;
+        console.log(color, type);
+        if ((color === -1 || color === null) && !type) throw ('please provide at least one of either the color or type of the of the cubelets.');
+        var cubelets = [];
+        for (var c in this.cubies) {
+            if (color !== null) {
+                if (type !== null) {
+                    if (this.cubies[c].CubeletType !== type) continue;
+                }
+                if (this.filterCubiesByColor(color, c)) cubelets.push(this.cubies[c]);
+            }
+            else {
+                if (type !== null) {
+                    if (this.cubies[c].CubeletType === type) cubelets.push(this.cubies[c]);
+                }
+            }
+        }
+        return cubelets;
+    };
+    this.layerFilter = function layerFilter(axis, sliceNumber, cubeletIndex) {
+        var c = cubeletIndex;
         if (axis == AXIS.X) {
             if ((c % this.cubiesPerAxis) === sliceNumber) {
                 return true;
@@ -633,8 +687,8 @@ function Cube() {
             throw ('invalid Axis value.');
         }
     };
-    this.filterCubiesByColor = function filterCubiesByColor(color, cubletIndex) {
-        var c = cubletIndex;
+    this.filterCubiesByColor = function filterCubiesByColor(color, cubeletIndex) {
+        var c = cubeletIndex;
         if (this.cubies[c].userData.has_color) {
             if (this.cubies[c].userData.has_color[colors_normal_order[color]]) return true;
         }

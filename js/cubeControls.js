@@ -6,6 +6,7 @@
 global THREE requestAnimationFrame timer loadGame controls canvas_div renderer camera AXIS theCube colors_normal_order
 */
 
+
 // vars used by mouse controls
 var objects = [];
 var raycaster = new THREE.Raycaster();

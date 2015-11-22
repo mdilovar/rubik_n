@@ -78,6 +78,7 @@
 		</div>
 
 
+
 	    <div id='canvas_div'></div>
 	    <script src="../js/lib/three.min.js"></script>
 	    <script src="../js/lib/Detector.js"></script>
@@ -90,5 +91,7 @@
 		<script src="../js/cube.js"></script>
 		<script src="../js/cubeLayer.js"></script>
 		<script src="../js/solutionGuide.js"></script>
+
+
 	</body>
 </html>
