@@ -6,7 +6,6 @@
 global colors, AXIS colors_normal_order
 */
 function CubeLayer(faceCubies, axis, sliceNumber, memArr) {
-    //#TODO: maybe add partially/completely solved checkers to the face class, like cross, full first layer, etc
     this.cubiesPerAxis = Math.sqrt(faceCubies.length);
     if (this.cubiesPerAxis % 1 !== 0) {
         throw ('the facecubies array length must be a square of two.');
