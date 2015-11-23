@@ -588,4 +588,21 @@ function Cube() {
         }
         return false;
     };
+    this.getCubeletByColorsAndType = function getCubeletByColorsAndType(colors, type) {
+        // colors - array of colors. ex. ['white','yellow']
+        // ex var res = getCubeletByColor(['red','white','green'], 3);
+        if (!colors || !type) {
+            throw ('both colors and type are required');
+        }
+        return this.cubies.filter(function(cubelet) {
+            if (typeof cubelet.userData.has_color === 'undefined') return false;
+            var colLength = colors.length;
+            for (var i = 0; i < colLength; i++) {
+                if (!cubelet.userData.has_color[colors[i]]) {
+                    return false;
+                }
+            }
+            return (cubelet.CubeletType === type);
+        })[0];
+    };
 }

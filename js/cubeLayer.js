@@ -53,8 +53,8 @@ function CubeLayer(faceCubies, axis, sliceNumber, memArr) {
         return false;
     };
     this.getNonCornerPieces = function getNonCornerPieces() {
-        // returns ordered nonCornerPieces, which are just edges for outer layers, and corner pieces for inner layers.
-        // note: does is make sense for inner layers? - nearfar is only for ouer layers
+        // returns ordered nonCornerPieces, which are just edges for outer layers, and center pieces for inner layers.
+        // note: does is? make sense for inner layers? - nearfar is only for ouer layers
         if (this.cubiesPerAxis !== 3) throw ('getNonCornerPieces only works for 3x3x3 cubes!');
         var nonCornerPieces = [];
         this.cubies.forEach(function(cubelet, index) {

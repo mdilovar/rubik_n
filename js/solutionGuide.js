@@ -112,27 +112,34 @@ function SolutionGuide() {
     };
 
     this.solveTopLayerEdgesPosition = function solveTopLayerEdgesPosition() {
-        // for each cubelet from virtual face, check if in actual face
-        // if yes put in current_order array
-        // if no, record emty value in the current_order array
-        // if currect_array has > 1 acctual cubelets
-        //   check against correct order --- choose the best order match.
-        //   set the pointer to the first cubelet that is out of order.
-        //   putEdgeCubeletInOrder()
-        // if 1 actual cubelet
-        //   use as a beginning point of order
-        //   begin with first non top cubelet
-        //   putEdgeCubeletInOrder()
-        // if no actual cubelets.
-        //   begin with any cubelet
-        //   putEdgeCubeletInOrder()
-
         // get the virtual top layer edges - the edge pieces that should be in the top layer
-        var virtualTopEdges = this.cube.getCubeletsByColor(this.topColor, CubeletType.EDGE);
+        // var virtualTopEdges = this.cube.getCubeletsByColor(this.topColor, CubeletType.EDGE);
         // array of virtual edges already at the top layer
-        this.placedVirtualTopEdges = [];
+        // this.placedVirtualTopEdges = [];
+
         // get the correct order of top edges
         var correctOrder = this.topLayer.getCorrectEgeOrder();
+        // Create the VOTE array - virtual ordered top edges
+        var VOTE = [];
+        correctOrder.forEach(function (cc) {
+            VOTE.push(this.cube.getCubeletByColorsAndType([cc,this.topColor], CubeletType.EDGE));
+        },this);
+        // Create the ATE array - actual top edges
+        var ATE = [];
+        ATE = this.topLayer.getNonCornerPieces();
+        if (ATE.filter(function(a){return a.id==VOTE[0].id }).length !== 1) {
+            var _this = this;
+            function bringToTop() {
+                _this.cube.rotateFace(_this.cube.getLayer(sideFaceWithEdgePiece.axis, sideFaceWithEdgePiece.layer), 0, false, function() {
+                    if (_this.cube.getFaceLayerByCenterpieceColor(colors_normal_order[0]).hasCubie(edgePiece.id)) {
+                        bringToTop = function(){};
+                    }
+                    bringToTop();
+                });
+            }
+            bringToTop();
+        }
+        /*
         // for each cubelet from virtual top face, check if it's in the actual top face
         virtualTopEdges.forEach(function(cubelet){
             if (this.topLayer.hasCubie(cubelet.id)){
@@ -186,6 +193,7 @@ function SolutionGuide() {
             }
             bringToTop();
         }
+        */
     };
     this.topHasRegularCorners = function topHasRegularCorners() {
         //#TODO: check how far solved and skip steps in necessary / later /
