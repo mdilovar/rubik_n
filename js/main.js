@@ -98,8 +98,8 @@ function setupScene() {
     renderer.domElement.addEventListener('touchstart', onCanvasTouchStart, false);
     renderer.domElement.addEventListener('touchend', onCanvasTouchEnd, false);
     renderer.domElement.addEventListener('touchmove', onCanvasTouchMove, false);
-    var axisHelper = new THREE.AxisHelper(1000);
-    scene.add( axisHelper );
+    // var axisHelper = new THREE.AxisHelper(1000);
+    // scene.add( axisHelper );
 }
 
 function onWindowResize(e) {

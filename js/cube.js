@@ -2,7 +2,7 @@
  * @author Miri Manzarshohi Dilovar
 */
 "use strict";
-/*global THREE CubeLayer AXIS colors_normal_order*/
+/*global THREE CubeLayer AXIS colors_normal_order scene CubeletType*/
 
 function Cube() {
     this.cubies = []; //declare an array-container for cubie objects
@@ -500,7 +500,7 @@ function Cube() {
         for (var s = 0; s < this.cubiesPerAxis; s++) { // s - slice number
             if (s !== 0 && s !== this.cubiesPerAxis-1) continue; // ignore the middle layers
             for (var d in AXIS) {
-                curFace = theCube.getLayer(AXIS[d], s);
+                curFace = this.getLayer(AXIS[d], s);
                 if (curFace.hasCubie(cubelet.id)) {
                     layers.push(curFace);
                 }
@@ -523,11 +523,11 @@ function Cube() {
             }
         });
         //get the face with that centerpiece.
-        for (var s = 0; s < theCube.cubiesPerAxis; s++) { // s - slice number
+        for (var s = 0; s < this.cubiesPerAxis; s++) { // s - slice number
             if (s == 1) continue; // ignore the middle layers
             if (theLayer !== null) break;
             for (var d in AXIS) {
-                curFace = theCube.getLayer(AXIS[d], s);
+                curFace = this.getLayer(AXIS[d], s);
                 if (curFace.hasCubie(theCenterPiece.id)) {
                     theLayer = curFace;
                     break;
