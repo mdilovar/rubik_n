@@ -81,6 +81,9 @@
 
 	    <div id='canvas_div'></div>
 	    <script src="../js/lib/three.min.js"></script>
+	    <script src="../js/lib/Projector.js"></script>
+	    <script src="../js/lib/CanvasRenderer.js"></script>
+	    <!--<script src="../js/lib/CSS3DRenderer.js"></script>-->
 	    <script src="../js/lib/Detector.js"></script>
 		<script src="../js/lib/OrbitControls.js"></script>
 		<script src="../js/lib/TrackballControls.js"></script>
