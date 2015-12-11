@@ -135,13 +135,13 @@
 	}
 
 	#csbox {
-		width: 80px;
+		width: 30%;
 	}
 
 	#csinput {
 		background-color: #E5E5E5;
 		float: left;
-		padding-left: 19px;
+		padding-left: 5%;
 	}
 
 	table {
