@@ -53,7 +53,17 @@ function setup() {
 }
 
 function setupScene() {
-    if (!Detector.webgl) Detector.addGetWebGLMessage();
+    //create the renderer, the camera, and the scene
+    if (!Detector.webgl) { //Detector.addGetWebGLMessage();
+        console.log('WebGL not supported!!! Falling back to CanvasRenderer.');
+        renderer = new THREE.CanvasRenderer({
+            antialias: true
+        });
+    } else {
+        renderer = new THREE.WebGLRenderer({
+            antialias: true
+        });
+    }
     //set the starting width and heigh of the scene
     var WIDTH = window.innerWidth,
         HEIGHT = window.innerHeight * .80;
@@ -62,10 +72,7 @@ function setupScene() {
         ASPECT = WIDTH / HEIGHT,
         NEAR = 0.1,
         FAR = 20000;
-    //create the renderer, the camera, and the scene
-    renderer = new THREE.WebGLRenderer({
-        antialias: true
-    });
+
     camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
     scene = new THREE.Scene();
     //set the camera starting position
