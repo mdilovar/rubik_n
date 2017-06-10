@@ -1,7 +1,7 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-CREATE DATABASE IF NOT EXISTS `rubik_n` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `rubik_n`;
+CREATE DATABASE IF NOT EXISTS `heroku_9e352cfd2b0fd91` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `heroku_9e352cfd2b0fd91`;
 
 DROP TABLE IF EXISTS `fbuid`;
 CREATE TABLE IF NOT EXISTS `fbuid` (
