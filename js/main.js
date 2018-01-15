@@ -97,6 +97,7 @@ function setupScene() {
     //controls = new THREE.OrbitControls( camera, renderer.domElement ); // OrbitControls has a natural 'up', TrackballControls doesn't.
     controls = new THREE.TrackballControls(camera, renderer.domElement);
     controls.noPan = true;
+    controls.rotateSpeed = 5;
     //add window resize listener to redraw everything in case of windaw size change
     window.addEventListener('resize', onWindowResize, false);
     renderer.domElement.addEventListener('mousemove', onCanvasMouseMove, false);
