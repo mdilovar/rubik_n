@@ -6,3 +6,5 @@ Players can choose cubes of various sizes (2x2x2 - 10x10x10) and compete with th
 https://rubikn.herokuapp.com
 
 Uses three.js.
+
+Originally hosted here: https://bitbucket.org/mdilovar/rc/commits/all
