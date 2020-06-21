@@ -199,7 +199,9 @@
 		height: 24px;
 	}
 	// For IOS
-	input[type='button'] {
+		// For IOS
+	input {
 	  -webkit-appearance: none;
 	  border-radius: 0;
 	}
+
