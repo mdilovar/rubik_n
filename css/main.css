@@ -82,6 +82,7 @@
 		width: 48%;
 		margin-top: 10px;
 		font-family: Lucida Console;
+		-webkit-appearance: none;
 	}
 
 	p.or {
@@ -198,10 +199,3 @@
 		width: 24px;
 		height: 24px;
 	}
-	// For IOS
-		// For IOS
-	input {
-	  -webkit-appearance: none;
-	  border-radius: 0;
-	}
-
