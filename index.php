@@ -44,7 +44,7 @@
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 	<script src="./js/ajax.js"></script>
 	<script src="./js/login.js"></script>
-	<link href='https://fonts.googleapis.com/css?family=Monoton' rel='stylesheet'>
+	<link href='https://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet'>
 </head>
 
 <body>
