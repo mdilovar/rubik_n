@@ -25,14 +25,14 @@
                 </p>
 				<input type="button" class='fb big' onclick="facebookLogin()">
 				<input type="button" class='big' onclick="window.location.replace('php/rc.php?inGuestMode=true');" value="play in guest mode">
-				<p style="font-size: 0.89em;">
-					<a href="/policy.html#pp" style="text-decoration: none;">
+				<p class="policy">
+					<a href="/policy.html#pp" class="policy">
 						privacy policy
 					</a>
 					<span>
 						|
 					</span>
-					<a href="/policy.html#tos" style="text-decoration: none;">
+					<a href="/policy.html#tos" class="policy">
 						tems of service
 					</a>
 				</p>
