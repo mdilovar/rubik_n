@@ -18,6 +18,7 @@
 		<meta name=viewport content="width=device-width, initial-scale=1">
 		<title>rubik_n</title>
 		<link rel="stylesheet" type="text/css" href="../css/main.css">
+		<link href='https://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet'>
 	</head>
 	<body>
 		<!-- FACEBOOK SDK START-->
