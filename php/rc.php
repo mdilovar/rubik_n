@@ -56,7 +56,7 @@
 				<?php } ?>
 				<a onclick="startScene.reset();" id="restart_button" title="Restart"><img alt="Restart" src="../images/restart.svg"></a>
 				<a onclick="startScene.giveUp();" id="giveup_button" title="Finish"><img alt="Finish" src="../images/finish.svg"></a>
-				<a onclick="startScene.showLeaderBoard();" id="lb_button" title="Leader Board" style="display: none;"><img alt="Leader Board" src="../images/leaderboard.png"></a>
+				<a onclick="startScene.showLeaderBoard();" id="lb_button" title="Leader Board"><img alt="Leader Board" src="../images/leaderboard.png" style="display: none;"></a>
 				<br>
 				<span id="hs" class="notifs"></span>
 				<span id="timen" class="notifs"></span>
