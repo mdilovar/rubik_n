@@ -2,7 +2,7 @@
 		margin: 0;
 		background-color: #f0f0f0;
 		overflow: hidden;
-		font-family: Lucida Console;
+		font-family: Source Code Pro;
 	}
 
 	.login_wrapper,
@@ -45,7 +45,7 @@
 		border-bottom: solid 2px #c9c9c9;
 		box-sizing: border-box;
 		width: 100%;
-		font-family: Lucida Console;
+		font-family: Source Code Pro;
 	}
 
 	input[type="text"]:focus,
@@ -68,7 +68,7 @@
 	}
 
 	h1 {
-		font-family: Lucida Console;
+		font-family: Source Code Pro;
 		font-size: 38px;
 	}
 
@@ -81,7 +81,7 @@
 		box-sizing: border-box;
 		width: 48%;
 		margin-top: 10px;
-		font-family: Lucida Console;
+		font-family: Source Code Pro;
 		-webkit-appearance: none;
 	}
 
@@ -108,7 +108,7 @@
 
 	#errors,
 	.notifs {
-		font-family: Lucida Console;
+		font-family: Source Code Pro;
 		height: 19px;
 		width: 100%;
 		color: #969696;
