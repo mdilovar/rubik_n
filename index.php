@@ -25,6 +25,17 @@
                 </p>
 				<input type="button" class='fb big' onclick="facebookLogin()">
 				<input type="button" class='big' onclick="window.location.replace('php/rc.php?inGuestMode=true');" value="play in guest mode">
+				<p style="font-size: 0.89em;">
+					<a href="/policy.html#pp" style="text-decoration: none;">
+						privacy policy
+					</a>
+					<span>
+						|
+					</span>
+					<a href="/policy.html#tos" style="text-decoration: none;">
+						tems of service
+					</a>
+				</p>
 				<!--<div class="forgotsu">-->
     <!--                <p>-->
     <!--                    <a href=".?forgot">forgot password</a>-->
