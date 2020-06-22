@@ -199,3 +199,8 @@
 		width: 24px;
 		height: 24px;
 	}
+	.policy {
+		text-decoration: none;
+		font-size: 0.89em;
+		color: grey;
+	}
