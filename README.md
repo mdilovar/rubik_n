@@ -7,7 +7,7 @@ Play now - https://rubikn.herokuapp.com
 
 Uses three.js.
 
-Video demo - youtube.com/watch?v=eFspplMmheU
+Video demo - https://youtube.com/watch?v=eFspplMmheU
 
 Slide deck with some info - https://docs.google.com/presentation/d/1_TCM8hzKu8BWJ2UfjHfuvCMvrbekjPEYP34SMxHcIUk/edit?usp=sharing
 
