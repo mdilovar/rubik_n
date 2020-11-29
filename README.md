@@ -1,6 +1,7 @@
 # `rubik_n`
 
 An online 3D Rubik's Cube game. Players can choose cubes of various sizes (2x2x2 - 10x10x10). Uses three.js.
+
 Play now - https://rubikn.herokuapp.com
 
 [![Demo: ](https://i.makeagif.com/media/11-29-2020/-Ooijk.gif)](https://www.youtube.com/watch?v=eFspplMmheU)
