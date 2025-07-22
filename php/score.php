@@ -123,17 +123,17 @@ function saveScore($player_id, $score, $cube_size) {
 
     if (!$stmt = $mysqli->prepare("INSERT INTO game(player_id,time,cube_size)
                                     VALUES (?, ?, ?)")) {
-        $error_message = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
+        $db_error = "Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error;
         $success = false;
     }
 
     else if (!$stmt->bind_param("iii", $player_id, $score, $cube_size)) {
-        $error_message = "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
+        $db_error = "Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error;
         $success = false;
     }
 
     else if (!$stmt->execute()) {
-        $error_message = "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+        $db_error = "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
         $success = false;
     }
 
